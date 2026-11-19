@@ -113,6 +113,15 @@ default "the default dispatch prompt". The skill passes no prompt by default,
 so the change needed either a CLI change or a prompt that the skill composes.
 The coach chose the composed prompt (#37).
 
+An issue about what a worker was told at dispatch says where the wording came
+from: the skill (`plugin/skills/coach/SKILL.md`), the coordinator's default
+prompt, or a prompt the coach wrote by hand. Until #37 ships, the skill passes
+no prompt of its own, so wording that neither the skill nor the default holds
+came from the coach. Such an issue changes the composed prompt of #37, or waits
+for it. Observed in the triage of #51 and #52: both asked to change "the
+dispatch prompt" for a side-branch step that only a hand-written prompt held,
+and both were folded into #37.
+
 An issue that moves or renames a file that a gvt-dev skill reads names the
 `.gvt-agent.json` `paths` key the skill finds it by, and that key's default.
 Observed in triage on #33: the body said to repoint the `paths` keys that name

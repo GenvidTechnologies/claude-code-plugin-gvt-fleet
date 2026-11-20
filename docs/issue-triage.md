@@ -83,6 +83,10 @@ road block". An issue that the triage closes (folded into another issue, or a
 duplicate) gets none. Done in the triage of #56, #57 and #58: #58 got its road
 block, and #56 and #57 were folded into #37.
 
+When the issue already has a road block, report it, and propose a change only
+when it is wrong. The `groom-road-blocks` skill of the workspace can set the
+road block before it starts a triage of the issue.
+
 "Set road block" adds the issue to the project when it is not in it. The new
 item has no iteration, so its class stays Later.
 
@@ -177,6 +181,32 @@ Policy: **link, do not auto-close.** For a duplicate cluster, choose the canonic
 comment `Duplicate of #<canonical>` on each. Close a duplicate only with explicit
 per-item approval.
 
+### Fold into an open issue
+
+Fold an issue into an open issue when it adds a step or a case to the work that
+the open issue already plans, and the step cannot ship on its own. The open
+issue takes the scope. The folded issue is closed. A fold differs from a
+duplicate: the folded issue asks for something that the open issue does not
+yet hold.
+
+A fold takes the coach's approval, and runs in this order:
+
+1. Edit the body of the open issue: add each step to its proposed change, say
+   where it comes from (the folded issue's number and what was observed), and
+   add an acceptance row for each step.
+2. Rewrite the body of the folded issue so that it stays readable after it is
+   closed: private names in prose, and a first line that says it was folded
+   into the open issue in triage on that date.
+3. Add the category label.
+4. Post a comment through the "Fold" recipe.
+5. Close the folded issue as not planned.
+6. Stamp it `triaged`.
+
+The folded issue gets no road block and no class. Done in the triage of #51
+and #52, and of #56 and #57: each pair was folded into #37, because the
+wording it asked to change came from a prompt the coach wrote by hand, and
+#37 adds the composed dispatch prompt.
+
 ## Dependencies
 
 Express a dependency with a comment on the blocked issue: `Blocked by #<id>`
@@ -202,6 +232,7 @@ When a recipe's set would be empty, omit its --remove-label flag.
 - Clear missing-info flag: `gh issue edit {id} --remove-label {needsInfoLabel}`
 - Mark duplicate: `gh issue edit {id} --add-label duplicate` then `gh issue comment {id} --body "Duplicate of #{canonical}"`
 - Close duplicate (only with approval): `gh issue close {id} --reason "not planned" --comment "Duplicate of #{canonical}"`
+- Fold (only with approval): `gh issue comment {id} --body-file {tmpfile}`, then `gh issue close {id} --reason "not planned"`. The comment opens with `Folded into #{canonical} in triage on <date>.`, then says where the wording or the gap came from and which step of #{canonical} now holds it, and names any option of the folded issue that is not carried forward. Edit the body of #{canonical} first (see "Fold into an open issue" under Duplicates).
 - Close as completed or not planned (only with approval): `gh issue close {id} --reason "{closeReason}"` — post the reason first through the Comment recipe; `{closeReason}` is `completed` or `not planned`
 - Create split issue: `gh issue create --title "{title}" --body-file {tmpfile} --label "{type}"` — the skill writes the drafted split body to `{tmpfile}` first
 - Link dependency: `gh issue comment {id} --body "Blocked by #{other}"`

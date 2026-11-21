@@ -1,3 +1,10 @@
+---
+type: convention
+title: 'Issue Triage Conventions'
+description: 'Project conventions that /gvt-dev:triage-issues reads: types, priorities, class, road block, labels, required fields, splitting, duplicates, dependencies and mutation recipes.'
+tags: [triage]
+status: stable
+---
 # Issue Triage Conventions
 
 > Project conventions consumed by `/gvt-dev:triage-issues`. The skill copies this

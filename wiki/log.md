@@ -6,6 +6,7 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 
 ## 2026-11-21
 
+* **Update**: `wiki/issue-triage.md`, "Fold into an open issue" (retro of the triage of #65). When the folded issue reports the same events as the open issue from another worker's side, its account goes in the open issue's Evidence, and two accounts that differ are both kept. No `raw/` capture drove this run: the source is the fold of #65 into #62.
 * **Creation**: `wiki/schema.md`, `wiki/index.md`, `wiki/log.md` and `wiki/decisions/index.md` (issue #33). The schema is the `maintain-wiki` template with a "This project" paragraph that names the locations of the triage contract and the decision records. No `raw/` capture drove this run: the source is issue #33.
 * **Creation**: `wiki/issue-triage.md` (issue #33). Moved from `docs/issue-triage.md`, with OKF frontmatter added. The body is unchanged. `.gvt-agent.json` sets `paths['docs/issue-triage.md']` to the new place, so `/gvt-dev:triage-issues` finds it. No `raw/` capture drove this run: the source is issue #33.
 * **Creation**: `wiki/decisions/0001-run-the-triage-pass-in-the-coach-session.md` (issue #33). Moved from `docs/decisions/`, with OKF frontmatter added. The record had none. The body is unchanged. `.gvt-agent.json` sets `paths['docs/decisions/']` to `wiki/decisions/`, so `/gvt-dev:create-adr` writes new records there. No `raw/` capture drove this run: the source is issue #33.

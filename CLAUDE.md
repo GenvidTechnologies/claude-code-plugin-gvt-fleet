@@ -92,6 +92,8 @@ Do not read them from a local checkout of the workspace. A checkout can be on an
 
 A change that touches several command groups reads every file under `wiki/coordinator/`, not one. Fetch them with a `.mjs` script in the session's scratch folder that lists the folder (`repos/<workspace>/contents/wiki/coordinator?ref=main`) and calls `gh` once for each file through `execFileSync`. A shell `for` loop over `gh api` is refused in a worktree-isolated session. Observed on #4.
 
+The `gvt-dev:issue-triage-analyst` agent has no Write tool, so it cannot write such a script. Brief it to fetch each file with one plain `gh api` command per Bash call. Observed in the triage of #65: the brief asked for a `.mjs` script, and the worktree guard refused the analyst's heredoc.
+
 An issue body's command syntax and ordering are proposals. The command reference on `main` decides. When they differ, follow the reference and say so in the pull request. The `--json` output can have another shape than the text output. For example, the text output of `status` sorts issue workers and task workers into one list, but `status --json` keeps them in two arrays, `workers` and `tasks`. Observed on #4: the body wrote the task name as optional (`[name]`), while `dispatch --task` requires the slug, and it asked for task rows "in the order `status` gives", which the JSON does not define across the two arrays.
 
 A contract bump is a breaking change for consumers:

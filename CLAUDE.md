@@ -47,7 +47,7 @@ A worker session on an issue of this repository uses one integration branch (the
 - The retro is one more side branch.
 - Only the final pull request, from the integration branch into `main`, carries the closing keyword. The worker waits for the coach before its finish turn, opens the final pull request, and does not merge it. The coach merges it.
 
-Until #37 ships the composed dispatch prompt, the prompt can ask only for a closing keyword. That prompt does not replace this process. Observed on #33: the worker opened its first pull request straight into `main`, the coach merged it, and the integration branch and the retro came afterwards.
+Until #37 ships the composed dispatch prompt, the coach passes the integration-branch prompt by hand. The CLI's default dispatch prompt asks only for a closing keyword, and it does not replace this process. Observed on #33: the worker opened its first pull request straight into `main`, the coach merged it, and the integration branch and the retro came afterwards.
 
 ## Coordinator contract
 

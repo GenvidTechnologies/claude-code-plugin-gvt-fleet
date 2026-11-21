@@ -39,6 +39,16 @@ This repository is the **`gvt-fleet` plugin** for Claude Code. It ships one skil
 - **Wiki:** a change to a page under `wiki/` adds a dated entry to `wiki/log.md`, as `wiki/schema.md` requires. A new page opens with OKF frontmatter whose `title` is its H1, and gets an entry in `wiki/index.md` (a new decision record in `wiki/decisions/index.md`). Run the `maintain-wiki` lint after a change to the page set.
 - **Decision records** go in `wiki/decisions/`, numbered `NNNN-kebab-title.md`. Version 0.1.0 ships none. The first record is 0001. An issue body does not write the number of a record it proposes. It says "a decision record of this plugin", and the record takes the next free number when it is written. A literal goes stale when another record lands while the issue is open, as for the contract number (see "Coordinator contract"). Observed in triage on #18: the body proposed `0002`.
 
+## Worker branches
+
+A worker session on an issue of this repository uses one integration branch (the process of #34):
+
+- The worker commits on side branches cut from its worktree branch. Each side branch gets a pull request into the integration branch, with no closing keyword. The coach reviews it, and the worker merges it only after the coach approves.
+- The retro is one more side branch.
+- Only the final pull request, from the integration branch into `main`, carries the closing keyword. The worker waits for the coach before its finish turn, opens the final pull request, and does not merge it. The coach merges it.
+
+Until #37 ships the composed dispatch prompt, the prompt can ask only for a closing keyword. That prompt does not replace this process. Observed on #33: the worker opened its first pull request straight into `main`, the coach merged it, and the integration branch and the retro came afterwards.
+
 ## Coordinator contract
 
 The skill pins the `coach.contract` number that the gvt-fleet CLI reports. When the workspace raises that number, update the skill to match.

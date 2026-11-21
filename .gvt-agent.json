@@ -10,8 +10,13 @@
     "default_branch": "main",
     "host": "github"
   },
+  "wiki": {
+    "wikiDir": "wiki"
+  },
   "paths": {
-    "plugin_root": "plugin"
+    "plugin_root": "plugin",
+    "docs/decisions/": "wiki/decisions/",
+    "docs/issue-triage.md": "wiki/issue-triage.md"
   },
   "bugTracker": {
     "kind": "github",

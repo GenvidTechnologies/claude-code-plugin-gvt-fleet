@@ -1,3 +1,10 @@
+---
+type: decision-context
+title: '0001. Run the triage pass in the coach session'
+description: 'The coach skill runs the triage pass in the coach session, one repository at a time from its base clone, with a wrong-repository guard, no file writes and the coach approving each change.'
+tags: [decisions]
+status: stable
+---
 # 0001. Run the triage pass in the coach session
 
 - **Status:** accepted

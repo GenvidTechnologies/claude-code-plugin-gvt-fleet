@@ -193,7 +193,12 @@ A fold takes the coach's approval, and runs in this order:
 
 1. Edit the body of the open issue: add each step to its proposed change, say
    where it comes from (the folded issue's number and what was observed), and
-   add an acceptance row for each step.
+   add an acceptance row for each step. Read the open issue's other steps
+   against each new step, and propose a fix for any step that conflicts with
+   it. Observed in the triage of #63: its step kept the worker's branch in
+   step with `origin`, and #37's finish turn rebased that branch onto `main`
+   after #37's own dispatch prompt had pushed it. A rebase of a pushed branch
+   needs a force-push, so the coach changed the rebase to a merge of `main`.
 2. Rewrite the body of the folded issue so that it stays readable after it is
    closed: private names in prose, and a first line that says it was folded
    into the open issue in triage on that date.
@@ -205,7 +210,9 @@ A fold takes the coach's approval, and runs in this order:
 The folded issue gets no road block and no class. Done in the triage of #51
 and #52, and of #56 and #57: each pair was folded into #37, because the
 wording it asked to change came from a prompt the coach wrote by hand, and
-#37 adds the composed dispatch prompt.
+#37 adds the composed dispatch prompt. #63 was folded into #37 for the same
+reason: the finish turn it asked to change came from a prompt the coach wrote
+by hand.
 
 ## Dependencies
 
@@ -242,7 +249,7 @@ When a recipe's set would be empty, omit its --remove-label flag.
   2. Look up the ids: `gh api graphql -f query='query{organization(login:"GenvidTechnologies"){projectV2(number:1){id field(name:"Class"){... on ProjectV2SingleSelectField{id options{id name}}}}}}'`. `{projectId}` is `projectV2.id`, `{fieldId}` is `field.id`, and `{optionId}` is the `id` of the option whose `name` is the class. Look the ids up on each run: rebuilding the options of the field gives new option ids.
   3. Set the field: `gh project item-edit --project-id {projectId} --id {itemId} --field-id {fieldId} --single-select-option-id {optionId}`. The command prints nothing on success.
 - Read back the project Class: `gh api graphql -f query='query{repository(owner:"GenvidTechnologies",name:"claude-code-plugin-gvt-fleet"){issue(number:{id}){projectItems(first:5){nodes{project{title} fieldValueByName(name:"Class"){... on ProjectV2ItemFieldSingleSelectValue{name}}}}}}}'`
-- Set road block: `node .claude/skills/groom-road-blocks/scripts/set.mjs --dir <work dir> --project GenvidTechnologies/1 "GenvidTechnologies/claude-code-plugin-gvt-fleet#{id}={roadBlock}"`, run at the root of the gvt-fleet workspace. `<work dir>` is a scratch folder for the script's files. `{roadBlock}` is the full name of an option of the `Road block` field, for example `G11 gvt-fleet coach covers the coordinator`. The script adds the issue to the project when it is not in it, sets the value, and reads it back. It prints `OK <option>` per issue, and exits 1 on `MISMATCH` or on a name that is not an option. Used in the triage of #58.
+- Set road block: `node .claude/skills/groom-road-blocks/scripts/set.mjs --dir <work dir> --project GenvidTechnologies/1 "GenvidTechnologies/claude-code-plugin-gvt-fleet#{id}={roadBlock}"`, run at the root of the gvt-fleet workspace. `<work dir>` is a scratch folder for the script's files. `{roadBlock}` is the full name of an option of the `Road block` field, for example `G11 gvt-fleet coach covers the coordinator`. The script adds the issue to the project when it is not in it, sets the value, and reads it back. It prints `OK <option>` per issue, and exits 1 on `MISMATCH` or on a name that is not an option. Used in the triage of #58. From a worktree-isolated session, run it in the PowerShell tool as `Set-Location <workspace root>; node .claude/skills/groom-road-blocks/scripts/set.mjs …`, and read `$LASTEXITCODE`. That form ran in the triage of #62. The Bash form `cd <workspace root> && node …` was not tried there.
 - Stamp triaged: `gh issue edit {id} --add-label {triagedLabel}`
 
 Read the labels back after this edit: confirm the issue now carries exactly the intended labels before it is stamped triaged (use the tracker's read-one query, or the native issue view).

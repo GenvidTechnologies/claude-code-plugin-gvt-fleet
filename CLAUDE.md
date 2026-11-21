@@ -13,7 +13,9 @@ This repository is the **`gvt-fleet` plugin** for Claude Code. It ships one skil
 | `plugin/.claude-plugin/plugin.json` | Plugin manifest. Its `version` is the plugin version. |
 | `plugin/skills/<name>/SKILL.md` | One directory per skill. |
 | `plugin/CHANGELOG.md` | Versioned consumer surface. |
-| `docs/decisions/` | Decision records, `NNNN-kebab-title.md`. |
+| `wiki/` | Documentation, in the `maintain-wiki` format (`wiki.wikiDir` in `.gvt-agent.json`). Every page opens with OKF frontmatter. `wiki/index.md` lists the pages, `wiki/log.md` records changes to the page set, and `wiki/schema.md` holds the rules. |
+| `wiki/issue-triage.md` | Triage contract, found through `paths['docs/issue-triage.md']`. |
+| `wiki/decisions/` | Decision records, `NNNN-kebab-title.md`, found through `paths['docs/decisions/']`. `wiki/decisions/index.md` lists them. |
 | `.github/scripts/leak-guard.sh` | Blocks machine paths and private names. |
 | `.github/workflows/leak-guard.yml` | Runs the leak guard in CI. |
 | `.gvt-agent.json` | Command registry for gvt-dev skills. |
@@ -34,7 +36,8 @@ This repository is the **`gvt-fleet` plugin** for Claude Code. It ships one skil
 - **No machine paths and no private names** in any file. `.github/scripts/leak-guard.sh` enforces this. Read the script for the blocked names, and do not copy them into a file. The rule also holds for issue and pull request titles and bodies, which no check reads. Observed in triage on #45: the title as filed named the private workspace repository, as did the body. This repository is public and the workspace repository is private. A reader without access to a private repository cannot follow a reference to it, so the reference only confuses. A body that depends on a workspace issue describes it in prose, and the workspace issue links back to this repository. Observed in triage on #29: the split issue #30 is blocked by a workspace issue and names it only in prose. When a body names a private repository, rewrite it in prose. GitHub keeps the earlier revision in the body's edit history. Leave that revision there: the rule is about what a reader sees, not about confidentiality.
 - **README:** `README.md` summarises what the overview and each mode show. A change to what they show also updates that summary, in the same commit. No check ties the two together. Observed on #7: the overview changed, and only the code review found the stale README sentence.
 - **Skill names** are short nouns.
-- **Decision records** go in `docs/decisions/`, numbered `NNNN-kebab-title.md`. Version 0.1.0 ships none. The first record is 0001. An issue body does not write the number of a record it proposes. It says "a decision record in `docs/decisions/`", and the record takes the next free number when it is written. A literal goes stale when another record lands while the issue is open, as for the contract number (see "Coordinator contract"). Observed in triage on #18: the body proposed `0002`.
+- **Wiki:** a change to a page under `wiki/` adds a dated entry to `wiki/log.md`, as `wiki/schema.md` requires. A new page opens with OKF frontmatter whose `title` is its H1, and gets an entry in `wiki/index.md` (a new decision record in `wiki/decisions/index.md`). Run the `maintain-wiki` lint after a change to the page set.
+- **Decision records** go in `wiki/decisions/`, numbered `NNNN-kebab-title.md`. Version 0.1.0 ships none. The first record is 0001. An issue body does not write the number of a record it proposes. It says "a decision record of this plugin", and the record takes the next free number when it is written. A literal goes stale when another record lands while the issue is open, as for the contract number (see "Coordinator contract"). Observed in triage on #18: the body proposed `0002`.
 
 ## Coordinator contract
 
@@ -55,7 +58,7 @@ The reverse case: the skill stops reading a key. Then:
 
 An issue that makes a key meaningless says whether the skill keeps reading it. When an issue follows a workspace decision record, read that record before the change: it can say what happens to a key. Observed on #29: the skill stopped reading `now[].conflict`, which is always `false` since the class moved to the project Iteration field. The workspace decision record had already said that the key stays. It was read only after the merge, and the CLI's table still listed the key.
 
-A CLI change that the skill adopts can also make `docs/issue-triage.md` stale, for example its Class section and its "Set coordinator class" recipe. An issue that adopts such a change names both files. No check compares the triage contract with the CLI. Observed in triage on #29: the body named only `SKILL.md`, and the triage contract still said that labels keep the class (fixed in #31).
+A CLI change that the skill adopts can also make `wiki/issue-triage.md` stale, for example its Class section and its "Set coordinator class" recipe. An issue that adopts such a change names both files. No check compares the triage contract with the CLI. Observed in triage on #29: the body named only `SKILL.md`, and the triage contract still said that labels keep the class (fixed in #31).
 
 An issue body says whether its change raises the contract number. It does not write the number as a literal. A literal goes stale when the CLI raises the number while the issue is open. Observed in triage on #7 and #8: both said the number "stays 1" while the skill already pinned 2.
 

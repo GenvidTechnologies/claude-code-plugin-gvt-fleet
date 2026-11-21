@@ -229,6 +229,13 @@ wording it asked to change came from a prompt the coach wrote by hand, and
 reason: the finish turn it asked to change came from a prompt the coach wrote
 by hand.
 
+When the folded issue reports the same events as the open issue, from another
+worker's side, add its account to the Evidence of the open issue and name its
+side. When the two accounts differ, keep both, say where they differ, and say
+that only the transcripts can show which is exact. Do not pick one. Done in the
+triage of #65, folded into #62: #65 reported line-level additions after the
+version 3 message that #62 says ended the churn.
+
 ## Dependencies
 
 Express a dependency with a comment on the blocked issue: `Blocked by #<id>`

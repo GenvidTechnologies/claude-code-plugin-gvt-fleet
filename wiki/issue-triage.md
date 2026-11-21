@@ -167,6 +167,14 @@ Observed in triage on #33: the body said to repoint the `paths` keys that name
 contract through `paths['docs/issue-triage.md']` and the decision records
 through `paths['docs/decisions/']`, so the move must add both keys.
 
+An acceptance row that limits the paths a file may name says which
+repository's paths it means. A file in this repository can name a path in
+another repository, such as the workspace's command reference. Observed on
+#33: the row said that `plugin/skills/coach/SKILL.md` "names no path outside
+`plugin/`", while that file already named the workspace's
+`wiki/coordinator/coach-skill-contract.md`. The worker read the row as
+covering this repository's paths only, and said so in the pull request.
+
 ## Splitting
 
 Split when one issue bundles unrelated concerns, or when a single piece of work

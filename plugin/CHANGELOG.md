@@ -7,6 +7,8 @@ and follows [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-22
+
 ### Added
 
 - **Checks after `wrap`.** After every `wrap` result, the skill reports what the worker left: the worktree, the issue branch, the checked-out branch that is still in the base clone (`checkedOutBranch` with `kept` true), the other branches the worktree checked out (`otherBranches`), and the remote branches, which `wrap` never deletes. It deletes none of them, and says how to prove a side branch merged before deleting it by hand. After `wrapped`, it offers to check which of the worker's branches are still on the remote (`git ls-remote`), to file each follow-up that the finish turn listed as an issue (`gh issue create`, with the coach's yes for each one), and, when the merge landed in the workspace's own repository, to pull the main checkout (`git pull --ff-only`, only when it is on the default branch). The follow-ups come from the worker's last message, which the skill reads from `status` before `wrap` ends the session. None of these commands is pre-approved. Two new rules say that the skill files no follow-up and pulls nothing without the coach's yes for that write, and deletes no branch or worktree.

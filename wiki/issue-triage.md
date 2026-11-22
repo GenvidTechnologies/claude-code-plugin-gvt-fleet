@@ -162,6 +162,23 @@ first Preflight row, the Requirements of `README.md`, and the Layout and
 Purpose of `CLAUDE.md`. All of them describe the CLI as a file in the
 workspace.
 
+An issue that renumbers a decision record lists every file that cites it by
+number. Search the tracked files for the number, and list the issues that cite
+it. Observed in triage on #82: the body named only #25, while
+`plugin/skills/coach/SKILL.md`, `CLAUDE.md` and `wiki/index.md` also cite
+record 0001 by number.
+
+An issue that moves files with their tests into another layout lists each test
+that names the source's root folders, not only the imports: path literals,
+include lists, default scan paths and recorded file names. It also checks the
+moved tests against the files already in this repository, such as its wiki
+schema. Observed in triage on #82: the body said to change the imports of the
+tests. About six imported tests name `bin/`, `lib/` or `config/` at the
+repository root, scan `bin lib test` by default, or list a test file that is
+not copied, so they would have failed or read less. The imported wiki test
+also refuses the record titles that this repository's `wiki/schema.md`
+prescribes.
+
 An issue that moves or renames a file that a gvt-dev skill reads names the
 `.gvt-agent.json` `paths` key the skill finds it by, and that key's default.
 Observed in triage on #33: the body said to repoint the `paths` keys that name

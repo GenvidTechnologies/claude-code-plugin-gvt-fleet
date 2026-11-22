@@ -95,7 +95,8 @@ when it is wrong. The `groom-road-blocks` skill of the workspace can set the
 road block before it starts a triage of the issue.
 
 "Set road block" adds the issue to the project when it is not in it. The new
-item has no iteration, so its class stays Later.
+item has no iteration, so its class stays Later. Write no Class field for it:
+the item is already Later. Done in the triage of #56, #57, #58 and #75.
 
 ## Labels
 
@@ -185,6 +186,18 @@ prompt and did not say what to do when the coach types `short#N`. The skill now
 looks the full reference up in the `ready` output, and asks the coach when no
 entry or more than one matches.
 
+An acceptance row that pledges one failing case per rule checks that each rule
+can fail on its own. A rule that another rule covers has no failing case of its
+own, and the row says so. Observed in triage on #75: every reserved token of
+the dispatch prompt rules starts with `-`, so the token rule never fails alone,
+and the empty-prompt rule cannot fail once the prompt holds `Fixes <ref>`.
+
+A reason that states a fact about the environment, such as what a tool needs or
+what a CI runner has, is checked before the issue is triaged. Observed in
+triage on #75: the body said that `commands.validate` already needs `node` for
+`claude`. `claude` can be a native executable that needs no `node`, and CI
+does not run `claude`.
+
 ## Splitting
 
 Split when one issue bundles unrelated concerns, or when a single piece of work
@@ -251,6 +264,16 @@ version 3 message that #62 says ended the churn.
 Express a dependency with a comment on the blocked issue: `Blocked by #<id>`
 (optionally `Blocks #<id>` on the other). For umbrellas, list dependencies as a
 GitHub task-list under a `Depends on` heading.
+
+An issue can leave a part of its work to another open issue. When an
+acceptance row of the issue needs that part, the body says whether the issue
+takes the part or waits for the other issue. Read each acceptance row against
+each part that the body leaves to another issue. Observed on #38: the body said
+that #22 adds the `checkedOutBranch` part of the leftover-branch check. The row
+"reports each branch or worktree of the worker that is left" needs that part,
+and so does the interactive row, because a worker can leave its side branch
+checked out. The worker took the part, and left the choice to close #22 to the
+coach.
 
 ## Mutation recipes
 

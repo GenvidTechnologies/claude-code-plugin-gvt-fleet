@@ -25,6 +25,8 @@ This repository is the **`gvt-fleet` plugin** for Claude Code. It ships one skil
 
 `commands.validate` in `.gvt-agent.json` is the validation command. It runs the leak guard and then `claude plugin validate plugin`. Run it before every commit.
 
+In a worktree-isolated session, run the two parts as two Bash calls: `bash .github/scripts/leak-guard.sh`, then `claude plugin validate plugin`. The worktree guard refuses the chained command when it also reads the exit code (`; echo rc=$?`). Observed on #38. `claude plugin validate plugin` prints an `ICON_MISSING` warning, because the plugin has no icon. The warning does not change the result: read the last line, `✔ Validation passed`.
+
 ## Conventions
 
 - **Commits:** `<scope>: <description>`.

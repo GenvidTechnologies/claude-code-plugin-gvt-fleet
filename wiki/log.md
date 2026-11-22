@@ -4,6 +4,10 @@ Record of every change to the wiki's page set: what changed, why, and which sour
 
 Add newest first. Never edit or remove a prior entry. If a past entry needs a correction, add a new entry that says so. The maintenance rules are in [the schema](schema.md).
 
+## 2026-11-22
+
+* **Update**: `wiki/issue-triage.md` (retro of the triage of #75). Required fields says that an acceptance row that pledges one failing case per rule checks that each rule can fail on its own, and that a reason that states a fact about the environment is checked. Road block says that no Class field is written for an issue that "Set road block" adds to the project. No `raw/` capture drove this run: the source is the triage of #75.
+
 ## 2026-11-21
 
 * **Update**: `wiki/issue-triage.md`, Required fields (retro of #37). An issue that has the skill write an issue reference into text says which form the text needs, because a closing keyword needs `owner/name#N`. The paragraph on where a worker's wording came from now says that the skill passes its composed prompt when the coach gives none, instead of "until #37 ships". No `raw/` capture drove this run: the source is the work on #37.

@@ -1,6 +1,6 @@
 ---
 name: coach
-description: Runs the coach's overview of a gvt-fleet workspace (workers that need you, wrap-up candidates, Now issues, untriaged issues per repository, Next counts), keeps a watch on the running workers so that a worker that starts to wait reaches the coach as an event, offers a triage pass over the repositories the coach picks, lists or sets an issue's class when the coach asks, dispatches one issue the coach names (with a prompt for one integration branch per worker and a finish turn, when the coach gives no prompt), starts a task worker with no issue in a repository the coach names, and wraps up a finished worker or task, then reports the branches and worktree the worker left and offers to file its follow-ups and to pull the main checkout. Use only in a gvt-fleet workspace, when the coach types /gvt-fleet:coach, optionally with "dispatch <ref> [prompt]", "task <repo> <slug> [prompt]" or "wrap <ref | task id>".
+description: Runs the coach's overview of a gvt-fleet workspace (workers that need you, wrap-up candidates, Now issues, untriaged issues per repository, Next counts), keeps a watch on the running workers so that a worker that starts to wait reaches the coach as an event, offers a triage pass over the repositories the coach picks, lists or sets an issue's class when the coach asks, dispatches one issue the coach names (after it checks the issue's links to the running workers' issues and to the other issues named for dispatch, and the coach settles one worker or a versioned ownership list for a linked group; with a prompt for one integration branch per worker and a finish turn, when the coach gives no prompt), starts a task worker with no issue in a repository the coach names, and wraps up a finished worker or task, then reports the branches and worktree the worker left and offers to file its follow-ups and to pull the main checkout. Use only in a gvt-fleet workspace, when the coach types /gvt-fleet:coach, optionally with "dispatch <ref> [prompt]", "task <repo> <slug> [prompt]" or "wrap <ref | task id>".
 disable-model-invocation: true
 allowed-tools:
   - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json check-config)
@@ -25,7 +25,7 @@ This skill drives the `gvt-fleet` coordinator for the coach. The coordinator is 
 
 `<ref>` is `owner/name#N` or `short#N`. `<repo>` is `owner/name` or the short name of a managed repository. A task id is `owner/name@<slug>.<YYYYMMDD>.<n>` or `short@<slug>.<YYYYMMDD>.<n>`. The coordinator makes it when the task starts.
 
-Six read commands are pre-approved: `check-config`, `sync`, `status`, `ready` (with or without `--class`), `why` and `watch`. `watch` changes no lease and makes no GitHub call. The skill runs `watch` under the Monitor tool. The pre-approval is a Bash rule; if the session still asks before Monitor starts the command, the coach approves it. Every other command asks the coach for permission. This is intended, because the other coordinator commands write. `class` is one of them: it writes to the repository's GitHub project. The triage pass also runs `cd`, `gh repo view` and `git status`, which read only but are not pre-approved. The checks after `wrap` run `git ls-remote`, `git branch --show-current` and `gh repo view`, which read only, and `gh issue create` and `git pull`, which write. None of them is pre-approved.
+Six read commands are pre-approved: `check-config`, `sync`, `status`, `ready` (with or without `--class`), `why` and `watch`. `watch` changes no lease and makes no GitHub call. The skill runs `watch` under the Monitor tool. The pre-approval is a Bash rule; if the session still asks before Monitor starts the command, the coach approves it. Every other command asks the coach for permission. This is intended, because the other coordinator commands write. `class` is one of them: it writes to the repository's GitHub project. The triage pass also runs `cd`, `gh repo view` and `git status`, which read only but are not pre-approved. So does the link check before a dispatch, with `gh issue view`. The checks after `wrap` run `git ls-remote`, `git branch --show-current` and `gh repo view`, which read only, and `gh issue create` and `git pull`, which write. None of them is pre-approved.
 
 ## Command form
 
@@ -56,6 +56,7 @@ node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json <subcommand> [flags] [argu
 15. Never merge a side pull request: the user merges it into the worker's worktree branch, and that merge is the approval. Never merge a worker's final pull request into `main` by yourself either, because a merge into `main` can deploy.
 16. Never file a follow-up issue, and never pull the main checkout, by yourself. Run each of these writes only after the coach says yes to that one write. A yes to one follow-up is not a yes to the next.
 17. Never delete a branch or a worktree that a worker left. Report each one; the coach decides what happens to it.
+18. Dispatch nothing in a linked group until the coach has chosen one worker for the group or an ownership list (see "Linked issues"). Never choose an owner by yourself, and never send an ownership list to a worker yourself.
 
 ## Preflight
 
@@ -283,6 +284,8 @@ The watch stops when no worker is running:
 
 Run this only when the coach has named the issue.
 
+First check the links of `<ref>` (see "Linked issues" below). Go on to step 1 only when `<ref>` is in no linked group, or when the coach has chosen for its group.
+
 1. If `<ref>` is in `coach.workspaceRepo`, ask the coach to confirm. Only with a clear yes, add `--allow-self` as the first argument after `dispatch`. Without it, the coordinator refuses. When `coach.workspaceRepo` is null, the workspace repository is unknown: the coordinator cannot read the workspace origin, and it refuses every `dispatch` without `--allow-self`. Tell the coach this. Ask the coach to confirm the dispatch explicitly. Only with a clear yes, add `--allow-self`, whichever repository `<ref>` is in. Without a clear yes, do not dispatch.
 2. Check the prompt. It must not be empty. It must not start with `-`. It must not equal `--json`, `--help`, `-h`, `--config` or `--state-dir`, because the coordinator would read these as flags. It must not contain a single quote. If the prompt breaks a rule, ask the coach for another one. A prompt the coach gives is passed as it is. With no prompt from the coach, compose one (see "The composed prompt" below) and check it the same way. Do not leave out the argument: the coordinator's default prompt asks for a closing keyword in every pull request, and it has no side branches and no finish turn.
 3. Pass the prompt as one argument: put it in single quotes in the Bash command.
@@ -305,13 +308,67 @@ After an exit 0 (`created`, `noop` or an adopted live session), a worker is runn
 
 Do not start another dispatch in the same turn.
 
+### Linked issues
+
+Triage can say that two issues overlap without making either one not ready. Workers that start on such issues at the same time each read the overlap from the threads and each propose a split of the files. So before each `dispatch`, the skill looks for these links and has the coach settle the split first.
+
+The links that readiness settles need no check. An open `Blocked by` blocker or an open sub-issue makes an issue not ready. `dispatch` claims the issue, the claim runs the readiness check again on fresh data, and it refuses an issue that is not ready. Two sub-issues of one parent are both ready, so siblings still need the check.
+
+1. **The set.** Run `status` in the overview form. The set is the `key` of every `workers` row that is running (see "Is a worker running"), and every other issue that the coach has named for dispatch in this conversation and that is not dispatched yet. Leave out `<ref>` itself, and the `tasks` rows: a task has no issue. When the set is empty, `<ref>` is in no linked group. Go on to step 1 of `dispatch`.
+2. **Read the issues.** Read `<ref>` and each issue of the set, one call each:
+   ```
+   gh issue view <N> --repo <owner/name> --json number,title,state,body,comments,parent
+   ```
+   When `gh` rejects the `parent` field (an older `gh`), run the call again without it and say that siblings were not checked. When another read fails, show stderr and say that the links could not be checked. Dispatch nothing unless the coach says, in words, to dispatch without the check.
+3. **Find the links.** Issues A and B are linked when one of these holds:
+   - A's body, or one of A's comments, has a line that starts with `Relates to` and names B, or the reverse.
+   - A's body, or one of A's comments, says to plan the two together and names B: for example "plan with #N", "plan this together with #N", or "plan as one change" in a body or comment that also names B. Or the reverse.
+   - A and B have the same `parent`.
+
+   A body or comment names B with `#N` (when B is in A's repository), `owner/name#N`, or B's URL. A reference in a code block or a quote is not a link.
+4. **The groups.** The linked group of `<ref>` is `<ref>`, every issue of the set that is linked to it, every issue of the set that is linked to one of those, and so on. When the group holds only `<ref>`, go on to step 1 of `dispatch`.
+5. **Show the group.** Show each issue of the group with its `key`, its title, and whether a worker runs on it (with `session.shortId`) or it waits for dispatch. Under it, show each link: the two issues, where it is (the body, or the comment and its date) and the line. Then ask the coach to choose one of the two below. Dispatch nothing in the group until the coach chooses (rule 18).
+   - **One worker for the group.** The coach names the worker: an issue of the group to dispatch, or a worker of the group that runs already. That worker does the work of every issue of the group, and its final pull request closes them all. The skill dispatches only that issue, with the group sentence in its prompt (see "The composed prompt"). When the worker runs already, the skill dispatches nothing and writes the group sentence for the coach to send (see "Later versions").
+   - **An ownership list.** The coach says who owns what. The skill writes it as a list and shows it to the coach to confirm (see "The ownership list"). Then it dispatches the issues of the group one at a time (rule 2), each with the list in its prompt. A worker of the group that runs already gets the list as a later version (see "Later versions").
+6. **A prompt from the coach.** When the coach gives the prompt for an issue of the group, the prompt is passed as it is, so it carries no list and no group sentence. Say so, and offer to add the ownership sentence or the group sentence at its end. Add it only on a clear yes. Check the whole prompt as in step 2 of `dispatch`.
+
+The list and its versions live in this conversation and in the workers' prompts. The skill keeps no file for them (rule 7). In a new conversation, ask the coach for the current version of a group's list. Never guess one.
+
+### The ownership list
+
+An ownership list names an owner for every item that more than one worker of the group could change. The owner is a worker, named by the `key` of its issue. The list names:
+
+- the owner of each file;
+- for a file that several workers change, the owner of each line range or section of it;
+- the owner of each shared item that is not a file: the decision record that the change needs (which worker writes it, not its number, because the number is taken when the record is written), and a phrase that several files share (the owner writes its wording, and the others copy it).
+
+A list can also say that the workers share nothing. It still goes into each prompt, so that each worker knows what the others own.
+
+The list carries a version number. The first list of a group is version 1. When a worker of the group runs already with a list from an earlier group, the new list takes the next number after the highest version that a worker of the group holds.
+
+Write the list as one line, with no single quote, so that it fits into the prompt: `<key> owns <item>, <item>; <key> owns <item>`. Write a line range as `<path> lines <a> to <b>`, and a section as `<path> section <heading>`.
+
+### Later versions
+
+A later version reaches a running worker through the coach, as the finish turn does. The skill does not send it, and a worker sends no message to another session (step 4 of the composed prompt).
+
+When the coach changes the list, or a worker reports that it needs an item that the list gives to another worker or does not name, the skill writes the next version. The skill writes it only after the coach says who owns the item. The new version is the whole list, not the change, and its number is one higher. Show it to the coach with the `session.shortId` of each running worker of the group, from `status`, and with this text to send:
+
+```
+Ownership list version <n>, for the workers of <keys>: <list>. It replaces every earlier version, and every relay of one from another worker. Edit only what it gives you. Say version <n> in your next last message.
+```
+
+The coach sends the text in each worker's session (`claude attach <session.shortId>`). The worker says the number in its next last message, so the coach can see that the version arrived. A worker of the group that is not dispatched yet gets the new version in its prompt.
+
+For the choice of one worker for a group whose worker runs already, the text to send is the group sentence of "The composed prompt" with `<ref>` set to that worker's issue.
+
 ### The composed prompt
 
 With no prompt from the coach, the skill passes this prompt. It sets up one integration branch per worker. The worker's worktree branch is its integration branch. The worker does each piece of work on a side branch, with a pull request into the worktree branch, and the retro is one more side branch. Only the worktree branch merges into `main`, through one final pull request, after the finish turn (see "The finish turn" below).
 
 Write `<ref>` in the form `owner/name#N`, because the final pull request names it in its closing keyword. When the coach gave `short#N`, run `ready` in the overview form and take the `key` of the entry of `ready` or `now` that ends in `/<short>#N`. When no entry matches, or more than one does, ask the coach for the `owner/name#N` form.
 
-The prompt is one line. Put `<ref>` in its two places and change nothing else:
+The prompt is one line. Put `<ref>` in its two places and change nothing else, except for the sentence that a linked group adds (see below):
 
 ```
 Work on GitHub issue <ref>, with one integration branch. Your worktree branch, the branch checked out when this session starts, is your integration branch. Only it merges into main, through one final pull request. 1. Before you open your first side pull request, push your worktree branch to origin (git push -u origin HEAD), because a side pull request needs its base branch on GitHub. 2. Do each piece of work on a side branch cut from your worktree branch, and open its pull request with your worktree branch as the base (gh pr create --base <your worktree branch>). The retro is one more side branch. Put no closing keyword in a side pull request. 3. When a piece of work needs a side pull request that is not merged yet, cut its side branch from that side branch, not from your worktree branch, and keep your worktree branch as the base of its pull request. Start its body with Stacked on #<number of that pull request>, say which commits are new, and ask that the pull request it is stacked on merge first. When that side branch gets new commits, merge them into the stacked branch. 4. When a side pull request is ready, report it in your own last message of the turn, end that message with the number of the pull request (for example: Ready for review: #12), and wait. Send no message to another session: the coach reads the end of your last message. 5. Never merge a side pull request yourself. The user merges it into your worktree branch, and that merge is the approval. After it merges on GitHub, fast-forward your local worktree branch to origin (git switch <your worktree branch>, then git pull --ff-only) before the next side branch, because that merge changes only the branch on origin. 6. When the issue is done, stop and wait for the coach before your finish turn. 7. The finish turn, when the coach asks for it: merge origin/main into your worktree branch (a merge, not a rebase, because the branch is already on origin), re-check each acceptance criterion of the issue and report it, list the follow-ups, check that every side branch is merged into your worktree branch, and open the final pull request into main. Its body says Fixes <ref> and lists the side pull requests it holds. Do not merge the final pull request: the coach merges it, because a merge into main can deploy. End the finish turn with your worktree branch checked out, fast-forwarded to origin, with no uncommitted changes, and at the head of the final pull request, and end your last message with the number of the final pull request.
@@ -319,7 +376,21 @@ Work on GitHub issue <ref>, with one integration branch. Your worktree branch, t
 
 In the prompt, "the coach" is this session, and "the user" is the person who runs it. The user merges each side pull request on GitHub, and that merge is the approval: GitHub refuses an approval from the author of a pull request, and the workers push under the user's account. The skill never merges a side pull request, and never merges the final pull request by itself (rule 15).
 
-The prompt holds no single quote, so it passes step 2. Check it anyway after you put `<ref>` in.
+For an issue of a linked group (see "Linked issues"), add one sentence at the end of the prompt, after a space. With an ownership list, add the ownership sentence. Put the group's keys in `<keys>`, the version number in `<n>` and the list in `<list>`:
+
+```
+8. Ownership list version <n>, for the workers of <keys>: <list>. Edit only the files, line ranges, sections and items that this list gives you. When you need one that it gives to another worker or does not name, say so in your own last message of the turn and wait, and do not settle a split with another worker. A later numbered version from the coach replaces every earlier one, relays from other workers included. When one arrives, say its number in your next last message.
+```
+
+With one worker for the group, add the group sentence. Put the keys of the other issues of the group in `<other keys>`:
+
+```
+8. You also do the work of <other keys>, which triage linked to <ref>, in this worktree and on side branches as above. The final pull request also says Fixes <other key> for each of them.
+```
+
+Write every key in the `owner/name#N` form, as for `<ref>`. GitHub closes each issue that a closing keyword in the final pull request names. Only `<ref>` is claimed, so the other issues can stay ready until a pull request names them. A later dispatch of one of them finds the link to this worker's issue in its own check.
+
+The prompt holds no single quote, so it passes step 2. Check it anyway after you put `<ref>` in, and after you add a sentence.
 
 The closing keyword goes in the final pull request only, so that `wrap` can prove the merge. GitHub applies a closing keyword only for a pull request into the default branch, so a keyword in a side pull request would close nothing. This is inferred, not tested.
 

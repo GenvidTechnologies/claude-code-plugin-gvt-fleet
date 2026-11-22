@@ -6,6 +6,7 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 
 ## 2026-11-21
 
+* **Update**: `wiki/issue-triage.md`, Required fields (retro of #37). An issue that has the skill write an issue reference into text says which form the text needs, because a closing keyword needs `owner/name#N`. The paragraph on where a worker's wording came from now says that the skill passes its composed prompt when the coach gives none, instead of "until #37 ships". No `raw/` capture drove this run: the source is the work on #37.
 * **Update**: `wiki/issue-triage.md`, "Fold into an open issue" (retro of the triage of #65). When the folded issue reports the same events as the open issue from another worker's side, its account goes in the open issue's Evidence, and two accounts that differ are both kept. No `raw/` capture drove this run: the source is the fold of #65 into #62.
 * **Update**: `wiki/issue-triage.md`. Required fields says that an acceptance row that limits the paths a file may name says which repository's paths it means. No `raw/` capture drove this run: the source is the retro of #33 on 2026-11-21.
 * **Creation**: `wiki/schema.md`, `wiki/index.md`, `wiki/log.md` and `wiki/decisions/index.md` (issue #33). The schema is the `maintain-wiki` template with a "This project" paragraph that names the locations of the triage contract and the decision records. No `raw/` capture drove this run: the source is issue #33.

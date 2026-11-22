@@ -7,6 +7,11 @@ and follows [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **`dispatch` passes a composed prompt for one integration branch per worker.** When the coach gives no prompt, the skill no longer leaves the coordinator's default prompt in place. It passes its own prompt, which tells the worker: push the worktree branch to `origin` before the first side pull request; do each piece of work, the retro included, on a side branch with a pull request into the worktree branch and no closing keyword; stack a side branch on one that is not merged yet, and say so in the body; report a ready side pull request at the end of its own last message, with the number, and send no message to another session; never merge a side pull request, because the user's merge is the approval; fast-forward the local worktree branch after each merge; and wait for the coach before the finish turn. The finish turn merges `origin/main`, re-checks each acceptance criterion, lists the follow-ups, checks that every side branch is merged, opens the final pull request into `main` with the closing keyword and a list of the side pull requests, and ends with the worktree branch checked out, up to date with `origin`, clean, and at the head of that pull request. A prompt the coach gives is passed as it is. The `task` mode is unchanged. The watch section says how a ready side pull request reaches the coach, and a new rule says that the skill never merges a side pull request, nor a final pull request by itself.
+  - **Consumers:** the contract number does not change. The change reads no new coordinator key and needs no newer workspace CLI.
+
 ## [0.4.0] - 2026-11-16
 
 ### Changed

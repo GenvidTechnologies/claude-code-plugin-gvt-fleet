@@ -144,12 +144,13 @@ The coach chose the composed prompt (#37).
 
 An issue about what a worker was told at dispatch says where the wording came
 from: the skill (`plugin/skills/coach/SKILL.md`), the coordinator's default
-prompt, or a prompt the coach wrote by hand. Until #37 ships, the skill passes
-no prompt of its own, so wording that neither the skill nor the default holds
-came from the coach. Such an issue changes the composed prompt of #37, or waits
-for it. Observed in the triage of #51 and #52: both asked to change "the
-dispatch prompt" for a side-branch step that only a hand-written prompt held,
-and both were folded into #37.
+prompt, or a prompt the coach wrote by hand. When the coach gives no prompt,
+the skill passes its composed prompt ("The composed prompt" in
+`plugin/skills/coach/SKILL.md`, since #37). Wording that neither the composed
+prompt nor the default holds came from the coach. Such an issue changes the
+composed prompt. Observed in the triage of #51 and #52: both asked to change
+"the dispatch prompt" for a side-branch step that only a hand-written prompt
+held, and both were folded into #37.
 
 An issue that changes a path or a command form lists every file that names
 the old form or describes it, not only the lines it rewrites. Search the whole
@@ -174,6 +175,15 @@ another repository, such as the workspace's command reference. Observed on
 `plugin/`", while that file already named the workspace's
 `wiki/coordinator/coach-skill-contract.md`. The worker read the row as
 covering this repository's paths only, and said so in the pull request.
+
+An issue that has the skill write an issue reference into text, such as a
+prompt or a pull request body, says which form the text needs. The skill
+accepts `owner/name#N` and `short#N`, and a closing keyword such as
+`Fixes <ref>` needs `owner/name#N`, because the short name holds no owner.
+Observed on #37: the body asked for `Fixes <owner/name#N>` in the composed
+prompt and did not say what to do when the coach types `short#N`. The skill now
+looks the full reference up in the `ready` output, and asks the coach when no
+entry or more than one matches.
 
 ## Splitting
 

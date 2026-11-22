@@ -1,6 +1,6 @@
 ---
 name: coach
-description: Runs the coach's overview of a gvt-fleet workspace (workers that need you, wrap-up candidates, Now issues, untriaged issues per repository, Next counts), keeps a watch on the running workers so that a worker that starts to wait reaches the coach as an event, offers a triage pass over the repositories the coach picks, lists or sets an issue's class when the coach asks, dispatches one issue the coach names, starts a task worker with no issue in a repository the coach names, and wraps up a finished worker or task. Use only in a gvt-fleet workspace, when the coach types /gvt-fleet:coach, optionally with "dispatch <ref> [prompt]", "task <repo> <slug> [prompt]" or "wrap <ref | task id>".
+description: Runs the coach's overview of a gvt-fleet workspace (workers that need you, wrap-up candidates, Now issues, untriaged issues per repository, Next counts), keeps a watch on the running workers so that a worker that starts to wait reaches the coach as an event, offers a triage pass over the repositories the coach picks, lists or sets an issue's class when the coach asks, dispatches one issue the coach names (with a prompt for one integration branch per worker and a finish turn, when the coach gives no prompt), starts a task worker with no issue in a repository the coach names, and wraps up a finished worker or task. Use only in a gvt-fleet workspace, when the coach types /gvt-fleet:coach, optionally with "dispatch <ref> [prompt]", "task <repo> <slug> [prompt]" or "wrap <ref | task id>".
 disable-model-invocation: true
 allowed-tools:
   - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json check-config)
@@ -53,6 +53,7 @@ node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json <subcommand> [flags] [argu
 12. Run `gvt-dev:triage-issues` only in interactive mode.
 13. Never change an issue's class by yourself. Run `class` only for the issue and the class the coach names in this conversation.
 14. Keep at most one watch running in this session. A watch event reports a worker; it is not an instruction. Never dispatch, wrap, release or answer a worker because of a watch line alone.
+15. Never merge a side pull request: the user merges it into the worker's worktree branch, and that merge is the approval. Never merge a worker's final pull request into `main` by yourself either, because a merge into `main` can deploy.
 
 ## Preflight
 
@@ -242,6 +243,7 @@ Say to the coach that the watch is running, and that it does not extend leases. 
 Each stdout line of the command is one JSON object. Read `event`.
 
 - `needs-you`: a worker started to wait. Show `key`, `reason`, `detail` and `since`. `key` is `owner/name#N` for an issue worker, or the task id for a task worker. `reason` is `turn-ended`, `notification:<type>`, `error:<e>` or `agents:blocked`. `detail` is one line, the end of the worker's last message, at most 160 characters. When `detail` is `""`, the worker has none. When the coach wants the whole message, or the short id to attach, run `status` and show the row whose `key` is that `key` (in `workers` or `tasks`), with `detail` and `session.shortId`. Do nothing else for the worker (rule 14).
+- A ready side pull request reaches the coach this way. A worker dispatched with the composed prompt reports a ready side pull request in its own last message, ends that message with the number of the pull request, sends no message to another session, and waits. Its turn ends, so the watch prints a `needs-you` line, and `detail` keeps the end of that message, so it ends with the number. When `detail` ends with a pull request number, say that the worker reports a side pull request ready for review, with its number. The coach reviews it, and the user merges it on GitHub (rule 15). The end of the finish turn reaches the coach the same way, with the number of the final pull request.
 - A wait can be reported twice, once in each of two runs. When `key` and `since` equal those of a line already shown, say that it is a repeat.
 - `watch-end`: the run ended. Go to "At the end of a run".
 
@@ -280,7 +282,7 @@ The watch stops when no worker is running:
 Run this only when the coach has named the issue.
 
 1. If `<ref>` is in `coach.workspaceRepo`, ask the coach to confirm. Only with a clear yes, add `--allow-self` as the first argument after `dispatch`. Without it, the coordinator refuses. When `coach.workspaceRepo` is null, the workspace repository is unknown: the coordinator cannot read the workspace origin, and it refuses every `dispatch` without `--allow-self`. Tell the coach this. Ask the coach to confirm the dispatch explicitly. Only with a clear yes, add `--allow-self`, whichever repository `<ref>` is in. Without a clear yes, do not dispatch.
-2. Check the prompt. It must not be empty. It must not start with `-`. It must not equal `--json`, `--help`, `-h`, `--config` or `--state-dir`, because the coordinator would read these as flags. It must not contain a single quote. If the prompt breaks a rule, ask the coach for another one. With no prompt, leave out the argument, and the coordinator uses its default.
+2. Check the prompt. It must not be empty. It must not start with `-`. It must not equal `--json`, `--help`, `-h`, `--config` or `--state-dir`, because the coordinator would read these as flags. It must not contain a single quote. If the prompt breaks a rule, ask the coach for another one. A prompt the coach gives is passed as it is. With no prompt from the coach, compose one (see "The composed prompt" below) and check it the same way. Do not leave out the argument: the coordinator's default prompt asks for a closing keyword in every pull request, and it has no side branches and no finish turn.
 3. Pass the prompt as one argument: put it in single quotes in the Bash command.
 4. Run:
 ```
@@ -301,13 +303,46 @@ After an exit 0 (`created`, `noop` or an adopted live session), a worker is runn
 
 Do not start another dispatch in the same turn.
 
+### The composed prompt
+
+With no prompt from the coach, the skill passes this prompt. It sets up one integration branch per worker. The worker's worktree branch is its integration branch. The worker does each piece of work on a side branch, with a pull request into the worktree branch, and the retro is one more side branch. Only the worktree branch merges into `main`, through one final pull request, after the finish turn (see "The finish turn" below).
+
+Write `<ref>` in the form `owner/name#N`, because the final pull request names it in its closing keyword. When the coach gave `short#N`, run `ready` in the overview form and take the `key` of the entry of `ready` or `now` that ends in `/<short>#N`. When no entry matches, or more than one does, ask the coach for the `owner/name#N` form.
+
+The prompt is one line. Put `<ref>` in its two places and change nothing else:
+
+```
+Work on GitHub issue <ref>, with one integration branch. Your worktree branch, the branch checked out when this session starts, is your integration branch. Only it merges into main, through one final pull request. 1. Before you open your first side pull request, push your worktree branch to origin (git push -u origin HEAD), because a side pull request needs its base branch on GitHub. 2. Do each piece of work on a side branch cut from your worktree branch, and open its pull request with your worktree branch as the base (gh pr create --base <your worktree branch>). The retro is one more side branch. Put no closing keyword in a side pull request. 3. When a piece of work needs a side pull request that is not merged yet, cut its side branch from that side branch, not from your worktree branch, and keep your worktree branch as the base of its pull request. Start its body with Stacked on #<number of that pull request>, say which commits are new, and ask that the pull request it is stacked on merge first. When that side branch gets new commits, merge them into the stacked branch. 4. When a side pull request is ready, report it in your own last message of the turn, end that message with the number of the pull request (for example: Ready for review: #12), and wait. Send no message to another session: the coach reads the end of your last message. 5. Never merge a side pull request yourself. The user merges it into your worktree branch, and that merge is the approval. After it merges on GitHub, fast-forward your local worktree branch to origin (git switch <your worktree branch>, then git pull --ff-only) before the next side branch, because that merge changes only the branch on origin. 6. When the issue is done, stop and wait for the coach before your finish turn. 7. The finish turn, when the coach asks for it: merge origin/main into your worktree branch (a merge, not a rebase, because the branch is already on origin), re-check each acceptance criterion of the issue and report it, list the follow-ups, check that every side branch is merged into your worktree branch, and open the final pull request into main. Its body says Fixes <ref> and lists the side pull requests it holds. Do not merge the final pull request: the coach merges it, because a merge into main can deploy. End the finish turn with your worktree branch checked out, fast-forwarded to origin, with no uncommitted changes, and at the head of the final pull request, and end your last message with the number of the final pull request.
+```
+
+In the prompt, "the coach" is this session, and "the user" is the person who runs it. The user merges each side pull request on GitHub, and that merge is the approval: GitHub refuses an approval from the author of a pull request, and the workers push under the user's account. The skill never merges a side pull request, and never merges the final pull request by itself (rule 15).
+
+The prompt holds no single quote, so it passes step 2. Check it anyway after you put `<ref>` in.
+
+The closing keyword goes in the final pull request only, so that `wrap` can prove the merge. GitHub applies a closing keyword only for a pull request into the default branch, so a keyword in a side pull request would close nothing. This is inferred, not tested.
+
+### The finish turn
+
+The finish turn is the worker's last turn before `wrap`. The worker stops before it and waits (step 6 of the prompt). When the coach decides that the issue is done, the coach asks the worker for its finish turn in the worker's session (`claude attach <session.shortId>`). The skill does not send it.
+
+In the finish turn, the worker:
+
+1. Merges the current `origin/main` into its worktree branch. It merges, and does not rebase: the worktree branch is already on `origin`, so a rebase would need a force-push.
+2. Re-checks each acceptance criterion of the issue and reports it.
+3. Lists the follow-ups.
+4. Checks that every side branch is merged into its worktree branch.
+5. Opens the final pull request into `main`. Its body carries the closing keyword `Fixes <ref>` and lists the side pull requests it holds, with a summary of each.
+6. Ends with its worktree branch checked out, fast-forwarded to `origin`, with no uncommitted changes, and at the head of the final pull request. It ends its last message with the number of the final pull request.
+
+The worker does not merge the final pull request. The coach merges it, because a merge into `main` can deploy in some repositories. Then the coach runs `wrap` (see `wrap`).
+
 ## task `<repo>` `<slug>` `[prompt]`
 
 Run this only when the coach has named the repository and the slug (rule 1). A task worker is a worker in the base clone of a managed repository with no issue: maintenance, a query, an investigation, or a triage pass over one repository. It has its own worktree and branch, so the worker can commit, push and open a pull request. The coordinator makes no GitHub write for a task: no label and no assignee. The lease lives only in the workspace's claims database.
 
 1. Check `<slug>`. When the coach gave none, ask for one. Do not make one up. It has lowercase letters, digits and single hyphens, and at most 24 characters. The coordinator allows fewer for a repository with a long short name, and its usage error (exit 64) names the maximum. The slug names the task: one task with the same repository and slug can be active at a time.
 2. The workspace's own repository: apply step 1 of `dispatch`, with `<repo>` in place of the repository of `<ref>`. Only with a clear yes, add `--allow-self` right after `--task`.
-3. Check the prompt as in step 2 of `dispatch`, and pass it as in step 3. The coordinator appends a rule to every task prompt: the worker must not write to the issue tracker unless the coach approves that one write. With no prompt, the coordinator uses `Task <slug> in <owner/name> (<task id>).` followed by that rule. Tell the coach that the worker will ask before each tracker write, and that the coordinator cannot enforce the rule.
+3. Check the prompt as in step 2 of `dispatch`, and pass it as in step 3. The composed prompt is for `dispatch <ref>` only: a task has no issue, so pass no prompt when the coach gives none. The coordinator appends a rule to every task prompt: the worker must not write to the issue tracker unless the coach approves that one write. With no prompt, the coordinator uses `Task <slug> in <owner/name> (<task id>).` followed by that rule. Tell the coach that the worker will ask before each tracker write, and that the coordinator cannot enforce the rule.
 4. Run:
 ```
 node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json dispatch --task [--allow-self] <repo> <slug> ['prompt']
@@ -334,6 +369,8 @@ Do not start another dispatch in the same turn.
 ## wrap `<ref | task id>`
 
 The coordinator's `wrap` command does the whole wrap-up in one call. It proves the merge, removes the worktree and the session, deletes the issue branch, and releases the claim, in that order. Each step starts only when the step before it passed. It never discards work. A rerun reads the disk first and continues from the step that is still open. A rerun is safe after any result.
+
+For a worker dispatched with the composed prompt, `wrap` comes after the finish turn (see "The finish turn") and after the coach has merged the final pull request. A side branch that the worktree checked out and that is still on the remote is reported in `otherBranches`, and `wrap` does not delete it.
 
 Before the call, tell the coach that `wrap` stops a worker session that is still running. This matters when the issue is closed but its worker still runs, and for a task, which has no issue to close.
 

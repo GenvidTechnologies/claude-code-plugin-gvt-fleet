@@ -105,6 +105,10 @@ A change that touches several command groups reads every file under `wiki/coordi
 
 The `gvt-dev:issue-triage-analyst` agent has no Write tool, so it cannot write such a script. Brief it to fetch each file with one plain `gh api` command per Bash call. Observed in the triage of #65: the brief asked for a `.mjs` script, and the worktree guard refused the analyst's heredoc.
 
+Readiness is not described under `wiki/coordinator/`. The ready set and its dependencies (sub-issues, `Blocked by` links, `Depends on` text) are in the workspace's `wiki/design.md`, under "Ready set". A sentence that says `dispatch` refuses an issue that is not ready has two sources: step 2 of `dispatch` runs `claim` (`wiki/coordinator/workers.md`), and `claim` runs the readiness check again on fresh data (`wiki/coordinator/claims.md`). Observed on #62: `wiki/coordinator.md` and nine pages under `wiki/coordinator/` were read, and none of them names a sub-issue or a `Blocked by` link. Only `design.md` does.
+
+A skill step that reads GitHub with `gh` directly, not through the CLI, has no source in the command reference. Probe each `--json` field that the step reads once, live and read-only, and say in the skill what it does when an older `gh` rejects the field. Observed on #62: the link check reads `gh issue view --json parent`, probed on `gh` 2.105.0 against a known sub-issue. With an older `gh`, the skill runs the call again without `parent` and says that siblings were not checked.
+
 An issue body's command syntax and ordering are proposals. The command reference on `main` decides. When they differ, follow the reference and say so in the pull request. The `--json` output can have another shape than the text output. For example, the text output of `status` sorts issue workers and task workers into one list, but `status --json` keeps them in two arrays, `workers` and `tasks`. Observed on #4: the body wrote the task name as optional (`[name]`), while `dispatch --task` requires the slug, and it asked for task rows "in the order `status` gives", which the JSON does not define across the two arrays.
 
 A contract bump is a breaking change for consumers:

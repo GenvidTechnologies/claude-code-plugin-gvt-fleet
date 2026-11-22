@@ -252,6 +252,16 @@ Express a dependency with a comment on the blocked issue: `Blocked by #<id>`
 (optionally `Blocks #<id>` on the other). For umbrellas, list dependencies as a
 GitHub task-list under a `Depends on` heading.
 
+An issue can leave a part of its work to another open issue. When an
+acceptance row of the issue needs that part, the body says whether the issue
+takes the part or waits for the other issue. Read each acceptance row against
+each part that the body leaves to another issue. Observed on #38: the body said
+that #22 adds the `checkedOutBranch` part of the leftover-branch check. The row
+"reports each branch or worktree of the worker that is left" needs that part,
+and so does the interactive row, because a worker can leave its side branch
+checked out. The worker took the part, and left the choice to close #22 to the
+coach.
+
 ## Mutation recipes
 
 The exact commands the triage skill runs to apply **approved** changes. `{id}`,

@@ -7,6 +7,7 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 ## 2026-11-22
 
 * **Update**: `wiki/issue-triage.md`, Dependencies (retro of #38). When an acceptance row needs a part that the body leaves to another open issue, the body says whether the issue takes the part or waits for it. No `raw/` capture drove this run: the source is the work on #38.
+* **Update**: `wiki/issue-triage.md` (retro of the triage of #75). Required fields says that an acceptance row that pledges one failing case per rule checks that each rule can fail on its own, and that a reason that states a fact about the environment is checked. Road block says that no Class field is written for an issue that "Set road block" adds to the project. No `raw/` capture drove this run: the source is the triage of #75.
 
 ## 2026-11-21
 

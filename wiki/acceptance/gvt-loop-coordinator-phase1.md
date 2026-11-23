@@ -14,6 +14,13 @@ T and S row are the fenced blocks keyed by row id in "Command blocks"
 below. Each T-row pledges rc=0, `# fail 0`, `# skipped 0`, and
 an anchored ok-count that is a floor.
 
+Phase 1 was built in the workspace repository, before the CLI moved here
+([ADR 0023](../decisions/0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md)).
+The rows and command blocks below name that repository's layout: `bin/` and
+`lib/` are `plugin/cli/bin/` and `plugin/cli/lib/` in this repository, and
+"the repo root" is the workspace's. The issue numbers under "Recorded
+decisions after the pledge" name issues of a managed repository.
+
 ## Acceptance Criteria
 - [ ] T1: R1-R3 config. ok-count ≥5. Tests: `R1: entry overrides enabled flag and label names`; `R2: bugTracker values overlay defaults and config overrides overlay bugTracker`; `R3: duplicate short name is an error naming both entries`; `R3: unknown key is an error naming the entry`; `R3: a config error stops before any gh write call`.
 - [ ] T2: R4-R8 sync. ok-count ≥7. Tests: `R4: incremental sync passes since = high-water mark minus overlap`; `R4: missing or version-mismatched cache triggers full resync`; `R5: stored issue keeps labels, assignees, comments, parent, sub-issues, blockedBy, blocking and closing PRs`; `R6: blocker outside managed repos is looked up and stored`; `R7: incremental query requests OPEN and CLOSED states`; `R7: issue closed upstream updates cached state to closed`; `R8: deleting cache.db and re-syncing yields the same ready set`. Fake gh.
@@ -29,7 +36,7 @@ an anchored ok-count that is a floor.
 - [ ] S1: NF: one process boundary. Block S1 prints exactly `lib/proc.mjs`; control → 1.
 - [ ] S2: R10: grammar not forked. Tracked `refs-grammar*` → 0; control `FINDINGS` → 1; `lib/plugin-path.mjs` names the grammar path → ≥1.
 - [ ] S3: R1: real config loads. Prints `enabled 30` (amended 2026-11-03 from `enabled 12`, then `enabled 10`, then `enabled 17`; see "Recorded decisions after the pledge").
-- [ ] S4: R3: bad config stops. Prints `rc=2`; stderr count of `webapp` ≥1 (the fixture's duplicate short name, renamed in the scrub of #141).
+- [ ] S4: R3: bad config stops. Prints `rc=2`; stderr count of `webapp` ≥1 (the fixture's duplicate short name, renamed in the scrub of workspace #141).
 - [ ] S5: NF: sqlite warning cannot corrupt stdout. Prints `json ok`; stderr `ExperimentalWarning` count 0; control (bare `require('node:sqlite')`) → 1.
 - [ ] S6: Docs. Each of the 15 subcommands has a heading count ≥1 in `wiki/coordinator.md`; control → 1.
 - [ ] S7: Design doc update. `~500 open issues` in `wiki/design.md` → 0 (baseline 1); `490` → ≥1 (baseline 0; amended 2026-11-03 from `648`, see "Recorded decisions after the pledge").

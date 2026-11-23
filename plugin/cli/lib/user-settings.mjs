@@ -148,8 +148,8 @@ function ourGroup(event, command) {
 
 /**
  * The plugin's hooks/hooks.json for the hook command `command`: one group per event of the table
- * above, with the same matcher and timeout as a user-settings entry. The release bundle writes it
- * from the copied code of the tag, so the events always match the hook script (ADR 0021).
+ * above, with the same matcher and timeout as a user-settings entry. The file is committed
+ * as plugin/hooks/hooks.json, and the R216 tests check that it equals this output (ADR 0023).
  */
 export function pluginHooksJson(command) {
   const hooks = {};

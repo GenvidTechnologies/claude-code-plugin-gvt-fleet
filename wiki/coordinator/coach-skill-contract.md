@@ -14,7 +14,7 @@ The coach skill drives `gvt-fleet` and reads its JSON output. This section lists
 Rules:
 
 1. The skill runs each command with `--json` and reads stdout only. Errors and warnings go to stderr.
-2. The contract number is `coach.contract` in the output of `check-config --json`. It comes from `COACH_CONTRACT` in `lib/dispatch.mjs` and is now 2. The number goes up when a key in the table below is removed, renamed, or changes type or meaning. A coach skill refuses any number other than the one it was written for. Adding a key never raises the number. A skill that reads a key added after the contract it was written for treats a missing key as "not reported". A missing key is not the same as an empty array. See [ADR 0008](../decisions/0008-add-coach-keys-without-a-new-contract-number.md).
+2. The contract number is `coach.contract` in the output of `check-config --json`. It comes from `COACH_CONTRACT` in `plugin/cli/lib/dispatch.mjs` and is now 2. The number goes up when a key in the table below is removed, renamed, or changes type or meaning. A coach skill refuses any number other than the one it was written for. Adding a key never raises the number. A skill that reads a key added after the contract it was written for treats a missing key as "not reported". A missing key is not the same as an empty array. See [ADR 0008](../decisions/0008-add-coach-keys-without-a-new-contract-number.md).
 3. `test/coach-contract.test.mjs` pins these keys, with one test for each command. To change a key, change that test, this section and the contract number together.
 
 A key is in the contract when the skill reads it in some outcome. It need not appear in every outcome.

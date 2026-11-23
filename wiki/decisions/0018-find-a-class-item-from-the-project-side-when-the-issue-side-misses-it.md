@@ -9,14 +9,14 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-16
-- **Issue:** #143 (a cross-organization project item is invisible to `class`)
+- **Issue:** workspace #143 (a cross-organization project item is invisible to `class`)
 - **Amends:** how `gvt-fleet class` reads an item, in [ADR 0015](0015-derive-the-class-from-the-project-iteration-field.md)
 
 ## Context
 
 `gvt-fleet class` found the issue's item through the issue's `projectItems` list, and read the value back the same way. For an issue whose repository and project belong to different organizations, that list is empty. So `class … now` on an item already in the project reported `failed` (`readback: the item holds no iteration`, exit 1) after a write that landed, and `class … later` on an item in Now printed `noop` and left it there. On 2026-11-16 every open issue of the workspace repository, which the private organization owns, moved to the project `GenvidTechnologies/1`, which made 45 more items cross-organization.
 
-**Hidden by design, not by token access.** A read-only probe on 2026-11-16 (#143) found:
+**Hidden by design, not by token access.** A read-only probe on 2026-11-16 (workspace #143) found:
 
 - The token (`gh`'s OAuth token with the `repo`, `project` and `admin:org` scopes) reads issues and projects of both organizations. The viewer is a member of the private organization and an administrator of `GenvidTechnologies`. A same-organization item is listed on the issue side in both organizations.
 - The issue side is empty in both directions: the workspace repository's #35 in `GenvidTechnologies/1`, and `GenvidTechnologies/c3addon-gcore-video-plugin#6` in the private organization's project 6. `projectItems` (with `includeArchived: true`) and `projectsV2` both return 0.
@@ -27,7 +27,7 @@ So GitHub lists, on the issue side, only the items of projects owned by the repo
 
 The same probe found two reads that work across organizations:
 
-- `ProjectV2.items(query: "repo:<owner/name>")` returns that repository's items only (57 for the workspace repository in `GenvidTechnologies/1`, 1 for c3addon-gcore-video-plugin in the private organization's project 6, 0 for a repository that does not exist). `archivedStates: [ARCHIVED, NOT_ARCHIVED]` includes archived items. A free-text term such as `#35` also narrowed the list to one item, but how it matches is not documented, so it is not used.
+- `ProjectV2.items(query: "repo:<owner/name>")` returns that repository's items only (57 for the workspace repository in `GenvidTechnologies/1`, 1 for c3addon-gcore-video-plugin in the private organization's project 6, 0 for a repository that does not exist). `archivedStates: [ARCHIVED, NOT_ARCHIVED]` includes archived items. A free-text term such as `#35`, the number of workspace #35, also narrowed the list to one item, but how it matches is not documented, so it is not used.
 - `node(id: <item id>) { ... on ProjectV2Item { project { id } fieldValueByName(…) } }` reads one item's value. An id that does not exist returns `node: null` with a `NOT_FOUND` error on the path `node`.
 
 The issue's comments also record that `addProjectV2ItemById` returns the existing item's id when the issue is already in the project.

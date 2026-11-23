@@ -13,7 +13,7 @@ status: stable
 
 ## Context
 
-Issue #814 (now closed) and `wiki/design.md` assumed that the coordinator ships inside the `gvt-dev` plugin. The design states this in the constraint "Final result ships as part of the gvt-dev plugin" and in its "Packaging in gvt-dev" section. This record reverses that assumption.
+Issue GenvidTechnologies/claude-code-plugin-gvt-dev#814 (now closed) and `wiki/design.md` assumed that the coordinator ships inside the `gvt-dev` plugin. The design states this in the constraint "Final result ships as part of the gvt-dev plugin" and in its "Packaging in gvt-dev" section. This record reverses that assumption.
 
 Facts that bear on the choice:
 

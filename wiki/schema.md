@@ -29,6 +29,7 @@ OKF has already shipped one breaking revision within v0.x: v0.1's body `# Citati
 - **Triage conventions** are `wiki/issue-triage.md`. `.gvt-agent.json` sets `paths['docs/issue-triage.md']` to it, so `/gvt-dev:triage-issues` reads it there.
 - **Links** between pages are ordinary relative links (`decisions/index.md`, `../index.md`), so that they also resolve when GitHub renders a page. `test/wiki.test.mjs` rejects a link that starts with `/`, and checks that every relative link in `wiki/`, `README.md` and `CLAUDE.md` reaches an existing file and, with a fragment, a heading on that page.
 - **Command reference and design** of the gvt-fleet CLI are `wiki/coordinator.md`, the pages under `wiki/coordinator/`, `wiki/configuration.md`, `wiki/design.md` and `wiki/acceptance/`, imported from the workspace repository with the CLI (#82).
+- **Issue references.** A bare `#N` names an issue or pull request of this repository. A reference to the workspace repository, which is private, is prose: "workspace #N", "workspace issue #N" or "workspace pull request #N", never a link and never its name. Another public repository is written in full, as `owner/name#N`. The imported pages and records 0001 to 0023 follow this rule since #86. A quoted text, such as a search term in a code span, stays as it was.
 - **`raw/`** does not exist yet. The pages describe this repository's own skill and decisions, and cite repository files in their body text. No page carries `sources` yet.
 
 ## Page format

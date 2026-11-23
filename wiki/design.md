@@ -32,7 +32,9 @@ with fast access to the worker's files and commit history.
 - The coach ships as its own plugin, **gvt-fleet**, that depends on
   gvt-dev ([ADR 0002](decisions/0002-ship-gvt-loop-as-separate-plugin.md),
   [ADR 0006](decisions/0006-ship-the-coach-skill-in-the-gvt-fleet-plugin.md)).
-  The `gvt-fleet` CLI (renamed from `gvt-loop`) stays in this workspace.
+  The `gvt-fleet` CLI (renamed from `gvt-loop`) ships inside that plugin, from
+  `plugin/cli/` of this repository
+  ([ADR 0023](decisions/0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md)).
   gvt-dev skills can still be changed to make this easier.
 - Each repo's own `.claude/`, `CLAUDE.md` and `.gvt-agent.json` must apply in its
   worktrees.
@@ -70,7 +72,8 @@ with fast access to the worker's files and commit history.
 
 ### Building the team pane
 
-Lessons from probe 2 (`probes/02-team-pane`, `probes/FINDINGS.md`):
+Lessons from probe 2 (`probes/02-team-pane` and `probes/FINDINGS.md`, in the
+workspace repository):
 
 - **Develop the mod with `claude --plugin-dir <folder>`.** Do not keep it in
   `~/.claude/dev-mods/<session-id>/`. That folder is keyed by session ID, so a
@@ -90,7 +93,8 @@ Lessons from probe 2 (`probes/02-team-pane`, `probes/FINDINGS.md`):
 
 ## Workspace layout
 
-This folder is the coordinator's root and is tracked in git for local config.
+The workspace is the coordinator's root folder. It is a checkout of the
+workspace repository, tracked in git for local config.
 
 ```
 <workspace>/
@@ -210,7 +214,7 @@ Two plugins. `gvt-fleet` depends on `gvt-dev`; the reverse is never true. See
 
 ### gvt-fleet (coach side)
 
-The plugin lives in the public repository `GenvidTechnologies/claude-code-plugin-gvt-fleet`. The `gvt-fleet` CLI (`bin/`, `lib/`) stays in this workspace. The skill reaches it with `node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json …`. The plugin has no MCP server.
+The plugin lives in the public repository `GenvidTechnologies/claude-code-plugin-gvt-fleet`, and so does the `gvt-fleet` CLI, in `plugin/cli/` ([ADR 0023](decisions/0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md)). Until #58 lands, the skill runs the workspace's own copy with `node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json …`. #58 points it at the plugin's copy, `node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json …`. The plugin has no MCP server.
 
 | Component | Role |
 |---|---|
@@ -218,12 +222,12 @@ The plugin lives in the public repository `GenvidTechnologies/claude-code-plugin
 | Hooks (later) | `SessionStart`, `Notification`, `Stop`, `StopFailure`, `SessionEnd` and `PreToolUse` (matcher `AskUserQuestion`) write each session's state |
 | Mod (later) | Team pane and the `/open` commands |
 
-The CLI (`bin/gvt-fleet`) does the coordinator work: sync, graph, ready set, claims, clones and worktrees, dispatch and resume.
+The CLI (`plugin/cli/bin/gvt-fleet.mjs`) does the coordinator work: sync, graph, ready set, claims, clones and worktrees, dispatch and resume.
 
 The plugin is enabled at user scope, because workers run in other repos'
 worktrees. Plugin hooks have no per-cwd scoping, so each hook script reads `cwd`
 from its stdin JSON and exits 0 at once unless `cwd` is under a base clone's
-`.claude/worktrees/` in this workspace's `repos/`. The test is that `cwd` is at
+`.claude/worktrees/` in the workspace's `repos/`. The test is that `cwd` is at
 or below a worktree root, so it follows `cd` inside a worktree. Until the plugin
 ships its hooks, `gvt-fleet install-hooks` registers the hooks in user settings. See
 [ADR 0003](decisions/0003-register-session-hooks-at-user-scope.md).
@@ -236,7 +240,7 @@ ships its hooks, `gvt-fleet install-hooks` registers the hooks in user settings.
 | Skill | `/init-worktree` (fallback that runs `commands.setup`) |
 | Changed skills | `plan-next-issue`: mode that takes a pre-selected issue. `plan-task`: checkpoint and resume. `run-retro`: one grouped gvt-dev issue across repos |
 
-## Phase 0: probes (in `probes/`)
+## Phase 0: probes (in the workspace repository's `probes/`)
 
 1. `claude --bg --worktree` with a custom branch name: does it work, or is a
    `WorktreeCreate` hook required? Does `.worktreeinclude` copy from the base
@@ -254,12 +258,15 @@ ships its hooks, `gvt-fleet install-hooks` registers the hooks in user settings.
    example a 2-minute `npm ci`) block the session's first turn until it finishes?
    What hook timeout applies? Does `additionalContext` reach the worker?
 
-Results: see `probes/FINDINGS.md` at the repository root (outside the wiki).
+Results: see `probes/FINDINGS.md` at the root of the workspace repository.
+This repository does not hold the probes.
 
 ## Related gvt-dev issues
 
-- #626: plan-task, the orchestrator owns the clone and branch for a
-  cross-repo task.
-- #812: plan-next-issue / triage-issues scratch-file name collisions (gets
-  worse with concurrent sessions).
-- #652: orchestrated agents leave scratch output in the repo tree.
+- GenvidTechnologies/claude-code-plugin-gvt-dev#626: plan-task, the
+  orchestrator owns the clone and branch for a cross-repo task.
+- GenvidTechnologies/claude-code-plugin-gvt-dev#812: plan-next-issue /
+  triage-issues scratch-file name collisions (gets worse with concurrent
+  sessions).
+- GenvidTechnologies/claude-code-plugin-gvt-dev#652: orchestrated agents leave
+  scratch output in the repo tree.

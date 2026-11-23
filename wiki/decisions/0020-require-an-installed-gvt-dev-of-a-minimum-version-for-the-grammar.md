@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-18
-- **Issue:** #142 (how a shipped CLI gets the gvt-dev issue-reference grammar)
+- **Issue:** workspace #142 (how a shipped CLI gets the gvt-dev issue-reference grammar)
 - **Builds on:** [0019](0019-ship-the-gvt-fleet-cli-inside-the-gvt-fleet-plugin.md), its "gvt-dev grammar" bullet, and settles the minimum version that [0006](0006-ship-the-coach-skill-in-the-gvt-fleet-plugin.md) left open
 
 ## Context
@@ -20,12 +20,12 @@ ADR 0019 ships the CLI inside the `gvt-fleet` plugin and keeps this lookup ("Unc
 
 These facts bear on the choice. All were checked on 2026-11-18.
 
-- The grammar file first ships in gvt-dev v4.45.0. It is absent at v4.44.0, and its one commit is gvt-dev #796. Its git blob is the same at v4.45.0 and v5.1.0 (`0f9d3b5d`), and the cached copies of 4.49.0, 5.0.0 and 5.1.0 hash the same. CI ran the suite against v4.49.0 and now runs it against v5.1.0.
+- The grammar file first ships in gvt-dev v4.45.0. It is absent at v4.44.0, and its one commit is GenvidTechnologies/claude-code-plugin-gvt-dev#796. Its git blob is the same at v4.45.0 and v5.1.0 (`0f9d3b5d`), and the cached copies of 4.49.0, 5.0.0 and 5.1.0 hash the same. CI ran the suite against v4.49.0 and now runs it against v5.1.0.
 - The gvt-dev manifest, `.claude-plugin/plugin.json`, carries `version`, at the install path and at `plugin/` in a clone. `installed_plugins.json` also records `version` per install, but it has no counterpart under `GVT_DEV_ROOT`.
 - The Claude Code plugin docs (`plugins/dependencies`, read 2026-11-18) allow a dependency object `{ "name": "gvt-dev", "version": "<semver range>" }`. For a git source, the range resolves against tags named `<plugin>--v<version>`. gvt-dev tags its releases `vX.Y.Z`, so a range today would make the install fail or fall back to the marketplace's current copy. A `--plugin-dir` copy is never checked against a range.
 - The grammar is not published on npm.
 
-Issue #142 weighed three options:
+Workspace issue #142 weighed three options:
 
 1. A declared runtime requirement: gvt-dev installed, with a minimum version that the CLI checks and names in its error.
 2. A published package for the grammar, which gvt-dev and the CLI both depend on.

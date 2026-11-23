@@ -9,11 +9,11 @@ status: stable
 
 - **Status:** superseded in part by [ADR 0015](0015-derive-the-class-from-the-project-iteration-field.md): the class now comes from the project Iteration field, and the labels are no longer read. The `ready` keys and the rule that the class is not a ready reason still hold.
 - **Date:** 2026-11-06
-- **Issue:** #45 (the coach overview lists every ready issue)
+- **Issue:** workspace #45 (the coach overview lists every ready issue)
 
 ## Context
 
-The coach overview listed every ready issue. On 2026-11-06 that was 425 issues, and 334 of them were in one repository. A list that long is not read. Issue #45 gives each open managed issue a class: Now, Next or Later.
+The coach overview listed every ready issue. On 2026-11-06 that was 425 issues, and 334 of them were in one repository. A list that long is not read. Workspace issue #45 gives each open managed issue a class: Now, Next or Later.
 
 The class must survive the deletion of `state/cache.db`. ADR 0001 says the cache holds only what GitHub can rebuild, and the docs say that deleting it is safe.
 

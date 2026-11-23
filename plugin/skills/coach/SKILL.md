@@ -591,7 +591,7 @@ Every command uses the same codes. The table says what the skill does for each o
 
 ## The contract
 
-This skill was written for `coach.contract: 2`. The preflight refuses any other number. The canonical list of keys is the workspace's `wiki/coordinator/coach-skill-contract.md`. The skill reads only these keys. A key that is missing from the output means "not reported". Report it that way. Do not read it as an empty value.
+This skill was written for `coach.contract: 2`. The preflight refuses any other number. The canonical list of keys is `wiki/coordinator/coach-skill-contract.md` in the repository of this plugin, next to the CLI's source. The skill reads only these keys. A key that is missing from the output means "not reported". Report it that way. Do not read it as an empty value.
 
 | Command | Keys read |
 |---|---|

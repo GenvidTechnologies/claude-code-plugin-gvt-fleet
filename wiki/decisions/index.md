@@ -8,7 +8,7 @@ The decision records of this plugin and of the gvt-fleet CLI that it ships, in M
 
 **Retroactive records:** a record may be backfilled retroactively. Its number reflects chronological *decision* order, not authorship order. Such a record distinguishes **Originally decided** (derived from git history) from **Recorded** (when the file was written), so readers don't mistake the write date for the decision date.
 
-**Issue references:** records 0001 to 0023 were written in the private repository of the fleet workspace, where the CLI was developed until 0023 moved it here (#82). They keep their numbers. In those records, the **Issue** line and a bare `#N` cite an issue of that repository, and "this repository" means that repository, unless the text names another one. The names of the private organization and its repositories were replaced by descriptions before the move. Record 0024 was this plugin's 0001 before the import; it and later records cite issues of this repository.
+**Issue references:** records 0001 to 0023 were written in the private repository of the fleet workspace, where the CLI was developed until 0023 moved it here (#82). They keep their numbers. In those records, "workspace #N" and "the workspace repository's #N" cite an issue of that repository, a bare `#N` cites an issue of this repository, and "this repository" and "here" mean the workspace repository, unless the text names another one. The names of the private organization and its repositories were replaced by descriptions before the move. Record 0024 was this plugin's 0001 before the import; it and later records cite issues of this repository.
 
 ## Records
 

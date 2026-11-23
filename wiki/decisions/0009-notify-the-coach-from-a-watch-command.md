@@ -9,11 +9,11 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-06
-- **Issue:** #43 (nothing tells the coach that a worker needs it)
+- **Issue:** workspace #43 (nothing tells the coach that a worker needs it)
 
 ## Context
 
-The coach learns that a worker needs it only by running `status`. Nothing tells the coach when a wait begins. The recipient of a notice is the coach session. This was decided on #43. The issue proposed that the session hooks send the notice.
+The coach learns that a worker needs it only by running `status`. Nothing tells the coach when a wait begins. The recipient of a notice is the coach session. This was decided on workspace #43. The issue proposed that the session hooks send the notice.
 
 Facts that shaped the decision:
 

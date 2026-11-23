@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-09
-- **Issue:** #60
+- **Issue:** workspace #60
 - **Amends:** none
 
 ## Context
@@ -20,7 +20,7 @@ Since 2026-11-06, five wraps ended `half-removed` on `EBUSY`. The cases are Genv
 - nothing was closed;
 - a plain rerun within about a minute removed the folder through the `worktree finish` path.
 
-In the fifth case (2026-11-09, `wrap` of #34) the coach ran no command in the worktree folder before the wrap, so its own `git -C <worktree>` reads were not involved there. Git in the folder is still a candidate: for a live worktree, the safety check of `wrap` runs `git status` in the folder seconds before the removal. The cause is not known.
+In the fifth case (2026-11-09, `wrap` of workspace #34) the coach ran no command in the worktree folder before the wrap, so its own `git -C <worktree>` reads were not involved there. Git in the folder is still a candidate: for a live worktree, the safety check of `wrap` runs `git status` in the folder seconds before the removal. The cause is not known.
 
 A probe on 2026-11-09 showed one way to get the same failure on this Windows machine. A process whose current folder is the leftover folder makes the recursive delete of Node fail with `EPERM`. The delete succeeds once that process exits.
 

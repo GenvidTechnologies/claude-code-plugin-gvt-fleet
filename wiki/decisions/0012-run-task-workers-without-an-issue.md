@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-08
-- **Issue:** #34
+- **Issue:** workspace #34
 - **Amends:** none
 
 ## Context
@@ -114,13 +114,13 @@ Every task prompt ends with a rule: there is no issue, and the worker must not w
 
 **Prompt.** Adding the rule to the default prompt only was rejected. A task started with a custom prompt would carry no rule.
 
-## Left for #58 (configurable short names)
+## Left for workspace #58 (configurable short names)
 
-- `repoShortName` in `lib/config.mjs` is the one place that resolves the short name for worktree names and for the parsing of `short#N` and task ids. #58 changes its body.
-- The two `shortNameMap` copies in `lib/graph.mjs` and `lib/ready.mjs` keep the GitHub repository name. They resolve issue text, and #58 decided that issue text never uses a custom short name.
-- The name parsers in `lib/worktree-path.mjs` (loaded by the installed hook) and `lib/status.mjs` still rebuild the name from the repository name. Task names never match them. #58 must design how the hook reads a custom short name.
-- `target()` has no config. #58 must pass it in.
-- The #58 check that refuses a short-name change while a worker holds the repository must include task leases.
+- `repoShortName` in `lib/config.mjs` is the one place that resolves the short name for worktree names and for the parsing of `short#N` and task ids. Workspace #58 changes its body.
+- The two `shortNameMap` copies in `lib/graph.mjs` and `lib/ready.mjs` keep the GitHub repository name. They resolve issue text, and workspace #58 decided that issue text never uses a custom short name.
+- The name parsers in `lib/worktree-path.mjs` (loaded by the installed hook) and `lib/status.mjs` still rebuild the name from the repository name. Task names never match them. Workspace #58 must design how the hook reads a custom short name.
+- `target()` has no config. Workspace #58 must pass it in.
+- The workspace #58 check that refuses a short-name change while a worker holds the repository must include task leases.
 
 ## Consequences
 

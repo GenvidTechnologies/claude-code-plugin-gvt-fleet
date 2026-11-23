@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-05
-- **Issue:** #22 (sub-issue of #7); CLI rename in #28
+- **Issue:** workspace #22 (sub-issue of workspace #7); CLI rename in workspace #28
 - **Amended by:** [0019](0019-ship-the-gvt-fleet-cli-inside-the-gvt-fleet-plugin.md), which ships the CLI inside the plugin: it replaces the "Scope" bullet (the CLI stays in this workspace) and the "How the skill finds the CLI" bullet
 
 ## Context
@@ -24,9 +24,9 @@ The CLI is now built and runs from this workspace. The coach skill is the next p
 
 The whole system is named `gvt-fleet`. The coach skill ships as the plugin `gvt-fleet`, from the public repository `GenvidTechnologies/claude-code-plugin-gvt-fleet`. This settles the open question in ADR 0002.
 
-- **Name.** The plugin and the CLI share one name, `gvt-fleet`. The skill keeps the name `coach`, so its command is `/gvt-fleet:coach`. The CLI is renamed from `gvt-loop` to `gvt-fleet` in issue #28, before the v0.1.0 release of the plugin. Until then the CLI file is `bin/gvt-loop.mjs`. The skill will call `bin/gvt-fleet.mjs`.
+- **Name.** The plugin and the CLI share one name, `gvt-fleet`. The skill keeps the name `coach`, so its command is `/gvt-fleet:coach`. The CLI is renamed from `gvt-loop` to `gvt-fleet` in workspace issue #28, before the v0.1.0 release of the plugin. Until then the CLI file is `bin/gvt-loop.mjs`. The skill will call `bin/gvt-fleet.mjs`.
 - **Scope.** The CLI (`bin/`, `lib/`) stays in this workspace. This narrows what ADR 0002 put in the plugin. The plugin ships skills now. It will ship the team-pane mod and the session hooks later.
-- **How the skill finds the CLI.** The skill runs `node "${CLAUDE_PROJECT_DIR}/bin/<cli>.mjs" --json ...`, where `<cli>` is `gvt-loop` until #28 and `gvt-fleet` after. It therefore works only in a session started at the root of this workspace. Its preflight is `check-config --json`, and the skill refuses to run when the preflight does not pass.
+- **How the skill finds the CLI.** The skill runs `node "${CLAUDE_PROJECT_DIR}/bin/<cli>.mjs" --json ...`, where `<cli>` is `gvt-loop` until workspace #28 and `gvt-fleet` after. It therefore works only in a session started at the root of this workspace. Its preflight is `check-config --json`, and the skill refuses to run when the preflight does not pass.
 - **No MCP server, no `/dispatch` skill.** The skill calls the CLI directly. There is no separate `/dispatch` skill.
 - **Dependency.** The plugin declares a bare `"gvt-dev"` dependency. It resolves in the plugin's own marketplace, `gvt-plugins`. This is the second of the two options in the consequences of ADR 0002. That option also asks for a minimum `gvt-dev` version check in the coordinator's base-refresh plugin check (`wiki/design.md`), which is designed but not built. The skill itself calls no `gvt-dev` skill or script. The CLI that the skill runs does use `gvt-dev`: `sync` imports the issue-reference grammar from the installed `gvt-dev` (`lib/plugin-path.mjs`). That dependency belongs to the workspace, not to the plugin, and its minimum version is still open.
 - **Scope of enablement.** The plugin is enabled at user scope. `disable-model-invocation: true` in the skill keeps its cost out of other sessions.
@@ -34,7 +34,7 @@ The whole system is named `gvt-fleet`. The coach skill ships as the plugin `gvt-
 
 ## Compromise
 
-The repository, the name and the scope were set as decisions at planning on 2026-11-05 (issue #22). The name was revised the same day. This section states the plan they replace, the names considered and the costs they bring.
+The repository, the name and the scope were set as decisions at planning on 2026-11-05 (workspace issue #22). The name was revised the same day. This section states the plan they replace, the names considered and the costs they bring.
 
 **The earlier plan, replaced.** One `gvt-loop` plugin that holds everything listed under "In `gvt-loop` (coach side)" in ADR 0002. This record changes that plan as follows:
 
@@ -49,14 +49,14 @@ The repository, the name and the scope were set as decisions at planning on 2026
 - `gvt-team` and `gvt-crew` were rejected as too human.
 - `gvt-fleet` is chosen. One name covers the plugin and the CLI. `coach` stays as the role and as the skill name.
 
-`gvt-loop` remains in history (ADRs 0002 and 0003, the git log) and `gvt-coach` only in the git log. `gvt-loop` also stays in the live docs wherever it means today's CLI, its file names or its commands, until #28 renames them.
+`gvt-loop` remains in history (ADRs 0002 and 0003, the git log) and `gvt-coach` only in the git log. `gvt-loop` also stays in the live docs wherever it means today's CLI, its file names or its commands, until workspace #28 renames them.
 
 **Costs of the chosen option.**
 
 - The skill runs only in a session started at the workspace root. It cannot run from another directory.
 - The plugin ships from another repository. Nothing in that repository can see a change to the CLI. The contract number is the only signal of drift.
 - A public repository must not carry machine paths or private names. A leak guard in that repository blocks machine paths, the user's login, and the names of the private organization and its project.
-- The CLI rename in #28 touches the file names, the help text, the docs and the tests. Until it lands, the skill and the CLI have different names.
+- The CLI rename in workspace #28 touches the file names, the help text, the docs and the tests. Until it lands, the skill and the CLI have different names.
 
 ## Consequences
 

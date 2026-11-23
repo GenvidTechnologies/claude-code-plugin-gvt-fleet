@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-04
-- **Issue:** #8 (sub-issue of #7)
+- **Issue:** workspace #8 (sub-issue of workspace #7)
 
 ## Context
 
@@ -69,7 +69,7 @@ This is an interim deviation from the mechanism in ADR 0002, not from its decisi
 - Two facts were unverified when this record was written. A live check after merge settles them:
   - whether hooks in user settings fire in `--bg` worker sessions;
   - whether `SessionEnd` finishes inside its default timeout of 1.5 s.
-- **Update 2026-11-04: live check M1 on #8.** One live `--bg` worker ran on `main` at `747bfcd`, with the hooks installed in user settings.
+- **Update 2026-11-04: live check M1 on workspace #8.** One live `--bg` worker ran on `main` at `747bfcd`, with the hooks installed in user settings.
   - The hooks fired in the `--bg` session. The first bullet above is settled.
   - The worker file holds a `SessionEnd` record with reason `other`. The check concluded that the line was written within the default timeout.
   - The check measured no duration and no timing margin. It did not run a hook with stdin that never closes. The second bullet above is settled only for a hook whose stdin closes normally.

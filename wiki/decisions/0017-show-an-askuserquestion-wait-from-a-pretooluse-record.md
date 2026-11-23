@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-13
-- **Issue:** #105 (the coach cannot see the question of a worker that waits on an AskUserQuestion call)
+- **Issue:** workspace #105 (the coach cannot see the question of a worker that waits on an AskUserQuestion call)
 
 ## Context
 

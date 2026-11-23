@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-13
-- **Issue:** #103
+- **Issue:** workspace #103
 - **Amends:** [0011](0011-prove-the-issues-work-and-wrap-up-in-one-command.md), [0014](0014-judge-nothing-to-lose-by-any-remote-and-read-closing-prs-live.md)
 
 ## Context
@@ -32,7 +32,7 @@ Choices made in the implementation:
 
 - The proof is a fallback. It runs only when the merge proof refuses, so a wrap that the merge proof accepts makes no new GitHub call and does not change.
 - Condition 3 for a branch does not check the base of the pull request. The question is whether the commits are kept, as in the unpushed waivers of ADR 0014.
-- The claim time (`notBefore`, rule 5 of the merge proof) is not applied to condition 2. On that issue, a pull request of its repository (#428) refers to the issue and merged on 2026-11-03, probably before the claim. The proof is the closed issue with nothing left to lose, not one pull request carrying the work.
+- The claim time (`notBefore`, rule 5 of the merge proof) is not applied to condition 2. On that issue, a pull request of its repository (number 428) refers to the issue and merged on 2026-11-03, probably before the claim. The proof is the closed issue with nothing left to lose, not one pull request carrying the work.
 - When the proof holds, the issue branch counts as proven for the `-D` rule. Its tip is on the default branch of origin or at the head of a merged pull request.
 - `worktree remove --require-merged` does not use the proof. It is the gate of `wrap` only.
 
@@ -40,7 +40,7 @@ Choices made in the implementation:
 
 - "Apply the rule to every wrap" is not chosen. Refuse conditions 1 and 2 would then also stop a wrap that a merged closing pull request already proves, for example when another open pull request mentions the issue. That is a change of behaviour for every worker, and it adds two GitHub calls to each wrap.
 - "Ask the coach to confirm instead of closing the issue" is rejected by condition 1.
-- Deleting the other branches the worktree holds stays with #82.
+- Deleting the other branches the worktree holds stays with workspace #82.
 
 ## Consequences
 

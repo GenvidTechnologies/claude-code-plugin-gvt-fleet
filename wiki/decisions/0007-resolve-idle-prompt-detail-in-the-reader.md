@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-06
-- **Issue:** #41 (the coach cannot see the worker's question behind an idle prompt)
+- **Issue:** workspace #41 (the coach cannot see the worker's question behind an idle prompt)
 
 ## Context
 
@@ -34,7 +34,7 @@ For an `idle_prompt`, the reader (`lib/worker-state.mjs`) resolves `detail` and 
 - **Hook unchanged.** `lib/hook-state.mjs` and the record format do not change.
 - **Coach contract.** `COACH_CONTRACT` stays 1. `detail` keeps its key, type and documented meaning. `since` is not in the contract table, and `reason` does not change.
 
-Decided on #41: only `idle_prompt` takes the `Stop` message; `since` is the time of the `Stop`; and the fallback is the notification message.
+Decided on workspace #41: only `idle_prompt` takes the `Stop` message; `since` is the time of the `Stop`; and the fallback is the notification message.
 
 ## Compromise
 

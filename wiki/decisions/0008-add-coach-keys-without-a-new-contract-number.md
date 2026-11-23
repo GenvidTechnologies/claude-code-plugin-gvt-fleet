@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-06
-- **Issue:** #32 (`ready` does not show how many issues wait only for the `triaged` label)
+- **Issue:** workspace #32 (`ready` does not show how many issues wait only for the `triaged` label)
 
 ## Context
 

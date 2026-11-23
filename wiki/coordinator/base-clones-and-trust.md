@@ -38,7 +38,7 @@ Writes a Claude trust entry for a folder in `~/.claude.json`.
 
 - The key is the real path with forward slashes and an uppercase drive letter.
 - A folder that is already trusted is not written again.
-- The folder must be below the workspace root (the root of this repository). The root itself and any folder outside it are refused with exit 2.
+- The folder must be below the workspace root (the folder that holds `config/`, `state/` and `repos/`). The root itself and any folder outside it are refused with exit 2.
 - Before the first write of a run, it copies `~/.claude.json` to `state/claude.json.bak`.
 - After a write, it waits 3 seconds and reads the file again, because Claude Code can overwrite the file. It writes again up to 3 more times if the entry is missing. If it is still missing, the result is `failed`.
 - Side effects: it rewrites `~/.claude.json` (keeping the key order) and writes the backup. When `~/.claude.json` is a symbolic link, the change is written through the link to its target.

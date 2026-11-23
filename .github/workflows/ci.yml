@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    # The suite assumes Windows: payload paths with backslashes and drive
+    # letters, rename contention (EPERM), and .cmd resolution.
+    #
+    # A windows-latest runner has 2 cores, and the tests are CPU-bound on
+    # starting git and node processes: running more files at once on one
+    # runner only slows each test down. Each shard is its own runner, so the
+    # shards add cores (#76). scripts/ci-shard.mjs gives whole files to the
+    # shards by their time in scripts/shard-times.json; node's --test-shard
+    # split by name and left one shard twice as long as another (#157). Keep
+    # each test file small, and refresh the times file when the split drifts.
+    name: tests (shard ${{ matrix.shard }}/3)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      # Keep LF on checkout, as the fixtures and generated files expect.
+      - name: Keep LF line endings
+        run: git config --global core.autocrlf false
+        shell: bash
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # lib/plugin-path.mjs imports the issue-reference grammar from the
+      # installed gvt-dev plugin, and never copies it. A runner has no Claude
+      # Code install, so clone the plugin outside the workspace and point
+      # GVT_DEV_ROOT at its plugin folder. Keep GVT_DEV_REF in step with the
+      # gvt-dev version the coordinator is used with.
+      - name: Fetch the gvt-dev plugin
+        env:
+          GVT_DEV_REF: v6.1.0
+        run: |
+          git -c advice.detachedHead=false clone --quiet --depth 1 --branch "$GVT_DEV_REF" https://github.com/GenvidTechnologies/claude-code-plugin-gvt-dev.git "$RUNNER_TEMP/gvt-dev"
+          test -f "$RUNNER_TEMP/gvt-dev/plugin/skills/triage-issues/scripts/lib/refs-grammar.mjs"
+          echo "GVT_DEV_ROOT=$RUNNER_TEMP/gvt-dev/plugin" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Show versions
+        run: |
+          node --version && git --version
+          echo "availableParallelism=$(node -p 'os.availableParallelism()')"
+        shell: bash
+
+      # Same steps as commands.validate in .gvt-agent.json. GVT_FLEET_FAKE_ONLY
+      # makes the process runner refuse to start gh or claude.
+      - name: Check syntax
+        run: node --check bin/gvt-fleet.mjs
+        shell: bash
+
+      # An unmatched glob exits 0 with "# pass 0", so the step also fails when
+      # no test passed.
+      #
+      # node's default --test-concurrency is availableParallelism() - 1, which
+      # is 1 on a 2-core runner: the files would run one at a time.
+      - name: Run tests
+        run: |
+          files=$(node scripts/ci-shard.mjs list ${{ matrix.shard }} 3) || { echo "ci-shard failed"; exit 1; }
+          if [ -z "$files" ]; then echo "no test file in this shard"; exit 1; fi
+          echo "$files"
+          node --test --test-concurrency=2 --test-reporter=tap $files > tests.tap 2>&1
+          rc=$?
+          grep -E '^not ok ' tests.tap || true
+          grep -E '^# (tests|pass|fail|skipped|cancelled) ' tests.tap
+          pass=$(grep -E '^# pass [0-9]+$' tests.tap | grep -o -E '[0-9]+$')
+          if [ "$rc" -ne 0 ]; then echo "node --test exited $rc"; exit 1; fi
+          if [ -z "$pass" ] || [ "$pass" -eq 0 ]; then echo "no test passed"; exit 1; fi
+        shell: bash
+        env:
+          GVT_FLEET_FAKE_ONLY: '1'
+
+      - name: Upload TAP output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-tap-${{ matrix.shard }}
+          path: tests.tap
+          retention-days: 7
+
+  # One check name for the whole suite, whatever the shard count.
+  validate:
+    needs: tests
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every shard passed
+        run: test "${{ needs.tests.result }}" = success

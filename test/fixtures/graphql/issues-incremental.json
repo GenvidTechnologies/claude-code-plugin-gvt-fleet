@@ -1,0 +1,27 @@
+{
+  "data": {
+    "repository": {
+      "issues": {
+        "nodes": [
+          {
+            "number": 4,
+            "state": "CLOSED",
+            "title": "Plain child",
+            "body": "",
+            "updatedAt": "2026-11-03T11:00:00Z",
+            "labels": { "nodes": [{ "name": "triaged" }] },
+            "assignees": { "nodes": [] },
+            "comments": { "nodes": [], "pageInfo": { "hasNextPage": false, "endCursor": null } },
+            "parent": { "number": 1, "state": "OPEN", "repository": { "nameWithOwner": "acme/app" } },
+            "subIssues": { "nodes": [] },
+            "blockedBy": { "nodes": [] },
+            "blocking": { "nodes": [] },
+            "closedByPullRequestsReferences": { "nodes": [] }
+          }
+        ],
+        "pageInfo": { "hasNextPage": false, "endCursor": null }
+      }
+    },
+    "rateLimit": { "cost": 1, "remaining": 4800, "resetAt": "2026-11-03T13:00:00Z" }
+  }
+}

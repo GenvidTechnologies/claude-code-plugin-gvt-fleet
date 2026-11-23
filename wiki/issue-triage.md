@@ -215,6 +215,33 @@ triage on #75: the body said that `commands.validate` already needs `node` for
 `claude`. `claude` can be a native executable that needs no `node`, and CI
 does not run `claude`.
 
+An issue that changes the gvt-fleet CLI names the CLI's paths in this
+repository: `plugin/cli/bin/`, `plugin/cli/lib/`, `test/` and the command
+reference under `wiki/`. Until the CLI source is in this repository, the CLI
+in the workspace is frozen, and the issue is blocked by the issue that imports
+the source (#82). Write that wait as a `Blocked by` line: the reference check
+reads a wait stated in prose as no blocker. Observed in triage on #89: the body
+named the workspace's `lib/dispatch.mjs` and had no `Blocked by` line, so the
+reference check read it as ready.
+
+An issue that removes a guard quotes the purpose that the guard's source gives,
+such as a decision record or the command reference, and says why that purpose
+no longer holds. A case that the issue cites from a record or from the
+workspace's notes keeps the facts of its source. Mark a claim with no source as
+an observation. Observed in triage on #89: the body said that the refusal
+"protects nothing" and did not cite the purpose that the workspace's decision
+record gives ("so that the coordinator does not start a worker here by
+accident"). It also told a recorded case as a checkout behind its default
+branch, while the source says the checkout had been left on another branch.
+
+An issue that has a command report how far a checkout is behind its remote
+says how the remote state is read, or states the outcome that a row checks. A
+merge on GitHub does not move a checkout's `origin/<default>` until that
+checkout fetches, so a count made from local refs can read 0 right after the
+merge. Observed in triage on #89: the row "with the checkout up to date reports
+none" could not fail correctly until the body required the count to be right
+immediately after the merge.
+
 ## Splitting
 
 Split when one issue bundles unrelated concerns, or when a single piece of work

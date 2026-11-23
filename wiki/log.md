@@ -4,6 +4,10 @@ Record of every change to the wiki's page set: what changed, why, and which sour
 
 Add newest first. Never edit or remove a prior entry. If a past entry needs a correction, add a new entry that says so. The maintenance rules are in [the schema](schema.md).
 
+## 2026-11-23
+
+* **Update**: `wiki/issue-triage.md`, Required fields (retro of the triage of #89). An issue that changes the gvt-fleet CLI names the CLI's paths in this repository, and is blocked by the import issue until the CLI source is here. An issue that removes a guard quotes and answers the guard's stated purpose, and a cited case keeps the facts of its source. An issue that has a command report how far a checkout is behind its remote says how the remote state is read. No `raw/` capture drove this run: the source is the triage of #89.
+
 ## 2026-11-22
 
 * **Update**: `wiki/issue-triage.md`, Required fields (retro of the triage of #82). An issue that renumbers a decision record lists every file and issue that cites it by number. An issue that moves files with their tests into another layout lists each test that names the source's root folders, and checks the moved tests against this repository's own files. No `raw/` capture drove this run: the source is the triage of #82.

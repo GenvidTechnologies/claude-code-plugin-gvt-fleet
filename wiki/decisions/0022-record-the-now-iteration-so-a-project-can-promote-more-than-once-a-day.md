@@ -9,16 +9,16 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-22
-- **Issue:** #202
+- **Issue:** workspace #202
 - **Amends:** how Now and Next are found, and the layout of `iteration promote`, in [ADR 0015](0015-derive-the-class-from-the-project-iteration-field.md)
 
 ## Context
 
 ADR 0015 derives Now and Next from the dates of the project's Iteration field. Now is the iteration that holds today, as a UTC day, and Next is the first one that starts after today. An iteration lasts whole days, so `iteration promote` refused while Now had started today: Now could not end before today. A project could promote at most once per UTC day.
 
-Goals are often shorter than that. On 2026-11-21 both projects were promoted in the morning, and both new Now goals were reached the same evening, at 21:39 and 23:03 UTC. Both promotes were refused, and the next goals waited for 00:00 UTC (#202). #121 raises the same limit as its first point, and adds that if nobody promotes for 365 days, Now ends on its own date and the CLI moves on without the coach.
+Goals are often shorter than that. On 2026-11-21 both projects were promoted in the morning, and both new Now goals were reached the same evening, at 21:39 and 23:03 UTC. Both promotes were refused, and the next goals waited for 00:00 UTC (workspace #202). Workspace #121 raises the same limit as its first point, and adds that if nobody promotes for 365 days, Now ends on its own date and the CLI moves on without the coach.
 
-A probe on a throwaway project on 2026-11-22 (recorded on #202) tested what the field can hold. Every write passed every id:
+A probe on a throwaway project on 2026-11-22 (recorded on workspace #202) tested what the field can hold. Every write passed every id:
 
 - **An iteration of zero days is refused.** GitHub returns `UNPROCESSABLE` with "Settings completed iterations duration must be greater than 0" and changes nothing.
 - **Two iterations with the same start date overlap.** GitHub dropped one of them with no error and cleared its item. In the probe it kept the one listed first, a one-day iteration, and dropped the 365-day one after it.
@@ -50,9 +50,9 @@ So two goals cannot both be dated on the day they ran. Either the field holds a 
 
 **Where the pointer lives.**
 
-- **Rejected: a project field on the items, such as a single-select `Goal` with Now, Next and Done.** It is not a pointer: a promote would write every item of the old Now and of Next. That is the problem that ADR 0015 moved away from (#95).
+- **Rejected: a project field on the items, such as a single-select `Goal` with Now, Next and Done.** It is not a pointer: a promote would write every item of the old Now and of Next. That is the problem that ADR 0015 moved away from (workspace #95).
 - **Rejected: the project README.** It is a free text that the coach and the `groom-road-blocks` scripts also write, and an edit in the web UI could drop a hidden marker with no error. A promote would make two GitHub writes, the field and the README, with a failure possible between them.
-- **Rejected: back-dating, with no pointer.** The probe shows that GitHub keeps new dates on completed iterations, so a same-day promote could move the old Now, and every completed iteration that it would overlap, into the past. GitHub's `@current` would then always match Now. But it rewrites the history on each extra promote. A goal that runs 365 days would still end on its date with no coach decision (#121). And Now could never be an iteration that does not hold today, which the acceptance criteria of #202 require.
+- **Rejected: back-dating, with no pointer.** The probe shows that GitHub keeps new dates on completed iterations, so a same-day promote could move the old Now, and every completed iteration that it would overlap, into the past. GitHub's `@current` would then always match Now. But it rewrites the history on each extra promote. A goal that runs 365 days would still end on its date with no coach decision (workspace #121). And Now could never be an iteration that does not hold today, which the acceptance criteria of workspace #202 require.
 - **Chosen: the coordinator's state.** It is one small file that `promote` writes after the field. The CLI is the only reader, and the coach skill reads Now and Next through the CLI. The cost: the record is on one machine. GitHub's views use the dates, so after a same-day promote, the board's `@current` shows the earlier goal until the dates catch up. A lost file falls back to the dates, which name the right Now again by the next day at the latest, unless several promotes ran on one day.
 
 **The layout of a same-day promote.**
@@ -63,7 +63,7 @@ So two goals cannot both be dated on the day they ran. Either the field holds a 
 ## Consequences
 
 - ADR 0015 Consequences: "`promote` refuses when Now started today" no longer holds.
-- The `iteration close` of #190 can become "record no Now", with Next as the first iteration after the closed one. The probe already shows that GitHub keeps a gap, which #190 asked a probe for.
+- The `iteration close` of workspace #190 can become "record no Now", with Next as the first iteration after the closed one. The probe already shows that GitHub keeps a gap, which workspace #190 asked a probe for.
 - A worktree that checks a criterion against a copy of the live state copies `now-pointers.json` with `cache.db` and `claims.db`.
 - The `groom-road-blocks` skill no longer waits for 00:00 UTC to promote. Its `next-readback.mjs` reads Now and Next from `iteration list --json`, not from the dates.
 - The coach skill of the `gvt-fleet` plugin may still tell the coach to wait for 00:00 UTC. That skill ships from another repository, so it is a follow-up there.

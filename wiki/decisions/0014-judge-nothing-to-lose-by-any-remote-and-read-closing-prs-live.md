@@ -9,16 +9,16 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-10
-- **Issue:** #70
+- **Issue:** workspace #70
 - **Amends:** [0011](0011-prove-the-issues-work-and-wrap-up-in-one-command.md)
 
 ## Context
 
 On 2026-11-10 `wrap` refused seven merged workers. Each refusal had a different shape:
 
-- the worker's own checked-out branch had no cache row (#52);
+- the worker's own checked-out branch had no cache row (workspace #52);
 - a squash-merged follow-up branch tracked `origin/main`;
-- HEAD was detached on `origin/main` (#60);
+- HEAD was detached on `origin/main` (workspace #60);
 - a follow-up branch had `origin/main` as its upstream;
 - a task branch was pushed under another name and had no upstream;
 - a commit was cherry-picked onto another merged branch;
@@ -45,9 +45,9 @@ Quoted design labels below are the labels of the design that led to this record.
 - "Eager live read in wrapCommand" is rejected. It would make a GraphQL call on every such wrap, also when the proof already held.
 - "Apply the SHA waiver to worked branches too" is not chosen. It does not fix the cherry-pick case, because GitHub does not know an unpushed commit. It would also change what `otherBranches` means.
 - "Report the checked-out branch in otherBranches" is rejected. That key lists pushed branches that are not deleted, and `claude rm` can delete the checked-out branch.
-- "Keep closed rows across a full sync" is deferred. The live read covers the proof, and the cache would grow without bound (#83).
-- Patch equivalence for a cherry-picked commit is deferred (#81).
-- Deleting the checked-out branch is deferred (#82).
+- "Keep closed rows across a full sync" is deferred. The live read covers the proof, and the cache would grow without bound (workspace #83).
+- Patch equivalence for a cherry-picked commit is deferred (workspace #81).
+- Deleting the checked-out branch is deferred (workspace #82).
 
 ## Consequences
 

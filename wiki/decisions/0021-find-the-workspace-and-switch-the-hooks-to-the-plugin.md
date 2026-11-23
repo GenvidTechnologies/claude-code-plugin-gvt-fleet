@@ -9,12 +9,12 @@ status: stable
 
 - **Status:** accepted; "The release copy" and steps 1 and 2 of "The cutover" are superseded by [0023](0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md)
 - **Date:** 2026-11-19
-- **Issue:** #157 (ship the gvt-fleet CLI inside the gvt-fleet plugin)
+- **Issue:** workspace #157 (ship the gvt-fleet CLI inside the gvt-fleet plugin)
 - **Builds on:** [0019](0019-ship-the-gvt-fleet-cli-inside-the-gvt-fleet-plugin.md), and settles the three forms it left to the implementation issue: how the CLI finds its workspace, the status-line launcher, and the release copy
 
 ## Context
 
-ADR 0019 ships the CLI inside the `gvt-fleet` plugin. It leaves three forms open: how the CLI finds its workspace ("a flag, the session's project folder, a search upward for `config/repos.json`"), the form of a status-line entry that a plugin update does not move, and the details of the release copy. Issue #157 adds the cutover.
+ADR 0019 ships the CLI inside the `gvt-fleet` plugin. It leaves three forms open: how the CLI finds its workspace ("a flag, the session's project folder, a search upward for `config/repos.json`"), the form of a status-line entry that a plugin update does not move, and the details of the release copy. Workspace issue #157 adds the cutover.
 
 These facts bear on the choice. All were checked on 2026-11-19 on the coach machine.
 

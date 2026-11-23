@@ -9,7 +9,7 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-04
-- **Issue:** #13
+- **Issue:** workspace #13
 
 ## Context
 

@@ -9,14 +9,14 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-05
-- **Issue:** #21 (closes #17, #18 and #19; #19 is the origin of the branch-record half)
+- **Issue:** workspace #21 (closes workspace #17, #18 and #19; workspace #19 is the origin of the branch-record half)
 - **Amended by:** [0011](0011-prove-the-issues-work-and-wrap-up-in-one-command.md), which proves the issue branch and not the checked-out branch, and adds `wrap`
 
 ## Context
 
 The coach wraps up a worker only after the worker's pull request is merged. Before this change, no command reported whether the pull request of a worker was merged. `worktree remove` accepted a pushed branch that had an open, unmerged pull request.
 
-A second problem came from #19. `worktree create` recorded the local `worktree-<name>` branch in `config/branches.json`. A worker pushes under a branch name of its own choosing. The recorded branch therefore never existed on GitHub, and the branch the worker really pushed went unrecorded. `gvt-loop branches --unknown` showed it as unknown.
+A second problem came from workspace #19. `worktree create` recorded the local `worktree-<name>` branch in `config/branches.json`. A worker pushes under a branch name of its own choosing. The recorded branch therefore never existed on GitHub, and the branch the worker really pushed went unrecorded. `gvt-loop branches --unknown` showed it as unknown.
 
 Both problems need the name of the branch that the worker pushed (`branch.<b>.merge` in the worktree git config).
 
@@ -38,8 +38,8 @@ A merged branch that GitHub deleted keeps no entry.
 
 **Related choices taken with these.** These were the only alternatives weighed for each of them.
 
-- The turn-boundary exemption for `hook-live-session-gone` (#17). The narrower rule that exempts only a Stop (17-A) was measured on a real hook file and was not enough, because an `idle_prompt` notification follows each Stop.
-- The worker hook file is deleted when its worktree is removed (#18). Hiding `records-only` rows behind a flag (18-B) is kept only as a fallback, for the case that a hook writes the file again after removal.
+- The turn-boundary exemption for `hook-live-session-gone` (workspace #17). The narrower rule that exempts only a Stop (17-A) was measured on a real hook file and was not enough, because an `idle_prompt` notification follows each Stop.
+- The worker hook file is deleted when its worktree is removed (workspace #18). Hiding `records-only` rows behind a flag (18-B) is kept only as a fallback, for the case that a hook writes the file again after removal.
 - `check-config --json` has a `coach` block with a contract number.
 
 ## Compromise

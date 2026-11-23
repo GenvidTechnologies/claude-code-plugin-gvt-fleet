@@ -9,13 +9,13 @@ status: stable
 
 - **Status:** accepted
 - **Date:** 2026-11-06
-- **Issue:** #38 (the merge gate) and #40 (the `wrap` command); both are sub-issues of #39
+- **Issue:** workspace #38 (the merge gate) and workspace #40 (the `wrap` command); both are sub-issues of workspace #39
 - **Amends:** [0005](0005-prove-the-merge-at-wrap-up-and-record-the-pushed-branch.md)
 - **Amended by:** [0014](0014-judge-nothing-to-lose-by-any-remote-and-read-closing-prs-live.md)
 
 ## Context
 
-ADR 0005 proves the merge of "the branch that the worker pushed", read from `branch.<b>.merge` of the branch checked out in the worktree. That premise is the defect that #38 corrects. A worker can switch to a follow-up branch. The checked-out branch is then not the issue's work. On 2026-11-06 three wrap-ups proved the pull request of a follow-up branch and not the fix pull request.
+ADR 0005 proves the merge of "the branch that the worker pushed", read from `branch.<b>.merge` of the branch checked out in the worktree. That premise is the defect that workspace #38 corrects. A worker can switch to a follow-up branch. The checked-out branch is then not the issue's work. On 2026-11-06 three wrap-ups proved the pull request of a follow-up branch and not the fix pull request.
 
 A probe on Claude Code 2.1.319 showed what `claude rm` protects. It was run in a throwaway sandbox, with one real background session per case.
 
@@ -26,7 +26,7 @@ A probe on Claude Code 2.1.319 showed what `claude rm` protects. It was run in a
 
 The HEAD reflog of a worktree lists the branches that were switched to in that worktree only. This was checked in a sandbox.
 
-#40 asks for one command that goes from a merged pull request to a released claim. Before it, the coach ran `worktree remove --require-merged`, then possibly `worktree finish`, then `release`. A rerun after full success exited 1, because `release` found nothing to release.
+Workspace #40 asks for one command that goes from a merged pull request to a released claim. Before it, the coach ran `worktree remove --require-merged`, then possibly `worktree finish`, then `release`. A rerun after full success exited 1, because `release` found nothing to release.
 
 ## Decision
 
@@ -66,7 +66,7 @@ Option C: a flag on `remove` (`--require-merged --release`) instead of a command
 
 **Option B (rejected).** It would copy the lock retry, the half-failure detection and the hook-file rules of the primitives. The two copies drift, and the existing tests cover only one.
 
-**Option C (rejected).** #40 asks for a command. A flag mixes claim release into a worktree command, and a rerun after success needs a special case inside `remove`.
+**Option C (rejected).** Workspace #40 asks for a command. A flag mixes claim release into a worktree command, and a rerun after success needs a special case inside `remove`.
 
 **Which other branches count.** Three rules were weighed.
 

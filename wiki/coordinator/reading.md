@@ -25,7 +25,7 @@ Validates `config/repos.json` and the branch record beside it.
 
 The `coach` block is `{ "contract": 2, "workspaceRepo": "owner/name" }`. A coach skill runs `check-config --json` first, for three reasons: to confirm that the folder is a gvt-fleet workspace, to compare `contract` with the number the skill was written for, and to learn which repository is the workspace's own. `dispatch` refuses an issue in that repository unless `--allow-self` is given.
 
-- `contract` is the version number of the `coach` block (`COACH_CONTRACT` in `lib/dispatch.mjs`). It goes up when a key that a coach skill reads is removed, renamed, or changes type or meaning. Adding a key does not raise it. A coach skill refuses a number it does not know.
+- `contract` is the version number of the `coach` block (`COACH_CONTRACT` in `plugin/cli/lib/dispatch.mjs`). It goes up when a key that a coach skill reads is removed, renamed, or changes type or meaning. Adding a key does not raise it. A coach skill refuses a number it does not know.
 - `workspaceRepo` is the `owner/name` of the workspace's `origin` remote. It is `null` when the value cannot be read: there is no `origin` remote, the workspace is not the top level of a git repository, git returns an error, or the remote URL is not a GitHub URL.
 - The human output line does not show the `coach` block.
 

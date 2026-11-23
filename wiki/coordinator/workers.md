@@ -78,7 +78,7 @@ For `dispatch --task`, the exit codes are these. 0 for `created`, `noop`, or an 
 
 - `<repo>` is `owner/name` or the short name of a managed repository.
 - `<slug>` is required. It has lowercase letters, digits and single hyphens, and at most 24 characters. The worktree name must also fit in 64 characters. For the longest managed short name (36 characters), the maximum is 16. The usage error names the maximum.
-- The coordinator makes the task id `owner/name@<slug>.<YYYYMMDD>.<n>`. The date is the UTC date, so a task started late in the local evening can carry the next day's date. `n` is one more than the highest `n` of any lease with this repository, slug and date, current or past. It skips a number whose worktree folder or branch already exists.
+- The coordinator makes the task id `owner/name@<slug>.<YYYYMMDD>.<n>`. The date is the UTC date, so a task started late in the local evening can carry the next day's date. `n` is one more than the highest `n` of any lease with the same repository, slug and date, current or past. It skips a number whose worktree folder or branch already exists.
 - The worktree is `repos/<owner>/<name>/.claude/worktrees/<short>.<slug>.<YYYYMMDD>.<n>`. The branch is `worktree-<short>.<slug>.<YYYYMMDD>.<n>`, and the session has the same name. A task has a branch, so the worker can commit, push and open a pull request.
 - There is no GitHub write: no label and no assignee. There is no claiming step. The lease is written to `state/claims.db` as held.
 - The pre-checks are those of an issue dispatch, and they write nothing. The workspace repository is refused (`step: 'self-repo'`) unless `--allow-self` is given. The default branch must be known. The base clone is checked.
@@ -161,7 +161,7 @@ Accepted limit for an `AskUserQuestion` wait: after you answer, the row keeps th
 
 ### Restart steps
 
-`gvt-fleet status --restart` prints the steps that restart every worker session, as a Markdown sheet. Run it before a planned reboot and save the output, or run it after the reboot. It replaces the hand-edited restart sheet (issue #106).
+`gvt-fleet status --restart` prints the steps that restart every worker session, as a Markdown sheet. Run it before a planned reboot and save the output, or run it after the reboot. It replaces the hand-edited restart sheet (workspace #106).
 
 It reads the same sources as `status`, joins them the same way, extends the same leases and writes the same log event, with `restart: true` added. Only the output differs:
 

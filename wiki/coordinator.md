@@ -57,7 +57,7 @@ The global flags may come before or after the command.
 A workspace is a folder that holds `config/repos.json`. The CLI takes the first of these ([ADR 0021](decisions/0021-find-the-workspace-and-switch-the-hooks-to-the-plugin.md)):
 
 1. `--workspace <dir>`, used as given.
-2. The folder of the CLI itself (the folder above its `bin/`), when it is a workspace. This is a checkout that runs its own CLI: the main checkout, or a worktree of this repository under test.
+2. The folder of the CLI itself (the folder above its `bin/`), when it is a workspace. This is a workspace checkout that runs its own copy of the CLI: the workspace's main checkout, or a worktree of the workspace repository under test. A checkout of this repository never matches, because `plugin/cli/` has no `config/` beside it.
 3. The outermost folder at or above the current folder that is a workspace. Outermost, because a base clone or a worktree of the workspace's own repository holds a `config/repos.json` of its own, and a command run from there means the workspace that manages it.
 
 When none matches, the CLI prints `no workspace` with the folders it tried and `pass --workspace <dir>` on stderr, and exits 64. `--help` needs no workspace.
@@ -176,7 +176,7 @@ The tool never deletes or alters this file. Leases cannot be rebuilt from GitHub
 
 1. Read the lease rows, for example with `node -e` and `node:sqlite`, or with any SQLite client. Look for a lease that may still have marks on GitHub: a lease in the `claiming`, `held` or `releasing` state, or a `failed` lease with `label_added` set to 1 or `assignee_preexisting` set to 0.
 2. If there is no such lease, move the file aside, for example to `state/claims.db.v<found>`. The next command creates a fresh database.
-3. If there is such a lease, compare the `leases` columns with the current schema in `lib/claims-db.mjs`.
+3. If there is such a lease, compare the `leases` columns with the current schema in `plugin/cli/lib/claims-db.mjs`.
    - If they match, set `PRAGMA user_version` to the expected value by hand. This keeps the lease rows, so `release` and `expire` can still remove the marks.
    - If they do not match (for example, a file with the pre-rename column `discard_consent` in place of `discard_head`), remove the `in-progress` label and the assignee that each such claim added from its issue by hand. Then do step 2. Moving the file aside first would leave those marks with no lease that can release them.
 
@@ -211,7 +211,7 @@ A lease that passed its expiry is not revived by `heartbeat`. Run `gvt-fleet exp
 3. If it reports `held`, a program still has the folder. Close it and run `finish` (or `wrap`) again.
 4. If it reports `branch-kept`, `git branch -d` refused the branch: it deletes only a branch merged into its upstream, or into the base clone's HEAD when it has no upstream (a squash-merged branch, or one whose remote-tracking branch was pruned, is kept as well). Merge or push the work, or run `worktree remove <ref> --discard` first and then `finish` (the consent lapses if the branch moves).
 
-**How a half-removed worktree is detected.** `probes/FINDINGS.md` (frozen evidence, not edited) describes the failure as git's admin folder being renamed to `.git/worktrees/<name>.claude-dropped-<hash>` while the folder's `.git` file still points at the old name. It suggests that this makes the worktree unregistered. In a sandbox run, git still listed such a worktree. `git worktree list` alone therefore cannot show the half-removed state. `lib/worktrees.mjs` counts a worktree as registered only when git lists it **and** the `gitdir:` target in the folder's `.git` file exists. This detection differs from the evidence in `probes/FINDINGS.md`. It was **not** verified against a live `claude rm`. The tests use a sandbox that renames the admin folder.
+**How a half-removed worktree is detected.** `probes/FINDINGS.md` in the workspace repository (frozen evidence, not edited) describes the failure as git's admin folder being renamed to `.git/worktrees/<name>.claude-dropped-<hash>` while the folder's `.git` file still points at the old name. It suggests that this makes the worktree unregistered. In a sandbox run, git still listed such a worktree. `git worktree list` alone therefore cannot show the half-removed state. `plugin/cli/lib/worktrees.mjs` counts a worktree as registered only when git lists it **and** the `gitdir:` target in the folder's `.git` file exists. This detection differs from the evidence in `probes/FINDINGS.md`. It was **not** verified against a live `claude rm`. The tests use a sandbox that renames the admin folder.
 
 `worktree finish` also runs `git worktree prune`, which removes the leftover `.claude-dropped-*` admin folder.
 

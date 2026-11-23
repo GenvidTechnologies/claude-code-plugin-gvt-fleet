@@ -9,26 +9,20 @@ status: stable
 
 This page is part of the [gvt-fleet command reference](../coordinator.md).
 
-[ADR 0019](../decisions/0019-ship-the-gvt-fleet-cli-inside-the-gvt-fleet-plugin.md) ships the CLI inside the `gvt-fleet` plugin, and [ADR 0021](../decisions/0021-find-the-workspace-and-switch-the-hooks-to-the-plugin.md) settles how. Before the move, the hooks and the status line in `~/.claude/settings.json` run this checkout's `bin/`, and the coach skill runs `${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs`. After it, the plugin's `hooks/hooks.json` runs the hook, the status line runs a launcher in the plugin data folder, and the skill runs the copy in the plugin's `cli/` folder.
+[ADR 0019](../decisions/0019-ship-the-gvt-fleet-cli-inside-the-gvt-fleet-plugin.md) ships the CLI inside the `gvt-fleet` plugin, and [ADR 0021](../decisions/0021-find-the-workspace-and-switch-the-hooks-to-the-plugin.md) settles how. Before the move, the hooks and the status line in `~/.claude/settings.json` run the workspace checkout's `bin/`, and the coach skill runs `${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs`. After it, the plugin's `hooks/hooks.json` runs the hook, the status line runs a launcher in the plugin data folder, and the skill runs the copy in the plugin's `cli/` folder.
 
 ## The release
 
-[ADR 0023](../decisions/0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md) replaces these steps: the source moves to the plugin repository, which ships `plugin/cli/` with no tag here and no bundle script. The steps below are kept as a record of the bundle step and are not to be run. "The machine" and "Going back" are unchanged by the move.
+The CLI's source is in this repository, at `plugin/cli/`, and the plugin's session hooks are the committed `plugin/hooks/hooks.json` ([ADR 0023](../decisions/0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md)). A plugin release ships both as they are at its tag. There is no tag of another repository and no copy step. Releases up to v0.5.0 ship no `cli/`.
 
-These steps are done once, by the maintainer, for the first plugin release that ships `cli/`.
+The first release that ships `cli/` takes two steps (#58):
 
-1. Merge the CLI changes into `main` here. Tag the merge commit with the plugin version it ships in: `git tag -a gvt-fleet-v<version> -m "gvt-fleet <version>"`, then push the tag.
-2. In a fresh clone of `GenvidTechnologies/claude-code-plugin-gvt-fleet`, run the bundle script of this repository against its `plugin/` folder:
+1. Point every command line of the coach skill at the plugin's copy: `node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json …`.
+2. Release the plugin with `gvt-dev:release-plugin`: one annotated tag `v<version>` of this repository. The plugin's leak guard checks `plugin/cli/` like every other file.
 
-   ```
-   node scripts/bundle-plugin.mjs --source <clone of this repository> --tag gvt-fleet-v<version> --plugin <plugin clone>/plugin
-   ```
+A later release takes step 2 only. A change to the hook events, the matcher or the timeouts regenerates `plugin/hooks/hooks.json` in the same commit; the `R216` tests check that the file equals `pluginHooksJson` of `plugin/cli/lib/user-settings.mjs`.
 
-   It replaces `plugin/cli/bin/` and `plugin/cli/lib/` with the files at the tag, writes `plugin/cli/SOURCE.json`, and writes `plugin/hooks/hooks.json`. It refuses a ref that is not a tag. Its exit codes: 0 when it wrote the bundle, 1 when a git read fails or the tag has no `bin/` or `lib/` files, 2 for a ref that is not a tag or a folder that is not a plugin, 64 for a missing or unknown argument.
-3. In the same plugin change, point every command line of the coach skill at the copy: `node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json …`.
-4. Release the plugin (`gvt-dev:release-plugin`). The plugin's leak guard checks `cli/` like every other file.
-
-A later release repeats steps 1, 2 and 4. Step 3 is needed only once.
+Before ADR 0023, the plan was to copy `bin/` and `lib/` from a tag of the workspace repository into `plugin/cli/` with a bundle script of that repository. The move dropped that step, with its script, its tag and `cli/SOURCE.json`.
 
 ## The machine
 
@@ -46,6 +40,8 @@ A later release repeats steps 1, 2 and 4. Step 3 is needed only once.
 ## Going back
 
 Install the previous plugin release with `/plugin`, then run `install-hooks` from the workspace checkout (`node bin/gvt-fleet.mjs install-hooks`). With no `cli/` in the installed plugin, it is not in plugin mode, so it writes the hook entries again and points `statusLine` at the checkout's `bin/`.
+
+This needs the workspace's own copy of the CLI in its `bin/`, and the coach skill of the releases without `cli/` runs that copy too. Step 5 of ADR 0023 removes it from the workspace repository. After that step, these steps no longer work as written.
 
 ## Not known
 

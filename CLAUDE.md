@@ -23,9 +23,9 @@ This repository is the **`gvt-fleet` plugin** for Claude Code. It ships one skil
 
 ## Validate
 
-`commands.validate` in `.gvt-agent.json` is the validation command. It runs the leak guard and then `claude plugin validate plugin`. Run it before every commit.
+`commands.validate` in `.gvt-agent.json` is the validation command. It runs the leak guard, `claude plugin validate plugin`, the syntax check `node --check plugin/cli/bin/gvt-fleet.mjs`, and then the CLI test suite with `GVT_FLEET_FAKE_ONLY=1`. `commands.test` runs the suite alone. Run `commands.validate` before every commit. The suite reads the wiki, `README.md` and `CLAUDE.md` too (`test/wiki.test.mjs`), so a docs-only commit runs it as well.
 
-In a worktree-isolated session, run the two parts as two Bash calls: `bash .github/scripts/leak-guard.sh`, then `claude plugin validate plugin`. The worktree guard refuses the chained command when it also reads the exit code (`; echo rc=$?`). Observed on #38. `claude plugin validate plugin` prints an `ICON_MISSING` warning, because the plugin has no icon. The warning does not change the result: read the last line, `✔ Validation passed`.
+In a worktree-isolated session, run the four parts as four Bash calls: `bash .github/scripts/leak-guard.sh`, `claude plugin validate plugin`, `node --check plugin/cli/bin/gvt-fleet.mjs`, then the suite (`commands.test`). The worktree guard refuses the chained command when it also reads the exit code (`; echo rc=$?`). Observed on #38. `claude plugin validate plugin` prints an `ICON_MISSING` warning, because the plugin has no icon. The warning does not change the result: read the last line, `✔ Validation passed`.
 
 ## Conventions
 
@@ -40,7 +40,7 @@ In a worktree-isolated session, run the two parts as two Bash calls: `bash .gith
 - **Skill names** are short nouns.
 - **Which coach:** `plugin/skills/coach/SKILL.md` calls the person who runs the skill "the coach". The composed dispatch prompt, the worker process ("Worker branches" below) and the issue comments call the coach session "the coach" and the person "the user". A sentence about who merges, approves or answers says which one it means. The user merges each side pull request, because GitHub refuses an approval from a pull request's author and the workers push under the user's account. Observed on #37: the issue comment's split ("the user merges each side pull request; the coach merges only the final pull request") used "the coach" for the session, while SKILL.md uses it for the person, so the section of SKILL.md that holds the prompt had to define both words.
 - **Wiki:** a change to a page under `wiki/` adds a dated entry to `wiki/log.md`, as `wiki/schema.md` requires. A new page opens with OKF frontmatter whose `title` is its H1, and gets an entry in `wiki/index.md` (a new decision record in `wiki/decisions/index.md`). Run the `maintain-wiki` lint after a change to the page set.
-- **Decision records** go in `wiki/decisions/`, numbered `NNNN-kebab-title.md`. Version 0.1.0 ships none. The first record is 0001. An issue body does not write the number of a record it proposes. It says "a decision record of this plugin", and the record takes the next free number when it is written. A literal goes stale when another record lands while the issue is open, as for the contract number (see "Coordinator contract"). Observed in triage on #18: the body proposed `0002`.
+- **Decision records** go in `wiki/decisions/`, numbered `NNNN-kebab-title.md`. Records 0001 to 0023 came with the gvt-fleet CLI from the workspace repository and keep their numbers (#82). This plugin's own first record, once 0001, is 0024. The next record takes the next free number. An issue body does not write the number of a record it proposes. It says "a decision record of this plugin", and the record takes the next free number when it is written. A literal goes stale when another record lands while the issue is open, as for the contract number (see "Coordinator contract"). Observed in triage on #18: the body proposed `0002`.
 
 ## Worker branches
 

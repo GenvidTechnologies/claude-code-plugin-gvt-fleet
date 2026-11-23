@@ -1,0 +1,5 @@
+{
+  "ext/lib#7": { "__typename": "Issue", "state": "OPEN", "title": "External open blocker", "updatedAt": "2026-10-20T00:00:00Z" },
+  "ext/lib#8": { "__typename": "Issue", "state": "CLOSED", "title": "External closed blocker", "updatedAt": "2026-10-21T00:00:00Z" },
+  "ext/lib#9": { "__typename": "PullRequest", "state": "MERGED", "merged": true, "title": "External merged pull request", "updatedAt": "2026-10-22T00:00:00Z" }
+}

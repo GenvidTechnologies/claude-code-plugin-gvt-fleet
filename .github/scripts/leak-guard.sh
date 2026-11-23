@@ -9,8 +9,9 @@ cd "$(git rev-parse --show-toplevel)"
 # are never legitimate in a committed file. The pattern also blocks
 # private organization and project names.
 always='C:/repos/|C:/Users/|fninoles|genvid-holdings|burbank'
-# Exclude the files that define the patterns above, which would self-match.
-guard=(':!.github/workflows/leak-guard.yml' ':!.github/scripts/leak-guard.sh')
+# Exclude the files that define the patterns above, which would self-match, and the
+# private-name scan of the CLI code, which lists the names it refuses.
+guard=(':!.github/workflows/leak-guard.yml' ':!.github/scripts/leak-guard.sh' ':!.github/scripts/private-names.mjs')
 found=0
 # xargs exits 123 when every grep finds nothing, which is the clean case.
 if git ls-files -z -- "${guard[@]}" | xargs -0 grep -nE "$always"; then

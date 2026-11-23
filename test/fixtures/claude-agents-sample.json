@@ -1,0 +1,60 @@
+[
+  {
+    "id": "1a2b3c4d",
+    "sessionId": "11111111-2222-4333-8444-555555555551",
+    "name": "app-7",
+    "cwd": "C:\\work\\app",
+    "kind": "interactive",
+    "startedAt": 1793700000000,
+    "pid": 4100,
+    "status": "busy"
+  },
+  {
+    "id": "2b3c4d5e",
+    "sessionId": "11111111-2222-4333-8444-555555555552",
+    "name": "scratch-notes",
+    "cwd": "C:\\work\\notes",
+    "kind": "interactive",
+    "startedAt": 1793700100000,
+    "pid": 4200,
+    "status": "waiting",
+    "waitingFor": "input needed"
+  },
+  {
+    "id": "3c4d5e6f",
+    "sessionId": "11111111-2222-4333-8444-555555555553",
+    "name": "coach-review",
+    "cwd": "C:\\work\\fleet",
+    "kind": "background",
+    "startedAt": 1793700200000,
+    "state": "blocked"
+  },
+  {
+    "id": "4d5e6f70",
+    "sessionId": "11111111-2222-4333-8444-555555555554",
+    "name": "coach-report",
+    "cwd": "C:\\work\\fleet",
+    "kind": "background",
+    "startedAt": 1793700300000,
+    "state": "done"
+  },
+  {
+    "id": "5e6f7081",
+    "sessionId": "11111111-2222-4333-8444-555555555555",
+    "name": "app-3",
+    "cwd": "C:\\work\\fleet\\repos\\acme\\app",
+    "kind": "background",
+    "startedAt": 1793700400000,
+    "state": "working"
+  },
+  {
+    "id": "6f708192",
+    "sessionId": "11111111-2222-4333-8444-555555555556",
+    "name": "idle-shell",
+    "cwd": "C:\\work\\notes",
+    "kind": "interactive",
+    "startedAt": 1793700500000,
+    "pid": 4300,
+    "status": "idle"
+  }
+]

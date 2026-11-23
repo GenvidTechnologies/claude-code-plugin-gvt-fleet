@@ -256,6 +256,28 @@ merge. Observed in triage on #89: the row "with the checkout up to date reports
 none" could not fail correctly until the body required the count to be right
 immediately after the merge.
 
+The open CLI issues of the workspace repository have copies in this
+repository since 2026-11-23: #101 to #148, except the pull request #104. Each
+copy ends "Recreated on 2026-11-23 from the coordinator workspace's tracker".
+An issue that cites a workspace issue cites its copy here as a bare `#N`. Find
+the copy by its title: on 2026-11-23 the workspace had not yet published which
+copy belongs to which issue. An issue that waits in prose for a workspace step
+is checked at triage, because the step can run before the triage does.
+Observed in triage on #99: the body was filed at 21:40 to wait for the copies,
+and the copies were made at 22:04. Workspace #81 became #119, and workspace #82
+became #120.
+
+An issue that rewrites references to workspace issues lists the CLI code as
+well as the wiki. The `HELP` table in `plugin/cli/bin/gvt-fleet.mjs` prints such
+references, and comments in `plugin/cli/lib/` cite them as bare numbers.
+Observed in triage on #99: #86 rewrote the wiki pages only, and the `wrap` entry
+of the `HELP` table still ended "(#82)", which in this repository names the
+issue that imported the CLI.
+
+A count from the analyst's report is counted again in the file before it goes
+into an issue body. Observed in triage on #98: the report counted two bare
+`#82` in record 0023, and the record holds three.
+
 ## Splitting
 
 Split when one issue bundles unrelated concerns, or when a single piece of work

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const lib = (name) => pathToFileURL(path.join(here, '..', '..', 'lib', name)).href;
+const lib = (name) => pathToFileURL(path.join(here, '..', '..', 'plugin', 'cli', 'lib', name)).href;
 
 const [mode, stateDir, countArg, id] = process.argv.slice(2);
 const count = Number(countArg);

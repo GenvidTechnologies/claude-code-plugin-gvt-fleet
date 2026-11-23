@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { cloneCommand, trustCommand } from '../lib/commands.mjs';
-import { createLog } from '../lib/log.mjs';
+import { cloneCommand, trustCommand } from '../plugin/cli/lib/commands.mjs';
+import { createLog } from '../plugin/cli/lib/log.mjs';
 import { fwd, g, makeOrigin, makeTempDir } from './helpers/git-sandbox.mjs';
 
 // Same filter as bin/gvt-fleet.mjs: only the sqlite ExperimentalWarning is swallowed.

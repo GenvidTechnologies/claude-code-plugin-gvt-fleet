@@ -2,8 +2,8 @@ process.env.GVT_FLEET_FAKE_ONLY = '1';
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadRefsGrammar } from '../lib/plugin-path.mjs';
-import { resolveRef, resolveAll } from '../lib/refs.mjs';
+import { loadRefsGrammar } from '../plugin/cli/lib/plugin-path.mjs';
+import { resolveRef, resolveAll } from '../plugin/cli/lib/refs.mjs';
 
 const ownRepo = 'GenvidTechnologies/construct3-chef';
 const shortNames = {

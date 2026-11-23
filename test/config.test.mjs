@@ -13,8 +13,8 @@ import {
   runWithConfig,
   validateBranchRecord,
   validateConfig,
-} from '../lib/config.mjs';
-import { parseOverlay } from '../lib/sync.mjs';
+} from '../plugin/cli/lib/config.mjs';
+import { parseOverlay } from '../plugin/cli/lib/sync.mjs';
 import { createFakeGh } from './fakes/fake-gh.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));

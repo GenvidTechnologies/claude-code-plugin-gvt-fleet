@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createLog } from '../lib/log.mjs';
+import { createLog } from '../plugin/cli/lib/log.mjs';
 import { makeTempDir } from './helpers/git-sandbox.mjs';
 
 const OLD = 'gvt-loop.log.jsonl';

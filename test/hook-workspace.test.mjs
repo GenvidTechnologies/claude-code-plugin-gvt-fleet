@@ -7,10 +7,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runScript } from './helpers/run-script.mjs';
-import { workspaceCandidates } from '../lib/worktree-path.mjs';
+import { workspaceCandidates } from '../plugin/cli/lib/worktree-path.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const HOOK = path.join(ROOT, 'bin', 'gvt-fleet-hook.mjs');
+const HOOK = path.join(ROOT, 'plugin', 'cli', 'bin', 'gvt-fleet-hook.mjs');
 const tmp = () => fs.mkdtempSync(path.join(fs.realpathSync.native(os.tmpdir()), 'gvt-hook-ws-'));
 const fwd = (p) => p.split(path.sep).join('/');
 

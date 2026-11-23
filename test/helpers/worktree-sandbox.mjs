@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { openClaimsDb } from '../../lib/claims-db.mjs';
+import { openClaimsDb } from '../../plugin/cli/lib/claims-db.mjs';
 import { createFakeClaude } from '../fakes/fake-claude.mjs';
 import { createFakeGh } from '../fakes/fake-gh.mjs';
 import {

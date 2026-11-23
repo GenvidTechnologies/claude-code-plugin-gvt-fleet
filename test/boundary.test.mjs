@@ -3,7 +3,7 @@ process.env.GVT_FLEET_FAKE_ONLY = '1';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { resolveExe, run } from '../lib/proc.mjs';
+import { resolveExe, run } from '../plugin/cli/lib/proc.mjs';
 
 test('NF-boundary: real runner refuses gh and claude under GVT_FLEET_FAKE_ONLY', async () => {
   assert.equal(process.env.GVT_FLEET_FAKE_ONLY, '1');

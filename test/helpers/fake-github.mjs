@@ -1,5 +1,5 @@
 // A scripted GitHub for the claims tests: per-issue labels and assignees, and whether the label exists in the repo.
-import { GhError } from '../../lib/gh.mjs';
+import { GhError } from '../../plugin/cli/lib/gh.mjs';
 import { createFakeGh } from '../fakes/fake-gh.mjs';
 
 export const LABEL = 'in-progress';

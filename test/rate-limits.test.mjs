@@ -6,8 +6,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { TMP_INFIX, writeJsonAtomicRetry } from '../lib/atomic-write.mjs';
-import { recordRateLimits, readRateLimits, snapshotFile } from '../lib/rate-limits.mjs';
+import { TMP_INFIX, writeJsonAtomicRetry } from '../plugin/cli/lib/atomic-write.mjs';
+import { recordRateLimits, readRateLimits, snapshotFile } from '../plugin/cli/lib/rate-limits.mjs';
 
 const fixture = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures', 'probe-events.jsonl');
 const fixtureLines = fs.readFileSync(fixture, 'utf8').split('\n');

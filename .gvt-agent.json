@@ -4,7 +4,8 @@
     "description": "The gvt-fleet Claude Code plugin: the /gvt-fleet:coach skill for the gvt-fleet multi-repo coordinator."
   },
   "commands": {
-    "validate": "bash .github/scripts/leak-guard.sh && claude plugin validate plugin"
+    "validate": "bash .github/scripts/leak-guard.sh && claude plugin validate plugin && node --check plugin/cli/bin/gvt-fleet.mjs && GVT_FLEET_FAKE_ONLY=1 node --test \"test/*.test.mjs\"",
+    "test": "GVT_FLEET_FAKE_ONLY=1 node --test \"test/*.test.mjs\""
   },
   "repo": {
     "default_branch": "main",

@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { TMP_INFIX } from '../lib/atomic-write.mjs';
-import { ensureTrusted, normalizeKey, trustKey } from '../lib/trust.mjs';
+import { TMP_INFIX } from '../plugin/cli/lib/atomic-write.mjs';
+import { ensureTrusted, normalizeKey, trustKey } from '../plugin/cli/lib/trust.mjs';
 import { makeTempDir, fwd } from './helpers/git-sandbox.mjs';
 
 const NO_SLEEP = async () => {};

@@ -6,13 +6,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { worktreeRemoveCommand } from '../lib/commands.mjs';
+import { worktreeRemoveCommand } from '../plugin/cli/lib/commands.mjs';
 import {
   createFindHolders,
   createWorktree,
   finishWorktree,
   removeWorktree,
-} from '../lib/worktrees.mjs';
+} from '../plugin/cli/lib/worktrees.mjs';
 import {
   fwd,
   g,
@@ -356,7 +356,7 @@ test('R24: holders report source none when handle64 and tasklist both fail', asy
 });
 
 test('NF-cli: help with no argument prints the global help and exits 0', () => {
-  const bin = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'gvt-fleet.mjs');
+  const bin = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'plugin', 'cli', 'bin', 'gvt-fleet.mjs');
   const res = spawnSync(process.execPath, [bin, 'help'], { encoding: 'utf8' });
   assert.equal(res.status, 0, res.stderr);
   assert.match(res.stdout, /^Usage: gvt-fleet /);

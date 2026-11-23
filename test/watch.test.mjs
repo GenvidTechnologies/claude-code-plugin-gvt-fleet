@@ -4,9 +4,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { openClaimsDb } from '../lib/claims-db.mjs';
-import { watchCommand } from '../lib/commands.mjs';
-import { nextWaits, oneLine, formatWait } from '../lib/watch.mjs';
+import { openClaimsDb } from '../plugin/cli/lib/claims-db.mjs';
+import { watchCommand } from '../plugin/cli/lib/commands.mjs';
+import { nextWaits, oneLine, formatWait } from '../plugin/cli/lib/watch.mjs';
 import { createFakeClaude } from './fakes/fake-claude.mjs';
 import { makeTempDir } from './helpers/git-sandbox.mjs';
 

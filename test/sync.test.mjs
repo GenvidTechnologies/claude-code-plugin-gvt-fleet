@@ -6,13 +6,13 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openCacheDb } from '../lib/cache-db.mjs';
-import { GhError } from '../lib/gh.mjs';
-import { buildGraph } from '../lib/graph.mjs';
-import { computeReady } from '../lib/ready.mjs';
-import { loadRefsGrammar } from '../lib/plugin-path.mjs';
-import { run } from '../lib/proc.mjs';
-import { applyOverlays, readClosingPrs, runSync } from '../lib/sync.mjs';
+import { openCacheDb } from '../plugin/cli/lib/cache-db.mjs';
+import { GhError } from '../plugin/cli/lib/gh.mjs';
+import { buildGraph } from '../plugin/cli/lib/graph.mjs';
+import { computeReady } from '../plugin/cli/lib/ready.mjs';
+import { loadRefsGrammar } from '../plugin/cli/lib/plugin-path.mjs';
+import { run } from '../plugin/cli/lib/proc.mjs';
+import { applyOverlays, readClosingPrs, runSync } from '../plugin/cli/lib/sync.mjs';
 import { createFakeGh } from './fakes/fake-gh.mjs';
 
 // Same filter as bin/gvt-fleet.mjs: only the sqlite ExperimentalWarning is swallowed.
@@ -369,9 +369,12 @@ test('R174: readClosingPrs returns {error} when the call throws', async () => {
 });
 
 test('S5: ready --json on an empty state dir prints valid JSON with no sqlite ExperimentalWarning', async () => {
-  const state = path.join(tmp(), 'state');
-  const bin = path.join(here, '..', 'bin', 'gvt-fleet.mjs');
-  const res = await run([process.execPath, bin, 'ready', '--json', '--state-dir', state]);
+  const ws = tmp();
+  fs.mkdirSync(path.join(ws, 'config'));
+  fs.writeFileSync(path.join(ws, 'config', 'repos.json'), JSON.stringify({ version: 1, repos: [{ repo: 'acme/app' }] }));
+  const state = path.join(ws, 'state');
+  const bin = path.join(here, '..', 'plugin', 'cli', 'bin', 'gvt-fleet.mjs');
+  const res = await run([process.execPath, bin, 'ready', '--json', '--workspace', ws, '--state-dir', state]);
   assert.equal(res.code, 0, res.stderr);
   assert.deepEqual(JSON.parse(res.stdout), { ready: [], untriaged: [], now: [], next: [] });
   assert.doesNotMatch(res.stderr, /ExperimentalWarning/);

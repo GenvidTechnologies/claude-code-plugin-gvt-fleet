@@ -15,7 +15,7 @@ import {
   gvtDevRoot,
   loadRefsGrammar,
   refsGrammarPath,
-} from '../lib/plugin-path.mjs';
+} from '../plugin/cli/lib/plugin-path.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -56,7 +56,7 @@ test('R10: a missing installed_plugins.json error names the file', () => {
 
 // R206: a shipped CLI states its gvt-dev requirement (#142, ADR 0020).
 
-const BIN = path.join(repoRoot, 'bin', 'gvt-fleet.mjs');
+const BIN = path.join(repoRoot, 'plugin', 'cli', 'bin', 'gvt-fleet.mjs');
 const made = [];
 const tmp = () => {
   const dir = fs.mkdtempSync(path.join(fs.realpathSync.native(os.tmpdir()), 'gvt-fleet-gvtdev-'));
@@ -72,7 +72,7 @@ function cliWith(gvtDev, args) {
   const dir = tmp();
   const configFile = path.join(dir, 'repos.json');
   fs.writeFileSync(configFile, `${JSON.stringify({ version: 1, repos: [{ repo: 'acme/app' }] })}\n`);
-  return spawnSync(process.execPath, [BIN, '--config', configFile, '--state-dir', path.join(dir, 'state'), ...args], {
+  return spawnSync(process.execPath, [BIN, '--workspace', dir, '--config', configFile, '--state-dir', path.join(dir, 'state'), ...args], {
     encoding: 'utf8',
     env: { ...process.env, GVT_FLEET_FAKE_ONLY: '1', GVT_DEV_ROOT: gvtDev },
   });

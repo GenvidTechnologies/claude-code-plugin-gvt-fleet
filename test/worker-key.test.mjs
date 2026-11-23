@@ -3,8 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ClaimError, parseClaimRef, parseWorkerRef } from '../lib/claims.mjs';
-import { openClaimsDb } from '../lib/claims-db.mjs';
+import { ClaimError, parseClaimRef, parseWorkerRef } from '../plugin/cli/lib/claims.mjs';
+import { openClaimsDb } from '../plugin/cli/lib/claims-db.mjs';
 import {
   MAX_SLUG_LENGTH,
   TASK_SLUG_RE,
@@ -15,8 +15,8 @@ import {
   parseTaskWorktreeName,
   taskKey,
   taskNames,
-} from '../lib/worker-key.mjs';
-import { parseWorktreeCwd } from '../lib/worktree-path.mjs';
+} from '../plugin/cli/lib/worker-key.mjs';
+import { parseWorktreeCwd } from '../plugin/cli/lib/worktree-path.mjs';
 import { seedTaskLease } from './helpers/dispatch-sandbox.mjs';
 import { makeTempDir } from './helpers/git-sandbox.mjs';
 
@@ -125,7 +125,7 @@ test('R148: seedTaskLease stores a held task lease with a future expiry', async 
 });
 
 test('R148: lib/worker-key.mjs and lib/worktrees.mjs both resolve the short name through repoShortName', () => {
-  for (const f of ['../lib/worker-key.mjs', '../lib/worktrees.mjs']) {
+  for (const f of ['../plugin/cli/lib/worker-key.mjs', '../plugin/cli/lib/worktrees.mjs']) {
     const text = fs.readFileSync(new URL(f, import.meta.url), 'utf8');
     assert.match(text, /\brepoShortName\(/, f);
   }

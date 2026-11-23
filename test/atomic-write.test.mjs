@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import * as atomic from '../lib/atomic-write.mjs';
-import { TMP_INFIX } from '../lib/atomic-write.mjs';
+import * as atomic from '../plugin/cli/lib/atomic-write.mjs';
+import { TMP_INFIX } from '../plugin/cli/lib/atomic-write.mjs';
 
 const { writeJsonAtomic, writeTextAtomic } = atomic;
 

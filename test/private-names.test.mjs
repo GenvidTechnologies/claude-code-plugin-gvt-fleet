@@ -39,20 +39,20 @@ test('R203: the scan reports each leak as file:line and exits 1, and passes a cl
   const drive = 'D:' + String.fromCharCode(92) + 'repos' + String.fromCharCode(92) + 'x';
   const org = ['genvid', 'holdings'].join('-');
   const dir = await repoWith(t, {
-    'bin/clean.mjs': 'export const a = 1;\n',
-    'lib/a.mjs': `// fine\nconst p = '${drive}';\n`,
+    'plugin/cli/bin/clean.mjs': 'export const a = 1;\n',
+    'plugin/cli/lib/a.mjs': `// fine\nconst p = '${drive}';\n`,
     'test/b.test.mjs': `const r = '${org.toUpperCase()}/app';\n`,
     'wiki/c.md': `${org} stays private here\n`,
   });
   const r = scan(['--root', dir]);
   assert.equal(r.code, 1, r.out + r.err);
-  assert.match(r.out, /^lib\/a\.mjs:2: machine path$/m);
+  assert.match(r.out, /^plugin\/cli\/lib\/a\.mjs:2: machine path$/m);
   assert.match(r.out, /^test\/b\.test\.mjs:1: private org$/m);
   assert.doesNotMatch(r.out, /wiki\/c\.md/);
   assert.doesNotMatch(r.out, /bin\/clean\.mjs/);
   assert.match(r.out, /3 files scanned, 2 matches/);
 
-  const clean = await repoWith(t, { 'lib/a.mjs': `const p = 'C:/work/fleet';\n` });
+  const clean = await repoWith(t, { 'plugin/cli/lib/a.mjs': `const p = 'C:/work/fleet';\n` });
   const c = scan(['--root', clean]);
   assert.equal(c.code, 0, c.out + c.err);
 });

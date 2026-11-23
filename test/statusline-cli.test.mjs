@@ -7,7 +7,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runScript } from './helpers/run-script.mjs';
-import { passthrough, run } from '../lib/proc.mjs';
+import { passthrough, run } from '../plugin/cli/lib/proc.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const runner = path.join(here, 'fixtures', 'passthrough-runner.mjs');
@@ -28,7 +28,7 @@ test("R38: passthrough forwards stdin, inherits the child's output and returns i
   assert.equal(await passthrough(['gvt-fleet-no-such-exe-xyz']), 127);
 });
 
-const helper = path.join(here, '..', 'bin', 'gvt-fleet-statusline.mjs');
+const helper = path.join(here, '..', 'plugin', 'cli', 'bin', 'gvt-fleet-statusline.mjs');
 
 function linePayload(n) {
   const lines = fs.readFileSync(path.join(here, 'fixtures', 'probe-events.jsonl'), 'utf8').split('\n').filter((l) => l !== '');
@@ -134,7 +134,7 @@ function spaceBatch() {
 test('R45: passthrough runs a batch file whose folder has a space', async (t) => {
   const { dir, cmd } = spaceBatch();
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-  const procUrl = pathToFileURL(path.join(here, '..', 'lib', 'proc.mjs')).href;
+  const procUrl = pathToFileURL(path.join(here, '..', 'plugin', 'cli', 'lib', 'proc.mjs')).href;
   const wrapper = path.join(dir, 'wrap.mjs');
   fs.writeFileSync(
     wrapper,

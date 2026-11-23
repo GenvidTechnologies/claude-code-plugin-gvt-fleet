@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { openClaimsDb } from '../lib/claims-db.mjs';
+import { openClaimsDb } from '../plugin/cli/lib/claims-db.mjs';
 import {
   claimCommand,
   classCommand,
@@ -13,7 +13,7 @@ import {
   heartbeatCommand,
   releaseCommand,
   whyCommand,
-} from '../lib/commands.mjs';
+} from '../plugin/cli/lib/commands.mjs';
 import { createFakeClaude } from './fakes/fake-claude.mjs';
 import { seedTaskLease } from './helpers/dispatch-sandbox.mjs';
 import { github, LABEL } from './helpers/fake-github.mjs';

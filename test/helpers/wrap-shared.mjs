@@ -2,8 +2,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { openCacheDb } from '../../lib/cache-db.mjs';
-import { wrapIssue } from '../../lib/wrap.mjs';
+import { openCacheDb } from '../../plugin/cli/lib/cache-db.mjs';
+import { wrapIssue } from '../../plugin/cli/lib/wrap.mjs';
 import { commitFile, fwd, g } from './git-sandbox.mjs';
 import { github, LABEL } from './fake-github.mjs';
 import {

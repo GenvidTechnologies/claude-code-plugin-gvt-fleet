@@ -2,7 +2,7 @@ process.env.GVT_FLEET_FAKE_ONLY = '1';
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { names } from '../lib/worktrees.mjs';
+import { names } from '../plugin/cli/lib/worktrees.mjs';
 import { createFakeGh } from './fakes/fake-gh.mjs';
 import { noCommitFound, serverError } from './helpers/fake-github.mjs';
 import {

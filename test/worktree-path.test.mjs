@@ -2,8 +2,8 @@ process.env.GVT_FLEET_FAKE_ONLY = '1';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { parseWorktreeCwd, resolveWorkspace } from '../lib/worktree-path.mjs';
-import { names } from '../lib/worktrees.mjs';
+import { parseWorktreeCwd, resolveWorkspace } from '../plugin/cli/lib/worktree-path.mjs';
+import { names } from '../plugin/cli/lib/worktrees.mjs';
 
 const WS = 'C:/work/fleet';
 

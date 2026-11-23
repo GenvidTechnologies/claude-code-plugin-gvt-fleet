@@ -15,13 +15,13 @@ import {
   planPromote,
   pointers,
   roleOf,
-} from '../lib/iterations.mjs';
-import { openCacheDb } from '../lib/cache-db.mjs';
+} from '../plugin/cli/lib/iterations.mjs';
+import { openCacheDb } from '../plugin/cli/lib/cache-db.mjs';
 import {
   iterationListCommand,
   iterationPlanCommand,
   iterationPromoteCommand,
-} from '../lib/commands.mjs';
+} from '../plugin/cli/lib/commands.mjs';
 import { fakeProject } from './fakes/fake-project.mjs';
 import { makeTempDir } from './helpers/git-sandbox.mjs';
 
@@ -201,7 +201,7 @@ test('R213: assertValidLayout refuses an iteration under one day and an overlap,
 });
 
 test('R193: the iterations literal escapes quotes, backslashes and control characters in a title', async () => {
-  const { iterationsLiteral } = await import('../lib/projects.mjs');
+  const { iterationsLiteral } = await import('../plugin/cli/lib/projects.mjs');
   const { parseIterationsLiteral } = await import('./fakes/fake-project.mjs');
   const title = 'a "quoted" \\ back\nslash\ttab';
   const lit = iterationsLiteral([{ id: 'i1', title, startDate: TODAY, duration: 3 }, { title: 'new', startDate: '2026-11-15', duration: 365 }]);
@@ -213,7 +213,7 @@ test('R193: the iterations literal escapes quotes, backslashes and control chara
 });
 
 test('R193: only a NOT_FOUND error on the projectV2 field path counts as a missing Iteration field', async () => {
-  const { isMissingFieldError } = await import('../lib/projects.mjs');
+  const { isMissingFieldError } = await import('../plugin/cli/lib/projects.mjs');
   const path = ['repositoryOwner', 'projectV2', 'field'];
   assert.equal(isMissingFieldError({ type: 'NOT_FOUND', path, message: 'any wording' }), true);
   assert.equal(isMissingFieldError({ type: 'FORBIDDEN', path, message: 'x' }), false);

@@ -12,8 +12,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { openCacheDb } from '../lib/cache-db.mjs';
-import { openClaimsDb } from '../lib/claims-db.mjs';
+import { openCacheDb } from '../plugin/cli/lib/cache-db.mjs';
+import { openClaimsDb } from '../plugin/cli/lib/claims-db.mjs';
 import {
   claimCommand,
   classCommand,
@@ -27,8 +27,8 @@ import {
   watchCommand,
   worktreeRemoveCommand,
   wrapCommand,
-} from '../lib/commands.mjs';
-import { COACH_CONTRACT } from '../lib/dispatch.mjs';
+} from '../plugin/cli/lib/commands.mjs';
+import { COACH_CONTRACT } from '../plugin/cli/lib/dispatch.mjs';
 import { createFakeClaude } from './fakes/fake-claude.mjs';
 import { createFakeGh } from './fakes/fake-gh.mjs';
 import { fakeProject } from './fakes/fake-project.mjs';
@@ -44,7 +44,7 @@ process.on('warning', (w) => {
 });
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const BIN_ROOT = path.resolve(here, '..');
+const BIN_ROOT = path.resolve(here, '..', 'plugin', 'cli');
 const REPO = 'acme/app';
 const KEY = 'acme/app#1';
 const RESET = '2026-11-03T13:00:00Z';

@@ -3,20 +3,20 @@
 //
 // Usage: node .github/scripts/private-names.mjs [--root <dir>] [<path>...]
 //
-// Scans the files that git tracks under each <path> (default: bin lib test),
+// Scans the files that git tracks under each <path> (default: plugin/cli/bin
+// plugin/cli/lib test),
 // relative to --root (default: the current folder). Prints one line per match
 // as <file>:<line>: <rule>. Exit 0 when nothing matches, 1 on a match, and 2
 // when the scan cannot run or lists no file (a scan of nothing is not a pass).
 //
 // This file names the private names it refuses, so it lives outside the
-// scanned paths. The workspace keeps its private names in config/, wiki/ and
-// CLAUDE.md, which no option of #35 publishes.
+// scanned paths, and .github/scripts/leak-guard.sh skips it.
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { resolveExe } from '../../lib/proc.mjs';
+import { resolveExe } from '../../plugin/cli/lib/proc.mjs';
 
 const RULES = [
   ['private org', /genvid-holdings/i],
@@ -45,7 +45,7 @@ for (let i = 0; i < argv.length; i++) {
     paths.push(argv[i]);
   }
 }
-if (paths.length === 0) paths.push('bin', 'lib', 'test');
+if (paths.length === 0) paths.push('plugin/cli/bin', 'plugin/cli/lib', 'test');
 
 const ls = spawnSync(resolveExe('git'), ['ls-files', '-z', '--', ...paths], {
   cwd: root,

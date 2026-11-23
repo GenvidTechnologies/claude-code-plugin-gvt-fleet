@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { once } from 'node:events';
-import { removeWorktree } from '../../lib/worktrees.mjs';
+import { removeWorktree } from '../../plugin/cli/lib/worktrees.mjs';
 import {
   commitFile,
   fwd,

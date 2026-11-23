@@ -6,10 +6,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { openCacheDb, CACHE_SCHEMA, CACHE_SCHEMA_VERSION } from '../lib/cache-db.mjs';
-import { openClaimsDb, ClaimsVersionError, CLAIMS_SCHEMA, CLAIMS_SCHEMA_VERSION } from '../lib/claims-db.mjs';
-import { buildGraph } from '../lib/graph.mjs';
-import { computeReady } from '../lib/ready.mjs';
+import { openCacheDb, CACHE_SCHEMA, CACHE_SCHEMA_VERSION } from '../plugin/cli/lib/cache-db.mjs';
+import { openClaimsDb, ClaimsVersionError, CLAIMS_SCHEMA, CLAIMS_SCHEMA_VERSION } from '../plugin/cli/lib/claims-db.mjs';
+import { buildGraph } from '../plugin/cli/lib/graph.mjs';
+import { computeReady } from '../plugin/cli/lib/ready.mjs';
 
 // Same filter as bin/gvt-fleet.mjs: only the sqlite ExperimentalWarning is swallowed.
 process.removeAllListeners('warning');

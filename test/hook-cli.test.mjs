@@ -7,11 +7,12 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { runScript, rebase } from './helpers/run-script.mjs';
-import { parseWorktreeCwd } from '../lib/worktree-path.mjs';
-import { workerFile } from '../lib/hook-state.mjs';
+import { parseWorktreeCwd } from '../plugin/cli/lib/worktree-path.mjs';
+import { workerFile } from '../plugin/cli/lib/hook-state.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const HOOK = path.join(ROOT, 'bin', 'gvt-fleet-hook.mjs');
+const CLI = path.join(ROOT, 'plugin', 'cli');
+const HOOK = path.join(CLI, 'bin', 'gvt-fleet-hook.mjs');
 const FIXTURE = path.join(ROOT, 'test', 'fixtures', 'probe-events.jsonl');
 const FIXTURE_ROOT = 'C:\\work\\fleet';
 
@@ -77,7 +78,7 @@ function closure(entry) {
       } else if (spec.startsWith('./') || spec.startsWith('../')) {
         const target = path.resolve(path.dirname(file), spec);
         assert.ok(fs.existsSync(target), `cannot resolve ${spec} imported by ${file}`);
-        found.add(path.relative(ROOT, target).split(path.sep).join('/'));
+        found.add(path.relative(CLI, target).split(path.sep).join('/'));
         visit(target);
       } else {
         assert.fail(`unsupported specifier ${spec} in ${file}`);
@@ -164,7 +165,7 @@ test('NF-hookcost: the out-of-scope path imports only node built-ins and the pat
   const hook = specifiers(HOOK);
   // node:fs checks that a workspace worked out from the session folder holds config/repos.json (ADR 0021).
   assert.deepEqual([...hook.staticSpecs].sort(), ['../lib/worktree-path.mjs', 'node:fs', 'node:path', 'node:url']);
-  const wp = specifiers(path.join(ROOT, 'lib', 'worktree-path.mjs'));
+  const wp = specifiers(path.join(CLI, 'lib', 'worktree-path.mjs'));
   assert.ok(wp.staticSpecs.length > 0);
   assert.deepEqual(wp.dynamicSpecs, []);
   for (const s of wp.staticSpecs) assert.ok(s.startsWith('node:'), `worktree-path imports ${s}`);

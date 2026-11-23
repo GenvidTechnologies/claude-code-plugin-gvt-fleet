@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ensureClone } from '../lib/clones.mjs';
+import { ensureClone } from '../plugin/cli/lib/clones.mjs';
 import {
   git, g, fwd, makeTempDir, makeOrigin, pushCommit, addNestedWorktree,
 } from './helpers/git-sandbox.mjs';

@@ -2,8 +2,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { run } from '../../lib/proc.mjs';
-import { createGit } from '../../lib/git.mjs';
+import { run } from '../../plugin/cli/lib/proc.mjs';
+import { createGit } from '../../plugin/cli/lib/git.mjs';
 
 export const git = createGit({ run });
 

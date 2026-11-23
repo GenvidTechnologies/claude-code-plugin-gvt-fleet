@@ -2,7 +2,7 @@ process.env.GVT_FLEET_FAKE_ONLY = '1';
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decideProof, prSummary } from '../lib/merge-proof.mjs';
+import { decideProof, prSummary } from '../plugin/cli/lib/merge-proof.mjs';
 
 const TIP = 'a'.repeat(40);
 const OTHER = 'b'.repeat(40);

@@ -5,9 +5,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseWorktreeCwd } from '../lib/worktree-path.mjs';
-import { buildRecord, serializeRecord, appendRecord, workerFile } from '../lib/hook-state.mjs';
-import { classifyRecord, classifySession, readWorkerRecords } from '../lib/worker-state.mjs';
+import { parseWorktreeCwd } from '../plugin/cli/lib/worktree-path.mjs';
+import { buildRecord, serializeRecord, appendRecord, workerFile } from '../plugin/cli/lib/hook-state.mjs';
+import { classifyRecord, classifySession, readWorkerRecords } from '../plugin/cli/lib/worker-state.mjs';
 
 const WS = 'C:/work/fleet';
 const here = path.dirname(fileURLToPath(import.meta.url));

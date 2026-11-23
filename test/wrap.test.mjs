@@ -7,8 +7,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { wrapCommand } from '../lib/commands.mjs';
-import { removeWorktree } from '../lib/worktrees.mjs';
+import { wrapCommand } from '../plugin/cli/lib/commands.mjs';
+import { removeWorktree } from '../plugin/cli/lib/worktrees.mjs';
 import { sequence } from './fakes/fake-claude.mjs';
 import {
   commitFile,

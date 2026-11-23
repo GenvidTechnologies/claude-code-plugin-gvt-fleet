@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { once } from 'node:events';
-import { worktreeFinishCommand, worktreeRemoveCommand } from '../lib/commands.mjs';
-import { names } from '../lib/worktrees.mjs';
+import { worktreeFinishCommand, worktreeRemoveCommand } from '../plugin/cli/lib/commands.mjs';
+import { names } from '../plugin/cli/lib/worktrees.mjs';
 import { fwd, g } from './helpers/git-sandbox.mjs';
 import {
   BRANCH,

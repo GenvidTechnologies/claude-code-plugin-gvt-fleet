@@ -6,9 +6,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runScript } from './helpers/run-script.mjs';
-import { appendRecord, workerFile } from '../lib/hook-state.mjs';
-import { recordRateLimits, snapshotFile } from '../lib/rate-limits.mjs';
-import { parseWorktreeCwd } from '../lib/worktree-path.mjs';
+import { appendRecord, workerFile } from '../plugin/cli/lib/hook-state.mjs';
+import { recordRateLimits, snapshotFile } from '../plugin/cli/lib/rate-limits.mjs';
+import { parseWorktreeCwd } from '../plugin/cli/lib/worktree-path.mjs';
 
 const CHILD = path.join(path.dirname(fileURLToPath(import.meta.url)), 'helpers', 'append-many.mjs');
 const CWD = 'C:\\tmp\\ws\\repos\\o\\n\\.claude\\worktrees\\n-1';

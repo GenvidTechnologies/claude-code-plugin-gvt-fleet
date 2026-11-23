@@ -2,9 +2,9 @@ process.env.GVT_FLEET_FAKE_ONLY = '1';
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadRefsGrammar } from '../lib/plugin-path.mjs';
-import { buildGraph } from '../lib/graph.mjs';
-import { computeReady, explain, untriagedSummary } from '../lib/ready.mjs';
+import { loadRefsGrammar } from '../plugin/cli/lib/plugin-path.mjs';
+import { buildGraph } from '../plugin/cli/lib/graph.mjs';
+import { computeReady, explain, untriagedSummary } from '../plugin/cli/lib/ready.mjs';
 
 const { extract } = await loadRefsGrammar();
 

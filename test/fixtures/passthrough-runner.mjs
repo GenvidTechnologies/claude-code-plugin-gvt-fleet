@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const { passthrough } = await import(pathToFileURL(path.join(here, '..', '..', 'lib', 'proc.mjs')).href);
+const { passthrough } = await import(pathToFileURL(path.join(here, '..', '..', 'plugin', 'cli', 'lib', 'proc.mjs')).href);
 
 const chunks = [];
 for await (const c of process.stdin) chunks.push(c);

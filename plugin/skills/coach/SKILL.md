@@ -153,7 +153,7 @@ Show `ready` and each entry of `reasons` (`code`, `detail`). Exit 0 is a valid a
 
 ## Triage pass
 
-The pass runs `gvt-dev:triage-issues` over the untriaged issues of the repositories the coach picks. It runs in this session, as decision record 0001 of this plugin records. The coach can instead start a task worker for one repository with the `task` mode and a prompt that asks for the triage. The skill offers this pass, not the task, unless the coach asks for the task.
+The pass runs `gvt-dev:triage-issues` over the untriaged issues of the repositories the coach picks. It runs in this session, as decision record 0024 of this plugin records. The coach can instead start a task worker for one repository with the `task` mode and a prompt that asks for the triage. The skill offers this pass, not the task, unless the coach asks for the task.
 
 Offer the pass after the overview summary. Run nothing until the coach names the repositories. Each entry of `keys` is a ref `owner/name#N`. The scope of a repository is the numbers after `#` in its `keys`.
 

@@ -7,9 +7,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { findWorkspace, isWorkspace } from '../lib/workspace.mjs';
+import { findWorkspace, isWorkspace } from '../plugin/cli/lib/workspace.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'plugin', 'cli');
 const tmp = () => fs.mkdtempSync(path.join(fs.realpathSync.native(os.tmpdir()), 'gvt-fleet-ws-'));
 
 /** Makes `dir` a workspace whose config lists `repos` (one entry per name). */

@@ -5,11 +5,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { openCacheDb } from '../lib/cache-db.mjs';
-import { dropBranch, setBranch } from '../lib/branches.mjs';
-import { branchSetCommand, branchesCommand } from '../lib/commands.mjs';
-import { buildGraph } from '../lib/graph.mjs';
-import { computeReady } from '../lib/ready.mjs';
+import { openCacheDb } from '../plugin/cli/lib/cache-db.mjs';
+import { dropBranch, setBranch } from '../plugin/cli/lib/branches.mjs';
+import { branchSetCommand, branchesCommand } from '../plugin/cli/lib/commands.mjs';
+import { buildGraph } from '../plugin/cli/lib/graph.mjs';
+import { computeReady } from '../plugin/cli/lib/ready.mjs';
 
 // Same filter as bin/gvt-fleet.mjs: only the sqlite ExperimentalWarning is swallowed.
 process.removeAllListeners('warning');

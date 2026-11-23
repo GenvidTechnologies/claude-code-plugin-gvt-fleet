@@ -4,6 +4,12 @@ Record of every change to the wiki's page set: what changed, why, and which sour
 
 Add newest first. Never edit or remove a prior entry. If a past entry needs a correction, add a new entry that says so. The maintenance rules are in [the schema](schema.md).
 
+## 2026-11-23
+
+* **Creation**: `wiki/coordinator.md`, the pages under `wiki/coordinator/`, `wiki/design.md`, `wiki/configuration.md`, `wiki/acceptance/gvt-loop-coordinator-phase1.md` and the decision records 0001 to 0023 (#82). Imported unchanged from the tag `cli-source-moved` of the workspace repository with the gvt-fleet CLI, which now lives in `plugin/cli/`. Some pages still describe the workspace as "this repository"; #86 rewrites them. No `raw/` capture drove this run: the source is that tag.
+* **Update**: `wiki/decisions/0024-run-the-triage-pass-in-the-coach-session.md` (#82). It was `0001-run-the-triage-pass-in-the-coach-session.md`. The imported records keep their numbers, so this plugin's own record takes the next free number, and its frontmatter `title` drops the number, as the imported `test/wiki.test.mjs` requires. Its body says that it was 0001.
+* **Update**: `wiki/index.md` and `wiki/decisions/index.md` list the imported pages and the new number (#82). `wiki/schema.md` states the rules of `test/wiki.test.mjs`: a record's `title` without its number, and relative links only. No `raw/` capture drove this run: the source is issue #82.
+
 ## 2026-11-22
 
 * **Update**: `wiki/issue-triage.md`, Required fields (retro of the triage of #82). An issue that renumbers a decision record lists every file and issue that cites it by number. An issue that moves files with their tests into another layout lists each test that names the source's root folders, and checks the moved tests against this repository's own files. No `raw/` capture drove this run: the source is the triage of #82.

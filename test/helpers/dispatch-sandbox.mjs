@@ -2,7 +2,7 @@
 // a config file, a state dir, and fakes at the gh and claude boundary. Everything lives under one real temp dir.
 import fs from 'node:fs';
 import path from 'node:path';
-import { taskKey } from '../../lib/worker-key.mjs';
+import { taskKey } from '../../plugin/cli/lib/worker-key.mjs';
 import { createFakeClaude } from '../fakes/fake-claude.mjs';
 import { github } from './fake-github.mjs';
 import { cloneOrigin, fwd, g, makeOrigin, makeTempDir } from './git-sandbox.mjs';

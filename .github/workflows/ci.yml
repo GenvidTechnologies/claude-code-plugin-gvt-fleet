@@ -43,7 +43,7 @@ jobs:
         with:
           node-version: 24
 
-      # lib/plugin-path.mjs imports the issue-reference grammar from the
+      # plugin/cli/lib/plugin-path.mjs imports the issue-reference grammar from the
       # installed gvt-dev plugin, and never copies it. A runner has no Claude
       # Code install, so clone the plugin outside the workspace and point
       # GVT_DEV_ROOT at its plugin folder. Keep GVT_DEV_REF in step with the
@@ -66,7 +66,7 @@ jobs:
       # Same steps as commands.validate in .gvt-agent.json. GVT_FLEET_FAKE_ONLY
       # makes the process runner refuse to start gh or claude.
       - name: Check syntax
-        run: node --check bin/gvt-fleet.mjs
+        run: node --check plugin/cli/bin/gvt-fleet.mjs
         shell: bash
 
       # An unmatched glob exits 0 with "# pass 0", so the step also fails when

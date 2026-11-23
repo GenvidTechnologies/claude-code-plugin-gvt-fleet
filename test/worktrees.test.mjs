@@ -4,14 +4,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { worktreeCreateCommand } from '../lib/commands.mjs';
+import { worktreeCreateCommand } from '../plugin/cli/lib/commands.mjs';
 import {
   createFindHolders,
   createWorktree,
   finishWorktree,
   names,
   removeWorktree,
-} from '../lib/worktrees.mjs';
+} from '../plugin/cli/lib/worktrees.mjs';
 import { sequence } from './fakes/fake-claude.mjs';
 import {
   fwd,

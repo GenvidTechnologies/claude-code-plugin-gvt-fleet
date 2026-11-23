@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { worktreeRemoveCommand } from '../lib/commands.mjs';
-import { finishWorktree, removeWorktree } from '../lib/worktrees.mjs';
+import { worktreeRemoveCommand } from '../plugin/cli/lib/commands.mjs';
+import { finishWorktree, removeWorktree } from '../plugin/cli/lib/worktrees.mjs';
 import { sequence } from './fakes/fake-claude.mjs';
 import {
   commitFile,

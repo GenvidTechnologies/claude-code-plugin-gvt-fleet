@@ -5,10 +5,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { openCacheDb } from '../lib/cache-db.mjs';
-import { wrapCommand, worktreeRemoveCommand } from '../lib/commands.mjs';
-import { readClosingPrs } from '../lib/sync.mjs';
-import { wrapTask } from '../lib/wrap.mjs';
+import { openCacheDb } from '../plugin/cli/lib/cache-db.mjs';
+import { wrapCommand, worktreeRemoveCommand } from '../plugin/cli/lib/commands.mjs';
+import { readClosingPrs } from '../plugin/cli/lib/sync.mjs';
+import { wrapTask } from '../plugin/cli/lib/wrap.mjs';
 import { createFakeGh } from './fakes/fake-gh.mjs';
 import { commitFile, fwd, g } from './helpers/git-sandbox.mjs';
 import {

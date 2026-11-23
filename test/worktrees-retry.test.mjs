@@ -11,8 +11,8 @@ import {
   findPullRequestsByCommit,
   names,
   removeWorktree,
-} from '../lib/worktrees.mjs';
-import { GhError } from '../lib/gh.mjs';
+} from '../plugin/cli/lib/worktrees.mjs';
+import { GhError } from '../plugin/cli/lib/gh.mjs';
 import { createFakeGh } from './fakes/fake-gh.mjs';
 import { noCommitFound, serverError } from './helpers/fake-github.mjs';
 import { sequence } from './fakes/fake-claude.mjs';

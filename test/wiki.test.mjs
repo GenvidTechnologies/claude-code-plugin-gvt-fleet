@@ -195,7 +195,6 @@ test('NF-wiki: every page is listed in the root index or in its own folder index
   assert.deepEqual(bad, []);
 });
 
-test('NF-wiki: no Markdown documentation is left in docs/ or config/', () => {
+test('NF-wiki: no Markdown documentation is left in docs/', () => {
   assert.equal(exists('docs'), false);
-  assert.deepEqual(fs.readdirSync(path.join(ROOT, 'config')).filter((f) => f.endsWith('.md')), []);
 });

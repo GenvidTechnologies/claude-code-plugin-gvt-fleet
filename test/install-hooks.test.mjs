@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { planSettings } from '../lib/user-settings.mjs';
-import { installHooksCommand } from '../lib/commands.mjs';
+import { planSettings } from '../plugin/cli/lib/user-settings.mjs';
+import { installHooksCommand } from '../plugin/cli/lib/commands.mjs';
 import { makeTempDir } from './helpers/git-sandbox.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));

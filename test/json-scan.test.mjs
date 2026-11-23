@@ -5,8 +5,8 @@ import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { findLossyJson } from '../lib/json-scan.mjs';
-import { planSettings } from '../lib/user-settings.mjs';
+import { findLossyJson } from '../plugin/cli/lib/json-scan.mjs';
+import { planSettings } from '../plugin/cli/lib/user-settings.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,7 +14,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // process that is killed after ten seconds. Run alone, the five calls took 0.4 to 0.6 s
 // together (2026-11-06); the margin keeps a slow process start under load from failing the test.
 test('R46: findLossyJson returns on text that is not valid JSON', { timeout: 60000 }, () => {
-  const mod = pathToFileURL(path.join(here, '..', 'lib', 'json-scan.mjs')).href;
+  const mod = pathToFileURL(path.join(here, '..', 'plugin', 'cli', 'lib', 'json-scan.mjs')).href;
   const script = `import(${JSON.stringify(mod)}).then((m) => { const r = m.findLossyJson(process.argv[1]); process.exit(r === null || typeof r === 'object' ? 0 : 3); });`;
   for (const text of ['{"a":"x', '{"a":', '[', '{', '"']) {
     const r = spawnSync(process.execPath, ['-e', script, text], { timeout: 10000 });

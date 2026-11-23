@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const INCLUDE = [
-  'bin', 'lib', 'test', 'config', '.github', '.gvt-agent.json',
+  'plugin/cli/bin', 'plugin/cli/lib', 'plugin/hooks', 'test', 'scripts', '.github', '.gvt-agent.json',
   'CLAUDE.md', 'README.md', 'wiki/coordinator.md', 'wiki/coordinator', 'wiki/design.md',
   'wiki/configuration.md', 'wiki/index.md', 'wiki/schema.md',
 ];
@@ -55,11 +55,11 @@ test('NF-names: bin and lib hold the old CLI name only in lib/legacy-names.mjs',
   const OLD_CLI = new RegExp('gvt' + '-' + 'loop');
   assert.ok(OLD_CLI.test('gvt' + '-' + 'loop-hook.mjs'), 'control: the pattern matches the old name');
   const files = [];
-  walk('bin', files);
-  walk('lib', files);
+  walk('plugin/cli/bin', files);
+  walk('plugin/cli/lib', files);
   assert.ok(files.length >= 20, `control: the walk found ${files.length} files`);
   const hits = files.filter((rel) => OLD_CLI.test(fs.readFileSync(path.join(ROOT, rel), 'utf8')));
-  assert.deepEqual(hits, ['lib/legacy-names.mjs']);
+  assert.deepEqual(hits, ['plugin/cli/lib/legacy-names.mjs']);
 });
 
 test('NF-names: line 1 of every test file sets the fake-only variable', () => {

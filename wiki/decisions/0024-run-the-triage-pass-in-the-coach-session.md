@@ -1,15 +1,16 @@
 ---
 type: decision-context
-title: '0001. Run the triage pass in the coach session'
+title: 'Run the triage pass in the coach session'
 description: 'The coach skill runs the triage pass in the coach session, one repository at a time from its base clone, with a wrong-repository guard, no file writes and the coach approving each change.'
 tags: [decisions]
 status: stable
 ---
-# 0001. Run the triage pass in the coach session
+# 0024. Run the triage pass in the coach session
 
 - **Status:** accepted
 - **Date:** 2026-11-06
 - **Issue:** #3
+- **Renumbered:** this record was 0001 until the records of the gvt-fleet CLI were imported with their numbers (#82)
 
 ## Context
 

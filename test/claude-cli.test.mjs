@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { AGENTS_TIMEOUT_MS, createClaude } from '../lib/claude-cli.mjs';
+import { AGENTS_TIMEOUT_MS, createClaude } from '../plugin/cli/lib/claude-cli.mjs';
 
-const cliUrl = pathToFileURL(fileURLToPath(new URL('../lib/claude-cli.mjs', import.meta.url))).href;
-const procUrl = pathToFileURL(fileURLToPath(new URL('../lib/proc.mjs', import.meta.url))).href;
+const cliUrl = pathToFileURL(fileURLToPath(new URL('../plugin/cli/lib/claude-cli.mjs', import.meta.url))).href;
+const procUrl = pathToFileURL(fileURLToPath(new URL('../plugin/cli/lib/proc.mjs', import.meta.url))).href;
 
 test('R157: agents() passes the 30000 ms time limit to run', async () => {
   const calls = [];

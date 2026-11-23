@@ -2,7 +2,7 @@ process.env.GVT_FLEET_FAKE_ONLY = '1';
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decideNothingToLose, readIssueRefs } from '../lib/nothing-to-lose.mjs';
+import { decideNothingToLose, readIssueRefs } from '../plugin/cli/lib/nothing-to-lose.mjs';
 import { createFakeGh } from './fakes/fake-gh.mjs';
 import { crossRef, github, serverError } from './helpers/fake-github.mjs';
 

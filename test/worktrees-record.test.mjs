@@ -4,9 +4,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { releaseCommand, statusCommand, worktreeRemoveCommand } from '../lib/commands.mjs';
-import { workerFile } from '../lib/hook-state.mjs';
-import { finishWorktree, removeWorktree } from '../lib/worktrees.mjs';
+import { releaseCommand, statusCommand, worktreeRemoveCommand } from '../plugin/cli/lib/commands.mjs';
+import { workerFile } from '../plugin/cli/lib/hook-state.mjs';
+import { finishWorktree, removeWorktree } from '../plugin/cli/lib/worktrees.mjs';
 import {
   fwd,
   g,

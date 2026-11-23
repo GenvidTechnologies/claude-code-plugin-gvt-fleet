@@ -7,8 +7,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { openCacheDb } from '../lib/cache-db.mjs';
-import { branchesCommand, readyCommand, syncCommand, whyCommand } from '../lib/commands.mjs';
+import { openCacheDb } from '../plugin/cli/lib/cache-db.mjs';
+import { branchesCommand, readyCommand, syncCommand, whyCommand } from '../plugin/cli/lib/commands.mjs';
 
 // Same filter as bin/gvt-fleet.mjs: only the sqlite ExperimentalWarning is swallowed.
 process.removeAllListeners('warning');
@@ -17,7 +17,7 @@ process.on('warning', (warning) => {
   process.stderr.write(`${warning.name}: ${warning.message}\n`);
 });
 
-const BIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'gvt-fleet.mjs');
+const BIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'plugin', 'cli', 'bin', 'gvt-fleet.mjs');
 const REPO = 'acme/app';
 const NOW = new Date('2026-11-03T12:00:00.000Z');
 const tmp = () => fs.mkdtempSync(path.join(fs.realpathSync.native(os.tmpdir()), 'gvt-fleet-cli-'));
@@ -263,7 +263,7 @@ test('NF-cli: an unknown argument to ready, sync, branches or check-config exits
     assert.deepEqual(s.out, [], name);
     assert.match(s.err.join('\n'), new RegExp(`^usage: gvt-fleet ${name}`), name);
   }
-  const r = cli(['check-config', 'extra', '--config', s.configFile]);
+  const r = cli(['check-config', 'extra', '--workspace', tmp(), '--config', s.configFile]);
   assert.equal(r.code, 64);
   assert.equal(r.out, '');
   assert.match(r.err, /usage: gvt-fleet check-config/);
@@ -310,7 +310,7 @@ test('NF-cli: ready --json on an empty state dir prints valid JSON on stdout and
   const dir = tmp();
   const configFile = path.join(dir, 'repos.json');
   fs.writeFileSync(configFile, JSON.stringify({ version: 1, repos: [{ repo: REPO }] }));
-  const r = cli(['ready', '--json', '--config', configFile, '--state-dir', path.join(dir, 'state')]);
+  const r = cli(['ready', '--json', '--workspace', dir, '--config', configFile, '--state-dir', path.join(dir, 'state')]);
   assert.equal(r.code, 0, r.err);
   assert.deepEqual(JSON.parse(r.out), { ready: [], untriaged: [], now: [], next: [] });
   assert.match(r.err, /the cache is empty; run gvt-fleet sync/);
@@ -321,7 +321,7 @@ test('NF-cli: why --json on a bad config prints nothing on stdout and exits 2', 
   const dir = tmp();
   const configFile = path.join(dir, 'repos.json');
   fs.writeFileSync(configFile, '{ not json');
-  const r = cli(['why', `${REPO}#1`, '--json', '--config', configFile, '--state-dir', path.join(dir, 'state')]);
+  const r = cli(['why', `${REPO}#1`, '--json', '--workspace', dir, '--config', configFile, '--state-dir', path.join(dir, 'state')]);
   assert.equal(r.code, 2);
   assert.equal(r.out, '');
   assert.notEqual(r.err, '');

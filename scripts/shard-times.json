@@ -2,7 +2,6 @@
   "atomic-write.test.mjs": 0,
   "boundary.test.mjs": 0.1,
   "branches.test.mjs": 2.4,
-  "bundle-plugin.test.mjs": 18.6,
   "ci-shard.test.mjs": 0.6,
   "claims-cli.test.mjs": 2,
   "claims.test.mjs": 10.5,

@@ -4,22 +4,22 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { openCacheDb } from '../lib/cache-db.mjs';
-import { openClaimsDb } from '../lib/claims-db.mjs';
+import { openCacheDb } from '../plugin/cli/lib/cache-db.mjs';
+import { openClaimsDb } from '../plugin/cli/lib/claims-db.mjs';
 import {
   dispatchCommand,
   readyCommand,
   statusCommand,
   whyCommand,
   worktreeCreateCommand,
-} from '../lib/commands.mjs';
+} from '../plugin/cli/lib/commands.mjs';
 import {
   defaultPrompt,
   repoFromRemoteUrl,
   TASK_RULE,
   workspaceRepo,
-} from '../lib/dispatch.mjs';
-import { trustKey } from '../lib/trust.mjs';
+} from '../plugin/cli/lib/dispatch.mjs';
+import { trustKey } from '../plugin/cli/lib/trust.mjs';
 import { LABEL } from './helpers/fake-github.mjs';
 import { dispatchSandbox, NOW, seedTaskLease } from './helpers/dispatch-sandbox.mjs';
 import { fwd, g, git, pushCommit } from './helpers/git-sandbox.mjs';

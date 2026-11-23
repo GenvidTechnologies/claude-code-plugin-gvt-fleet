@@ -5,18 +5,18 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { planSettings } from '../lib/user-settings.mjs';
-import { installHooksCommand } from '../lib/commands.mjs';
+import { planSettings } from '../plugin/cli/lib/user-settings.mjs';
+import { installHooksCommand } from '../plugin/cli/lib/commands.mjs';
 import {
   LAUNCHER_NAME,
   LAUNCHER_SOURCE,
   detectPluginMode,
   fleetPluginRoot,
-} from '../lib/plugin-install.mjs';
+} from '../plugin/cli/lib/plugin-install.mjs';
 import { runScript } from './helpers/run-script.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(here, '..');
+const ROOT = path.resolve(here, '..', 'plugin', 'cli');
 const fake = path.join(here, 'fixtures', 'fake-statusline.mjs');
 const fixture = () => JSON.parse(fs.readFileSync(path.join(here, 'fixtures', 'user-settings.json'), 'utf8'));
 const tmp = () => fs.mkdtempSync(path.join(fs.realpathSync.native(os.tmpdir()), 'gvt-fleet-plugin-'));

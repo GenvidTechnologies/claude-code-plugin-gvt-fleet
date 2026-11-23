@@ -1,7 +1,7 @@
 process.env.GVT_FLEET_FAKE_ONLY = '1';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { DEAD_STATES, isLive, matchSessions, pickSession } from '../lib/sessions.mjs';
+import { DEAD_STATES, isLive, matchSessions, pickSession } from '../plugin/cli/lib/sessions.mjs';
 
 const BASE = 'C:\\work\\fleet\\repos\\acme\\app';
 const WT = `${BASE}\\.claude\\worktrees\\app-1`;

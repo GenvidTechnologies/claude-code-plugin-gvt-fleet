@@ -5,7 +5,7 @@
 // a value, so `agents: [...]` still returns that list.
 // `script.track: true` turns on a session list: startBg adds a session, agents lists the sessions,
 // stop marks one `done`, and rm (when script.rm is absent) removes it.
-import { bgArgv } from '../../lib/claude-cli.mjs';
+import { bgArgv } from '../../plugin/cli/lib/claude-cli.mjs';
 
 class Sequence {
   constructor(items) {

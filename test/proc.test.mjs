@@ -7,7 +7,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { makeTempDir } from './helpers/git-sandbox.mjs';
 
-const PROC_URL = new URL('../lib/proc.mjs', import.meta.url).href;
+const PROC_URL = new URL('../plugin/cli/lib/proc.mjs', import.meta.url).href;
 
 // git ls-remote against a local server that accepts and never answers. git starts git-remote-https, which
 // keeps the pipes open after git itself is killed, so a runner that waits for 'close' never resolves.

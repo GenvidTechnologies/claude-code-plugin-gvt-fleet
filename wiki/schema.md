@@ -25,9 +25,10 @@ OKF has already shipped one breaking revision within v0.x: v0.1's body `# Citati
 
 **This project.** `wiki.wikiDir` is `wiki`. The wiki is the only documentation surface: the repository has no `docs/` folder. Outside the bundle, only `README.md`, `CLAUDE.md` and the files under `plugin/` hold Markdown. The plugin ships from `plugin/`, so a file there never links into the wiki. Other locations:
 
-- **Decision records** are wiki pages in `wiki/decisions/` (`type: decision-context`). `.gvt-agent.json` sets `paths['docs/decisions/']` to `wiki/decisions/`, so `/gvt-dev:create-adr` writes new records there. `wiki/decisions/index.md` lists them. The body heading `# NNNN. Title` keeps the number, and the frontmatter `title` is the same text. An accepted record changes only in its pointers to moved files.
+- **Decision records** are wiki pages in `wiki/decisions/` (`type: decision-context`). `.gvt-agent.json` sets `paths['docs/decisions/']` to `wiki/decisions/`, so `/gvt-dev:create-adr` writes new records there. `wiki/decisions/index.md` lists them. The body heading `# NNNN. Title` keeps the number, and the frontmatter `title` is the same text without the `NNNN. ` prefix. `test/wiki.test.mjs` checks this for every record. An accepted record changes only in its pointers to moved files.
 - **Triage conventions** are `wiki/issue-triage.md`. `.gvt-agent.json` sets `paths['docs/issue-triage.md']` to it, so `/gvt-dev:triage-issues` reads it there.
-- **Links** between pages are ordinary relative links (`decisions/index.md`, `../index.md`), so that they also resolve when GitHub renders a page.
+- **Links** between pages are ordinary relative links (`decisions/index.md`, `../index.md`), so that they also resolve when GitHub renders a page. `test/wiki.test.mjs` rejects a link that starts with `/`, and checks that every relative link in `wiki/`, `README.md` and `CLAUDE.md` reaches an existing file and, with a fragment, a heading on that page.
+- **Command reference and design** of the gvt-fleet CLI are `wiki/coordinator.md`, the pages under `wiki/coordinator/`, `wiki/configuration.md`, `wiki/design.md` and `wiki/acceptance/`, imported from the workspace repository with the CLI (#82).
 - **`raw/`** does not exist yet. The pages describe this repository's own skill and decisions, and cite repository files in their body text. No page carries `sources` yet.
 
 ## Page format
@@ -248,14 +249,13 @@ settled architecture omit stale_after or set it a year out." -->
 
 Relate pages to each other with ordinary intra-wiki Markdown links —
 `[<title>](<other-page>.md)` — inside the `Related` section of a page (or
-inline in the body, where a specific claim points at another page). Two link
-forms are legal (§6.1):
-
-- **Bundle-absolute** — `/other-page.md`, rooted at `<wikiDir>/` (the bundle
-  root). §6.1 **recommends** this form: it stays correct even if the linking
-  page moves to a different subdirectory within the bundle.
-- **Ordinary relative** — `./other-page.md` for a sibling page in the same
-  directory, `../<subdir>/other-page.md` for a page in another subdirectory.
+inline in the body, where a specific claim points at another page). §6.1
+allows two link forms, bundle-absolute (`/other-page.md`) and ordinary
+relative. This project uses **ordinary relative links only**:
+`./other-page.md` or `other-page.md` for a sibling page in the same
+directory, `../<subdir>/other-page.md` for a page in another subdirectory.
+GitHub resolves a link that starts with `/` against the repository root, not
+the bundle root, so `test/wiki.test.mjs` rejects it.
 
 A link that escapes the bundle root entirely — e.g. to `../CLAUDE.md` or
 `../plugin/skills/coach/SKILL.md` — remains legal per §6.1 as an ordinary
@@ -264,7 +264,8 @@ only receives the `<wikiDir>/` bundle on its own. Treat this as a deliberate,
 documented trade-off for the rare page that genuinely needs to point outside
 the bundle (e.g. to the repo's `CLAUDE.md` or the coach skill under `plugin/`) —
 not as a pattern to reach for by default. This schema is not such a target:
-it sits inside the bundle, so a page links it as `/schema.md`.
+it sits inside the bundle, so a page links it relatively, as `schema.md` or
+`../schema.md`.
 
 Consumers **must tolerate broken links** (§6.1): a link whose target doesn't
 exist yet is not malformed — it may simply be knowledge not yet written.

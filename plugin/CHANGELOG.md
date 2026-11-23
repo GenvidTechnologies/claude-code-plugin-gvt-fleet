@@ -7,6 +7,8 @@ and follows [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-23
+
 ### Added
 
 - **The gvt-fleet CLI ships in the plugin.** `plugin/cli/bin/` and `plugin/cli/lib/` hold the CLI, copied from the workspace repository at the tag `cli-source-moved`, and `plugin/hooks/hooks.json` runs its session hook (`cli/bin/gvt-fleet-hook.mjs`) for `SessionStart`, `Notification`, `Stop`, `StopFailure`, `SessionEnd` and `PreToolUse` on `AskUserQuestion`. The CLI's tests, CI and command reference moved into this repository with it (#82). **Consumers:** an installed plugin with `cli/` and `hooks/hooks.json` runs the hooks itself, so the hook entries that `gvt-fleet install-hooks` wrote to `~/.claude/settings.json` would record each event twice. Run `install-hooks` once after the update: in plugin mode it removes those entries and points the status line at a launcher in the plugin data folder (`wiki/coordinator/session-state.md`). The skill's command lines and the release steps are #58.

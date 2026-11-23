@@ -1,0 +1,17 @@
+{
+  "data": {
+    "repository": {
+      "nameWithOwner": "acme/app",
+      "defaultBranchRef": { "name": "main" },
+      "agentConfig": null,
+      "refs": {
+        "nodes": [
+          { "name": "main", "target": { "oid": "aaa111", "committedDate": "2026-11-02T08:00:00Z" } },
+          { "name": "feature-x", "target": { "oid": "bbb222", "committedDate": "2026-10-30T08:00:00Z" } }
+        ],
+        "pageInfo": { "hasNextPage": false, "endCursor": null }
+      }
+    },
+    "rateLimit": { "cost": 1, "remaining": 4900, "resetAt": "2026-11-03T13:00:00Z" }
+  }
+}

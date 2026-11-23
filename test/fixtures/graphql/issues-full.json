@@ -1,0 +1,77 @@
+{
+  "data": {
+    "repository": {
+      "issues": {
+        "nodes": [
+          {
+            "number": 1,
+            "state": "OPEN",
+            "title": "Rich issue",
+            "body": "Body of the rich issue.",
+            "updatedAt": "2026-11-01T09:00:00Z",
+            "labels": { "nodes": [{ "name": "triaged" }, { "name": "bug" }] },
+            "assignees": { "nodes": [{ "login": "me" }] },
+            "comments": {
+              "nodes": [{ "body": "first comment", "createdAt": "2026-11-01T08:00:00Z" }],
+              "pageInfo": { "hasNextPage": false, "endCursor": null }
+            },
+            "parent": { "number": 2, "state": "OPEN", "repository": { "nameWithOwner": "acme/app" } },
+            "subIssues": { "nodes": [{ "number": 4, "state": "OPEN", "repository": { "nameWithOwner": "acme/app" } }] },
+            "blockedBy": { "nodes": [{ "number": 7, "state": "OPEN", "repository": { "nameWithOwner": "ext/lib" } }] },
+            "blocking": { "nodes": [{ "number": 3, "state": "OPEN", "repository": { "nameWithOwner": "acme/app" } }] },
+            "closedByPullRequestsReferences": {
+              "nodes": [{ "number": 11, "state": "OPEN", "headRefName": "fix-1", "repository": { "nameWithOwner": "acme/app" } }]
+            }
+          },
+          {
+            "number": 2,
+            "state": "OPEN",
+            "title": "Parent issue",
+            "body": "",
+            "updatedAt": "2026-11-01T09:10:00Z",
+            "labels": { "nodes": [{ "name": "triaged" }] },
+            "assignees": { "nodes": [] },
+            "comments": { "nodes": [], "pageInfo": { "hasNextPage": false, "endCursor": null } },
+            "parent": null,
+            "subIssues": { "nodes": [] },
+            "blockedBy": { "nodes": [] },
+            "blocking": { "nodes": [] },
+            "closedByPullRequestsReferences": { "nodes": [] }
+          },
+          {
+            "number": 3,
+            "state": "OPEN",
+            "title": "Blocked by a closed external issue",
+            "body": "",
+            "updatedAt": "2026-11-01T09:20:00Z",
+            "labels": { "nodes": [{ "name": "triaged" }] },
+            "assignees": { "nodes": [] },
+            "comments": { "nodes": [], "pageInfo": { "hasNextPage": false, "endCursor": null } },
+            "parent": null,
+            "subIssues": { "nodes": [] },
+            "blockedBy": { "nodes": [{ "number": 8, "state": "CLOSED", "repository": { "nameWithOwner": "ext/lib" } }] },
+            "blocking": { "nodes": [] },
+            "closedByPullRequestsReferences": { "nodes": [] }
+          },
+          {
+            "number": 4,
+            "state": "OPEN",
+            "title": "Plain child",
+            "body": "",
+            "updatedAt": "2026-11-01T09:30:00Z",
+            "labels": { "nodes": [{ "name": "triaged" }] },
+            "assignees": { "nodes": [] },
+            "comments": { "nodes": [], "pageInfo": { "hasNextPage": false, "endCursor": null } },
+            "parent": { "number": 1, "state": "OPEN", "repository": { "nameWithOwner": "acme/app" } },
+            "subIssues": { "nodes": [] },
+            "blockedBy": { "nodes": [] },
+            "blocking": { "nodes": [] },
+            "closedByPullRequestsReferences": { "nodes": [] }
+          }
+        ],
+        "pageInfo": { "hasNextPage": false, "endCursor": null }
+      }
+    },
+    "rateLimit": { "cost": 3, "remaining": 4890, "resetAt": "2026-11-03T13:00:00Z" }
+  }
+}

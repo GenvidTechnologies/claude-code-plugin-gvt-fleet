@@ -153,7 +153,7 @@ Show `ready` and each entry of `reasons` (`code`, `detail`). Exit 0 is a valid a
 
 ## Triage pass
 
-The pass runs `gvt-dev:triage-issues` over the untriaged issues of the repositories the coach picks. It runs in this session, as decision record 0001 of this plugin records. The coach can instead start a task worker for one repository with the `task` mode and a prompt that asks for the triage. The skill offers this pass, not the task, unless the coach asks for the task.
+The pass runs `gvt-dev:triage-issues` over the untriaged issues of the repositories the coach picks. It runs in this session, as decision record 0024 of this plugin records. The coach can instead start a task worker for one repository with the `task` mode and a prompt that asks for the triage. The skill offers this pass, not the task, unless the coach asks for the task.
 
 Offer the pass after the overview summary. Run nothing until the coach names the repositories. Each entry of `keys` is a ref `owner/name#N`. The scope of a repository is the numbers after `#` in its `keys`.
 
@@ -591,7 +591,7 @@ Every command uses the same codes. The table says what the skill does for each o
 
 ## The contract
 
-This skill was written for `coach.contract: 2`. The preflight refuses any other number. The canonical list of keys is the workspace's `wiki/coordinator/coach-skill-contract.md`. The skill reads only these keys. A key that is missing from the output means "not reported". Report it that way. Do not read it as an empty value.
+This skill was written for `coach.contract: 2`. The preflight refuses any other number. The canonical list of keys is `wiki/coordinator/coach-skill-contract.md` in the repository of this plugin, next to the CLI's source. The skill reads only these keys. A key that is missing from the output means "not reported". Report it that way. Do not read it as an empty value.
 
 | Command | Keys read |
 |---|---|

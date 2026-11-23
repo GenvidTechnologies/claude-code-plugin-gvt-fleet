@@ -215,6 +215,20 @@ triage on #75: the body said that `commands.validate` already needs `node` for
 `claude`. `claude` can be a native executable that needs no `node`, and CI
 does not run `claude`.
 
+An acceptance row that pledges a test total counts tests as the runner does,
+the `# tests` and `# pass` lines of a TAP run, not the `test(` calls in the
+source. A `test(` call inside a loop runs once for each item. Observed on #82:
+the tag held 838 `test(` calls and 840 tests at run time, because one call sits
+in a loop of three.
+
+An issue that asks for "one commit" that does something says which pull
+request holds that commit. A worker's side pull requests and its final pull
+request are squash-merged, so the default branch gets one commit for the whole
+issue, and the commit survives only in the side pull request's history.
+Observed on #82: "one commit copies the files" held on the side branch, and the
+squash merge into the integration branch joined it with the commit that
+adapted the copy.
+
 An issue that changes the gvt-fleet CLI names the CLI's paths in this
 repository: `plugin/cli/bin/`, `plugin/cli/lib/`, `test/` and the command
 reference under `wiki/`. Until the CLI source is in this repository, the CLI

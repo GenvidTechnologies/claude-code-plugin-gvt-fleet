@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "claimAccount": "someone",
+  "leaseMinutes": 120,
+  "rateReserve": 1000,
+  "fullSyncHours": 24,
+  "repos": [
+    { "repo": "example-org/webapp" },
+    { "repo": "GenvidTechnologies/webapp" }
+  ]
+}

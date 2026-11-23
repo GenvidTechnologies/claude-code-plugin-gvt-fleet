@@ -6,6 +6,10 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 
 ## 2026-11-23
 
+* **Update**: `wiki/issue-triage.md`, Required fields (retro of #82). An acceptance row that pledges a test total counts the tests that the runner reports, not the `test(` calls. An issue that asks for "one commit" says which pull request holds it, because squash merges join the commits. No `raw/` capture drove this run: the source is the work on #82.
+* **Creation**: `wiki/coordinator.md`, the pages under `wiki/coordinator/`, `wiki/design.md`, `wiki/configuration.md`, `wiki/acceptance/gvt-loop-coordinator-phase1.md` and the decision records 0001 to 0023 (#82). Imported unchanged from the tag `cli-source-moved` of the workspace repository with the gvt-fleet CLI, which now lives in `plugin/cli/`. Some pages still describe the workspace as "this repository"; #86 rewrites them. No `raw/` capture drove this run: the source is that tag.
+* **Update**: `wiki/decisions/0024-run-the-triage-pass-in-the-coach-session.md` (#82). It was `0001-run-the-triage-pass-in-the-coach-session.md`. The imported records keep their numbers, so this plugin's own record takes the next free number, and its frontmatter `title` drops the number, as the imported `test/wiki.test.mjs` requires. Its body says that it was 0001.
+* **Update**: `wiki/index.md` and `wiki/decisions/index.md` list the imported pages and the new number (#82). `wiki/schema.md` states the rules of `test/wiki.test.mjs`: a record's `title` without its number, and relative links only. No `raw/` capture drove this run: the source is issue #82.
 * **Update**: `wiki/issue-triage.md`, Required fields (retro of the triage of #89). An issue that changes the gvt-fleet CLI names the CLI's paths in this repository, and is blocked by the import issue until the CLI source is here. An issue that removes a guard quotes and answers the guard's stated purpose, and a cited case keeps the facts of its source. An issue that has a command report how far a checkout is behind its remote says how the remote state is read. No `raw/` capture drove this run: the source is the triage of #89.
 
 ## 2026-11-22

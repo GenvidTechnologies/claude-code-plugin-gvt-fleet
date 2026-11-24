@@ -300,6 +300,15 @@ GitHub links the `#81` in "workspace #81". GitHub does not autolink `#N` in a
 repository file: its HTML rendering of record 0014 had no link there. The
 coach dropped the proposal.
 
+An issue that explains why a script misbehaves names the shell or tool, and
+its version, under which the behaviour was seen. A reading that maps a tool's
+exit codes to outcomes is checked against the tool's documentation or a probe.
+Observed in triage on #155: the body said that `cd ""` succeeds, which holds
+under bash 5.2.37. Under bash 5.3.15 it fails with `cd: null directory`. The
+body also read the exit code 123 of GNU xargs as "no hit", while xargs returns
+123 whenever any grep run exits 1 to 125, a file that grep cannot read
+included.
+
 ## Splitting
 
 Split when one issue bundles unrelated concerns, or when a single piece of work
@@ -389,7 +398,7 @@ When a recipe's set would be empty, omit its --remove-label flag.
 {otherTypes} is the set of category labels, written out in full, with the label being added removed.
 
 - Set category: `gh issue edit {id} --add-label "{type}" --remove-label "{otherTypes}"`
-- Check a body before any write that posts it (Edit body, Comment, Create split issue): `grep -n -i -E '<pattern>' {tmpfile}`, where `<pattern>` is the `always` pattern of `.github/scripts/leak-guard.sh`. When the write also sets a title (Edit body with a new title, Create split issue), check the title too: `printf '%s\n' "{title}" | grep -n -i -E '<pattern>'`. Any output blocks the write. The leak guard reads only tracked files, so it never sees an issue title or body. Observed in the triage of #40: the body as filed named the private workspace issue and pull request, and the rewrite named them in prose. Observed in the triage of #45: the title as filed named the private workspace repository too, and the new title names the decision record only as the coordinator's.
+- Check a body before any write that posts it (Edit body, Comment, Create split issue): `grep -n -i -E '<pattern>' {tmpfile}`, where `<pattern>` is the `always` pattern of `.github/scripts/leak-guard.sh`. When the write also sets a title (Edit body with a new title, Create split issue), check the title too: `printf '%s\n' "{title}" | grep -n -i -E '<pattern>'`. Any output blocks the write. The leak guard reads only tracked files, so it never sees an issue title or body. Observed in the triage of #40: the body as filed named the private workspace issue and pull request, and the rewrite named them in prose. Observed in the triage of #45: the title as filed named the private workspace repository too, and the new title names the decision record only as the coordinator's. From a worktree-isolated session, read the pattern and run the grep from a script file written with the Write tool, run as `bash <literal path>`. A one-line command that read `.github/scripts/leak-guard.sh` and printed `$?` was refused as "names git in a form too complex to verify". Observed in the triage of #155.
 - Edit body (language fix / fill missing info): `gh issue edit {id} --body-file {tmpfile}` — the skill writes the approved new body to `{tmpfile}` first
 - Comment: `gh issue comment {id} --body-file {tmpfile}` — the skill writes the comment text to `{tmpfile}` first
 - Flag missing info: `gh issue edit {id} --add-label {needsInfoLabel}` (i.e. `question`; pair with a Comment saying what's missing)

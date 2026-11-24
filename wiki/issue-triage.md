@@ -272,11 +272,33 @@ well as the wiki. The `HELP` table in `plugin/cli/bin/gvt-fleet.mjs` prints such
 references, and comments in `plugin/cli/lib/` cite them as bare numbers.
 Observed in triage on #99: #86 rewrote the wiki pages only, and the `wrap` entry
 of the `HELP` table still ended "(#82)", which in this repository names the
-issue that imported the CLI.
+issue that imported the CLI. Such an issue also lists the comments in `test/`
+and `.github/`, which came with the import. Observed in triage on #149: 18
+comment lines in `test/` and 3 lines in `.github/` cited workspace issues as
+bare numbers, and no issue's scope held them.
 
 A count from the analyst's report is counted again in the file before it goes
 into an issue body. Observed in triage on #98: the report counted two bare
 `#82` in record 0023, and the record holds three.
+
+An issue that sizes its work by a regex count says how many of the hits are
+defects, after reading each hit. A count of matches is not a count of defects.
+A table that maps old numbers to new ones applies only to the hits that read
+as references of the old kind. Observed in triage on #149: a scan for bare
+`#N` counted 157 hits in the imported pages and code, and 15 of them were
+unqualified workspace references. The others already read "workspace #N", or
+named this repository's own #2, #58 and #82. Applied to every bare `#58`, the
+body's mapping table would also have rewritten this repository's own #58.
+
+An issue that changes a rule that `wiki/schema.md` or `CLAUDE.md` states
+quotes that rule, and names the open issues that apply it. A reason that the
+issue gives for the change is checked against its source before triage.
+Observed in triage on #149: the body proposed to write "workspace issue 81"
+instead of "workspace #81", and did not name the "Issue references" rule of
+`wiki/schema.md`, nor #98 and #99, which apply that rule. Its reason was that
+GitHub links the `#81` in "workspace #81". GitHub does not autolink `#N` in a
+repository file: its HTML rendering of record 0014 had no link there. The
+coach dropped the proposal.
 
 ## Splitting
 

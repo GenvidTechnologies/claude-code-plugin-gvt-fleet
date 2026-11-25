@@ -16,6 +16,6 @@ Use these steps on a machine whose `~/.claude/settings.json` still holds entries
 4. Check the settings with `node bin/gvt-fleet.mjs install-hooks --dry-run`. It must print `noop`.
 5. Restart every Claude Code session that was open.
 
-Not known: whether a running session reads its hooks again. Treat a session that was open during the install as still using the old entries until it is restarted.
+A running session picks up an edit of a settings file, so a session that was open during the install runs the new entries from its next event. This was probed on 2026-11-25 with Claude Code 2.1.332 on a project `.claude/settings.json`, not on `~/.claude/settings.json` (see [Observed answers](moving-the-cli-into-the-plugin.md#observed-answers)). Step 5 stays the safe course.
 
 The old log, `state/gvt-loop.log.jsonl`, is carried over on the first write (see [Where state lives](../coordinator.md#where-state-lives)). It needs no step.

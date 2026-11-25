@@ -4,6 +4,10 @@ Record of every change to the wiki's page set: what changed, why, and which sour
 
 Add newest first. Never edit or remove a prior entry. If a past entry needs a correction, add a new entry that says so. The maintenance rules are in [the schema](schema.md).
 
+## 2026-11-25
+
+* **Update**: `wiki/issue-triage.md` (retro of the triage of #158). Required fields says that an issue that raises `GVT_DEV_MIN_VERSION` names every place that states the minimum or depends on it, found in both its written and its regex form, and that a body cites an issue of another repository as `owner/name#N` in prose too, because the reference grammar reports nothing for a bare `#N` in a sentence. Dependencies says that a wait for a release of another managed repository is a `Deferred until` line that names no issue, because gvt-fleet reads a `Blocked by` line on the closed issue as cleared. No `raw/` capture drove this run: the source is the triage of #158.
+
 ## 2026-11-23
 
 * **Update**: `wiki/issue-triage.md` (retro of the triage of #155). Required fields says that an issue that explains why a script misbehaves names the shell or tool and its version, and that a mapping of a tool's exit codes is checked against its documentation or a probe. The "Check a body" recipe says to run the pattern grep from a script file in a worktree-isolated session. No `raw/` capture drove this run: the source is the triage of #155.

@@ -379,7 +379,7 @@ export async function readyCommand(ctx, args) {
         ctx.out(showAll ? `${e.key} [${e.ready ? 'ready' : 'not ready'}] ${e.title ?? ''}` : `${e.key} ${e.title ?? ''}`);
         if (showAll) for (const r of e.reasons) ctx.out(`  ${r.code}: ${r.detail}`);
       }
-      for (const u of untriaged) ctx.out(`untriaged ${u.repo}: ${u.count} issues, ${u.onlyReason} with no other reason`);
+      for (const u of untriaged) ctx.out(`untriaged ${u.repo}: ${u.count} ${u.count === 1 ? 'issue' : 'issues'}, ${u.onlyReason} with no other reason`);
       for (const n of now) {
         ctx.out(`now ${n.key} ${n.ready ? 'ready' : 'not ready'} ${n.title ?? ''}`);
         for (const r of n.reasons) ctx.out(`  ${r.code}: ${r.detail}`);

@@ -204,6 +204,12 @@ test('R126: ready prints one untriaged line per repository after the list, and n
   assert.deepEqual(clean.out, [`${REPO}#1 Issue 1`]);
 });
 
+test('R126: the untriaged line uses the singular for a count of 1', async () => {
+  const s = await setup(untriagedSet().filter((row) => row.number !== 3));
+  assert.equal(await readyCommand(s.ctx, []), 0, s.err.join('\n'));
+  assert.deepEqual(s.out, [`${REPO}#2 Issue 2`, `untriaged ${REPO}: 1 issue, 0 with no other reason`]);
+});
+
 test('NF-cli: every subcommand prints its own help with --help', () => {
   const top = cli(['--help']);
   assert.equal(top.code, 0);

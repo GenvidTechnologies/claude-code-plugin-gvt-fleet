@@ -8,7 +8,7 @@ The plugin is distributed through the [`claude-code-gvt-marketplace`](https://gi
 
 ## Requirements
 
-- The skill runs only in a session started at the root of a gvt-fleet workspace. It reaches the coordinator through `${CLAUDE_PROJECT_DIR}`.
+- The skill runs only in a session started at the root of a gvt-fleet workspace. It runs the coordinator CLI that the plugin ships, in its `cli/` folder, on the workspace in `${CLAUDE_PROJECT_DIR}`.
 - The plugin depends on the `gvt-dev` plugin. Install `gvt-dev` first.
 
 ## Install

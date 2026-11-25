@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Purpose
 
-This repository is the **`gvt-fleet` plugin** for Claude Code. It ships one skill, `/gvt-fleet:coach`, the coach's entry point for the gvt-fleet multi-repo coordinator. The skill runs only in a session started at the root of a gvt-fleet workspace, and it depends on the `gvt-dev` plugin. The plugin is published through the `claude-code-gvt-marketplace` catalog (marketplace name `gvt-plugins`).
+This repository is the **`gvt-fleet` plugin** for Claude Code. It ships one skill, `/gvt-fleet:coach`, the coach's entry point for the gvt-fleet multi-repo coordinator. The skill runs only in a session started at the root of a gvt-fleet workspace. It runs the CLI that the plugin ships, `plugin/cli/bin/gvt-fleet.mjs`, with `--workspace` set to that folder (#58). It depends on the `gvt-dev` plugin. The plugin is published through the `claude-code-gvt-marketplace` catalog (marketplace name `gvt-plugins`).
 
 This repository also holds the source of the gvt-fleet CLI, its tests, its CI and its command reference, imported from the workspace repository at the tag `cli-source-moved` (#82, decision record 0023). The plugin ships the CLI from `plugin/cli/` and its session hooks from `plugin/hooks/hooks.json`. The rules for changing the CLI start at "Developing the CLI" below.
 
@@ -121,7 +121,7 @@ A contract bump is a breaking change for consumers:
 
 - The `[Unreleased]` section of `plugin/CHANGELOG.md` gets a `Changed` entry with a **Consumers** note that names the contract number the plugin needs.
 - The release bumps at least the minor version.
-- The CLI and the skill ship in the same plugin release, so a workspace that runs the plugin's CLI moves to the new number with the skill. A workspace that still runs its own copy of the CLI (until the cutover of #58) reports the old number, and the new skill stops at the preflight there.
+- The CLI and the skill ship in the same plugin release, and the skill runs the plugin's copy of the CLI (#58), so the skill and the CLI it runs move to the new number together. Releases up to v0.6.0 ran the workspace's own copy, which could report an older number.
 
 ## Developing the CLI
 

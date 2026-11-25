@@ -333,6 +333,15 @@ triage on #158: the analyst's draft wrote `#895` in a bullet for
 GenvidTechnologies/claude-code-plugin-gvt-dev#895. A probe of the grammar on
 that bullet returned no reference.
 
+An issue whose acceptance rows include a release of this plugin says that the
+release runs on `main` after the final pull request merges. A release here is
+a commit and an annotated tag on `main` (for example `release: v0.6.0`), and a
+worker reaches `main` only through its final pull request. The issue marks each
+row that reads the tag or the installed plugin as graded after the merge, and
+says who runs the release. Observed on #58: of its nine rows, the rows on the
+released tag, the leak guard on the release, and the three interactive rows
+could not be checked in the worker's branch.
+
 ## Splitting
 
 Split when one issue bundles unrelated concerns, or when a single piece of work
@@ -409,6 +418,16 @@ that #22 adds the `checkedOutBranch` part of the leftover-branch check. The row
 and so does the interactive row, because a worker can leave its side branch
 checked out. The worker took the part, and left the choice to close #22 to the
 coach.
+
+A triage that clears a `Blocked by` line reads the body's claims about what the
+blocker leaves to this issue against what the blocker shipped: its merged pull
+requests and any release that came after them. A claim that the blocker made
+true already is rewritten, in the body and in each page that repeats it.
+Observed on #58: the body and `wiki/coordinator/moving-the-cli-into-the-plugin.md`
+said that the release of #58 would be the first to ship `cli/`. v0.6.0 had
+shipped `cli/` and `plugin/hooks/hooks.json` on 2026-11-23, after the import of
+#82, and the triage of 2026-11-25 cleared the line with the claim still in
+place. The worker found it while it edited the migration page.
 
 An issue that waits for a release of another managed repository, not only for
 an issue there, writes the wait as a line that starts with `Deferred until` and

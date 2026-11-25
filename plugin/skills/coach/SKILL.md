@@ -3,18 +3,18 @@ name: coach
 description: Runs the coach's overview of a gvt-fleet workspace (workers that need you, wrap-up candidates, Now issues, untriaged issues per repository, Next counts), keeps a watch on the running workers so that a worker that starts to wait reaches the coach as an event, offers a triage pass over the repositories the coach picks, lists or sets an issue's class when the coach asks, dispatches one issue the coach names (after it checks the issue's links to the running workers' issues and to the other issues named for dispatch, and the coach settles one worker or a versioned ownership list for a linked group; with a prompt for one integration branch per worker and a finish turn, when the coach gives no prompt), starts a task worker with no issue in a repository the coach names, and wraps up a finished worker or task, then reports the branches and worktree the worker left and offers to file its follow-ups and to pull the main checkout. Use only in a gvt-fleet workspace, when the coach types /gvt-fleet:coach, optionally with "dispatch <ref> [prompt]", "task <repo> <slug> [prompt]" or "wrap <ref | task id>".
 disable-model-invocation: true
 allowed-tools:
-  - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json check-config)
-  - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json sync)
-  - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json status)
-  - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json ready)
-  - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json ready --class *)
-  - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json why *)
-  - Bash(node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json watch *)
+  - Bash(node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json check-config)
+  - Bash(node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json sync)
+  - Bash(node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json status)
+  - Bash(node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json ready)
+  - Bash(node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json ready --class *)
+  - Bash(node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json why *)
+  - Bash(node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json watch *)
 ---
 
 # Coach
 
-This skill drives the `gvt-fleet` coordinator for the coach. The coordinator is a command-line tool in the workspace. The skill reads its JSON output and reports it. The coach decides; the skill does not.
+This skill drives the `gvt-fleet` coordinator for the coach. The coordinator is a command-line tool that this plugin ships, in its `cli/` folder, and it works on the workspace where the coach started Claude Code. The skill reads its JSON output and reports it. The coach decides; the skill does not.
 
 `$ARGUMENTS` selects the mode:
 
@@ -32,10 +32,10 @@ Six read commands are pre-approved: `check-config`, `sync`, `status`, `ready` (w
 Run every command in exactly this form. The subcommand comes right after `--json`. Flags come after the subcommand.
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json <subcommand> [flags] [arguments]
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json <subcommand> [flags] [arguments]
 ```
 
-`${CLAUDE_PROJECT_DIR}` is the folder where the coach started Claude Code. The skill uses no other path to the coordinator and no path that is written in the skill itself. One exception: the triage pass uses the base clone of a repository, `${CLAUDE_PROJECT_DIR}/repos/<owner>/<name>`, which is the layout of the workspace's `repos/` folder.
+The script path names the folder where this plugin is installed. Claude Code writes that folder in when it loads the skill, in this text and in the `allowed-tools` rules. The Bash tool's environment has no variable that holds it, so copy the command line as it stands here. `${CLAUDE_PROJECT_DIR}` is the folder where the coach started Claude Code, and `--workspace` makes the coordinator work on it. The skill uses no other path to the coordinator and no path that is written in the skill itself. One exception: the triage pass uses the base clone of a repository, `${CLAUDE_PROJECT_DIR}/repos/<owner>/<name>`, which is the layout of the workspace's `repos/` folder.
 
 ## Rules
 
@@ -63,17 +63,17 @@ node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json <subcommand> [flags] [argu
 Run this first, in every mode:
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json check-config
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json check-config
 ```
 
 Stop at once, and run no other command, when any of these is true. Give the coach the matching message:
 
 | Condition | Message to the coach |
 |---|---|
-| The command does not start (node is missing, or the CLI file is missing), or the exit code is not 0 and not 2 | The preflight failed: this folder is not a gvt-fleet workspace, or the coordinator cannot run. Show the exit code and stderr. |
-| The exit code is 2 | The workspace configuration is invalid. Show stderr. |
-| The output is not JSON, or has no `coach` key | The workspace is older than this skill. Update the workspace, then run the skill again. |
-| `coach.contract` is not `2` | This skill was written for contract 2 and the workspace reports another number. Update the workspace or the plugin so that they match. |
+| The command does not start (node is missing, or the plugin's CLI file is missing), or the exit code is not 0 and not 2 | The preflight failed: the coordinator cannot run. Show the exit code and stderr. |
+| The exit code is 2 | The workspace configuration is invalid, or this folder is not a gvt-fleet workspace: when stderr says that `config/repos.json` cannot be read, the coach did not start Claude Code at the root of a workspace. Show stderr. |
+| The output is not JSON, or has no `coach` key | The plugin's CLI does not match this skill. Update or reinstall the plugin, then run the skill again. |
+| `coach.contract` is not `2` | This skill was written for contract 2 and the plugin's CLI reports another number. Update or reinstall the plugin so that they match. |
 
 Keep `coach.workspaceRepo` (`owner/name`) for the later steps.
 
@@ -86,7 +86,7 @@ After the preflight, run steps 1 to 4 in order. Run step 5 when the coach asks. 
 ### 1. Refresh the cache
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json sync
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json sync
 ```
 
 - Exit 0: go on.
@@ -97,7 +97,7 @@ node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json sync
 ### 2. Show the workers
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json status
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json status
 ```
 
 - The rows are the entries of `workers` (issue workers) and of `tasks` (task workers). Keep the order of each array. `status` sorts each one `needs-you`, then `rate-limited`, then the rest. Show the rows of both arrays in the groups below. Within a group, show the `workers` rows first, then the `tasks` rows.
@@ -114,7 +114,7 @@ node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json status
 ### 3. Show Now, Untriaged and Next
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json ready
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json ready
 ```
 
 On exit 1 (the claims database has another schema version), exit 2 or exit 64, show stderr and say that the Now issues, the untriaged summary and the Next counts are missing. Offer no triage pass.
@@ -146,7 +146,7 @@ Then stop and wait for the coach.
 When the coach asks why an issue is or is not ready:
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json why <ref>
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json why <ref>
 ```
 
 Show `ready` and each entry of `reasons` (`code`, `detail`). Exit 0 is a valid answer whether `ready` is true or false. On exit 1, tell the coach to run the overview again so that `sync` fills the cache. On exit 64, the ref or repo is not known.
@@ -180,7 +180,7 @@ Run this section only when the coach asks. `<class>` is `now`, `next` or `later`
 When the coach asks for the issues of one class:
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json ready --class <class>
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json ready --class <class>
 ```
 
 Show each entry of `issues` with `key`, `title`, and "ready" or "not ready". Mark the entries whose repository (the part of `key` before `#`) is `coach.workspaceRepo`. The list holds the open issues of that class, ready or not.
@@ -194,7 +194,7 @@ Show each entry of `issues` with `key`, `title`, and "ready" or "not ready". Mar
 Run this only when the coach names the issue and the class (rule 13). `class` writes to the repository's GitHub project, so it asks the coach for permission. Never pre-approve it.
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json class <ref> <class>
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json class <ref> <class>
 ```
 
 Report from the JSON:
@@ -228,13 +228,13 @@ Decide from a `status` result. The rows are the entries of `workers` and of `tas
 Start a watch only when a worker is running and no watch that this skill started is still running in this session. Start it with the Monitor tool, `timeout_ms` 1800000 (the Monitor maximum, 30 minutes, above the 25 minutes of a run), and the description `gvt-fleet workers that need the coach`. The command:
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json watch --minutes 25
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json watch --minutes 25
 ```
 
 The run after a `watch-end` line carries the cursor of that line:
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json watch --minutes 25 --since <cursor>
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json watch --minutes 25 --since <cursor>
 ```
 
 Pass `cursor` exactly as the line gave it. It is a date and time. When it holds any character other than letters, digits, `-`, `:`, `.` and `+`, do not pass it: follow "When the watch ends early" instead.
@@ -291,7 +291,7 @@ First check the links of `<ref>` (see "Linked issues" below). Go on to step 1 on
 3. Pass the prompt as one argument: put it in single quotes in the Bash command.
 4. Run:
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json dispatch [--allow-self] <ref> ['prompt']
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json dispatch [--allow-self] <ref> ['prompt']
 ```
 
 Report from the JSON: `status`, `step`, `claim` and `rollback`. If the command exits 1 and stdout holds no JSON (for example an issue that cannot be read), show stderr and stop.
@@ -418,7 +418,7 @@ Run this only when the coach has named the repository and the slug (rule 1). A t
 3. Check the prompt as in step 2 of `dispatch`, and pass it as in step 3. The composed prompt is for `dispatch <ref>` only: a task has no issue, so pass no prompt when the coach gives none. The coordinator appends a rule to every task prompt: the worker must not write to the issue tracker unless the coach approves that one write. With no prompt, the coordinator uses `Task <slug> in <owner/name> (<task id>).` followed by that rule. Tell the coach that the worker will ask before each tracker write, and that the coordinator cannot enforce the rule.
 4. Run:
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json dispatch --task [--allow-self] <repo> <slug> ['prompt']
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json dispatch --task [--allow-self] <repo> <slug> ['prompt']
 ```
 
 Report from the JSON: `status` and `key`. `key` is the task id once the coordinator has made it. A refusal made before that (`step` is `self-repo`, `default-branch`, `base-clone`, `task-active` or `task-id`) reports `owner/name@<slug>` in `key` instead. If the command exits 1 and stdout holds no JSON, show stderr and stop.
@@ -456,7 +456,7 @@ Before the call, also run `status` in the overview form and keep the `detail` of
 Run:
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json wrap <ref | task id>
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json wrap <ref | task id>
 ```
 
 Always show `steps` (`proof`, `worktree`, `branch`, `claim`): it tells the coach how far the wrap got. Show `pushedBranch` and `pr` when they are not null, and each entry of `proofs` (`branch`, `pr`). Show each entry of `otherBranches` (`branch`, `tip`) in the report of what is left (see "What is left").
@@ -549,7 +549,7 @@ On exit 0, show the last line of the output. On any other exit, show stderr and 
 Run this only after the coach has said, in words, that the work should be dropped. For a task, `<ref>` is the task id. Run the two commands in order:
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json worktree remove --discard <ref>
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json worktree remove --discard <ref>
 ```
 
 Read the `worktree remove` result:
@@ -562,7 +562,7 @@ Read the `worktree remove` result:
 Run this after `worktree remove --discard` returned `removed`, or when the coach chose to keep the branch after `branch-kept`:
 
 ```
-node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json release <ref>
+node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json release <ref>
 ```
 
 - `released`: the wrap is done. When a watch is running, check whether to stop it (see "Stop the watch").

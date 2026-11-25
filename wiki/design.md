@@ -214,7 +214,7 @@ Two plugins. `gvt-fleet` depends on `gvt-dev`; the reverse is never true. See
 
 ### gvt-fleet (coach side)
 
-The plugin lives in the public repository `GenvidTechnologies/claude-code-plugin-gvt-fleet`, and so does the `gvt-fleet` CLI, in `plugin/cli/` ([ADR 0023](decisions/0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md)). Until #58 lands, the skill runs the workspace's own copy with `node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json …`. #58 points it at the plugin's copy, `node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json …`. The plugin has no MCP server.
+The plugin lives in the public repository `GenvidTechnologies/claude-code-plugin-gvt-fleet`, and so does the `gvt-fleet` CLI, in `plugin/cli/` ([ADR 0023](decisions/0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md)). The skill runs the plugin's copy, `node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json …` (#58). Releases up to v0.6.0 ran the workspace's own copy, `node "${CLAUDE_PROJECT_DIR}/bin/gvt-fleet.mjs" --json …`. The plugin has no MCP server.
 
 | Component | Role |
 |---|---|

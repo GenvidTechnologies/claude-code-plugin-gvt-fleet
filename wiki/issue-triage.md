@@ -309,6 +309,30 @@ body also read the exit code 123 of GNU xargs as "no hit", while xargs returns
 123 whenever any grep run exits 1 to 125, a file that grep cannot read
 included.
 
+An issue that raises `GVT_DEV_MIN_VERSION` names every place that states the
+minimum or depends on it: the constant and its comment in
+`plugin/cli/lib/plugin-path.mjs`, the `GVT_DEV_REF` pin in
+`.github/workflows/ci.yml`, the R206 tests in `test/plugin-path.test.mjs`, the
+pages of the command reference and `CLAUDE.md`. Find the texts with a search
+for the current value in both forms: as written (`4.45.0`) and as a regex
+literal in a test, with each dot escaped by a backslash. A `git grep -F` of the
+written form misses the regex form. Read each hit: some tests use the value
+only as a sample. The issue also names the `plugin/CHANGELOG.md` entry with its
+**Consumers** note, and says whether the contract number changes. Observed in
+triage on #158: the body named only the constant, while four command reference
+pages, `CLAUDE.md`, seven R206 tests and the CI pin also state or depend on it.
+Four of those tests hold the value only in its regex form, and the search
+proposed in triage missed them.
+
+An issue body cites an issue of another repository as `owner/name#N`
+everywhere, in prose as well as on a dependency line. GitHub links a bare `#N`
+in an issue body to this repository's issue `#N`. The reference grammar
+reports nothing for a bare `#N` in a prose sentence, so its check of a draft
+does not show the defect: read the draft for each bare `#N`. Observed in
+triage on #158: the analyst's draft wrote `#895` in a bullet for
+GenvidTechnologies/claude-code-plugin-gvt-dev#895. A probe of the grammar on
+that bullet returned no reference.
+
 ## Splitting
 
 Split when one issue bundles unrelated concerns, or when a single piece of work
@@ -385,6 +409,20 @@ that #22 adds the `checkedOutBranch` part of the leftover-branch check. The row
 and so does the interactive row, because a worker can leave its side branch
 checked out. The worker took the part, and left the choice to close #22 to the
 coach.
+
+An issue that waits for a release of another managed repository, not only for
+an issue there, writes the wait as a line that starts with `Deferred until` and
+names no issue, for example "Deferred until gvt-dev tags the release that ships
+`possibleGates`". gvt-fleet reads a `Blocked by` line on a closed issue of a
+managed repository as cleared, whether or not the release exists. A trigger
+line that names no issue never fires, so gvt-fleet keeps the issue out of
+`ready` until the line is removed. Keep the `Blocked by` line for the issue
+too. Do not write "Not before": the gvt-dev grammar of v6.2.0 does not read it
+as a trigger. The line says when to remove it. No check removes it, so the
+issue stays out of `ready` until someone edits the body. Observed in triage on
+#158: GenvidTechnologies/claude-code-plugin-gvt-dev#895 had closed, and the
+newest gvt-dev tag was still v6.2.0, which does not ship the key the issue
+reads.
 
 ## Mutation recipes
 

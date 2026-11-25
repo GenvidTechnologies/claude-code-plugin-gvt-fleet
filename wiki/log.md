@@ -6,6 +6,7 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 
 ## 2026-11-25
 
+* **Update**: `wiki/issue-triage.md`, Required fields (retro of the refactoring audit of 2026-11-25). An issue that changes the coordinator's default prompt says which workers receive it, because the coach skill passes its composed prompt and a worker that the skill dispatches never receives the default. No `raw/` capture drove this run: the source is the audit, which found that #133 and #136 change the default prompt with no word on the override.
 * **Update**: `wiki/issue-triage.md` (retro of the triage of #158). Required fields says that an issue that raises `GVT_DEV_MIN_VERSION` names every place that states the minimum or depends on it, found in both its written and its regex form, and that a body cites an issue of another repository as `owner/name#N` in prose too, because the reference grammar reports nothing for a bare `#N` in a sentence. Dependencies says that a wait for a release of another managed repository is a `Deferred until` line that names no issue, because gvt-fleet reads a `Blocked by` line on the closed issue as cleared. No `raw/` capture drove this run: the source is the triage of #158.
 
 ## 2026-11-23

@@ -43,7 +43,11 @@ Install the previous plugin release with `/plugin`, then run `install-hooks` fro
 
 This needs the workspace's own copy of the CLI in its `bin/`, and the coach skill of the releases without `cli/` runs that copy too. Step 5 of ADR 0023 removes it from the workspace repository. After that step, these steps no longer work as written.
 
-## Not known
+## Observed answers
 
-- Whether a plugin that is installed at both user and project scope runs its hooks once or twice in one session. `installed_plugins.json` on the coach machine lists `gvt-fleet@gvt-plugins` at both scopes. Check after step 2 of "The machine" that a worker's events appear once in `state/workers/`.
-- Whether a running session reads its hooks again. Treat a session that was open during the switch as still using the old entries until it is restarted.
+Two questions were open before the switch. The coach machine switched on 2026-11-24 to gvt-fleet 0.6.0, and the answers below were observed on 2026-11-25 with Claude Code 2.1.332 (workspace #178).
+
+- A plugin that is installed at both user and project scope runs its hooks once per event. `installed_plugins.json` lists `gvt-fleet@gvt-plugins` at user scope and at project scope for each worktree. The worker file of a worker dispatched after the switch, whose worktree has a project-scope entry, held one `SessionStart` record with `source` `startup` and one record for each later event.
+- A running session picks up an edit of a settings file, but not a change to a plugin's hooks. A probe ran one headless session with a hook in a project `.claude/settings.json` and a hook in the `hooks/hooks.json` of a `--plugin-dir` plugin, and changed both files while the session waited. Its next tool call ran the new settings hook and the old plugin hook. A new session ran both new hooks. This matches the Claude Code documentation, which says that a plugin updated mid-session keeps its old hooks until `/reload-plugins` or a restart. The probe did not test `/reload-plugins`, and it changed a project settings file, not `~/.claude/settings.json`.
+
+So a session that is open during step 2 of "The machine" stops running the user-settings hook entries once `install-hooks` removes them, and does not run the plugin's hook until it restarts: it records no events in between. This is inferred from the probe, because no session was open during the switch. Step 4 is needed.

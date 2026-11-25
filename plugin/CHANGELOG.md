@@ -7,6 +7,11 @@ and follows [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The coach skill runs the CLI that the plugin ships.** Every command line of the skill, the pre-approved ones in `allowed-tools` included, now runs `node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json …` instead of the workspace's own `bin/gvt-fleet.mjs`. A folder that is not a gvt-fleet workspace now fails the preflight with exit 2 (`config/repos.json` cannot be read), and the skill says that the coach did not start Claude Code at the root of a workspace. The preflight messages for a missing `coach` key or another contract number now point at the plugin, not at the workspace (#58).
+  - **Consumers:** the contract number does not change, and the skill needs no workspace copy of the CLI. If the hooks and status line still run from `~/.claude/settings.json`, run `install-hooks` from the plugin's CLI once after the update: `node "<install folder>/cli/bin/gvt-fleet.mjs" --workspace "<workspace>" install-hooks`, where `<install folder>` is the `installPath` of `gvt-fleet@gvt-plugins` in `~/.claude/plugins/installed_plugins.json`. Until it runs, the plugin hook and the user-settings hook both run, and each event is recorded twice (`wiki/coordinator/moving-the-cli-into-the-plugin.md`).
+
 ## [0.6.0] - 2026-11-23
 
 ### Added

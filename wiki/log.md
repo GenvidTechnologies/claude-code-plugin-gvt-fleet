@@ -6,6 +6,8 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 
 ## 2026-11-25
 
+* **Update**: `wiki/design.md` ("gvt-fleet (coach side)"), `wiki/coordinator.md` (step 9 of the Consumer workflow) and `wiki/coordinator/moving-the-cli-into-the-plugin.md` ("The release", "Going back") (#58). The coach skill runs the plugin's copy of the CLI with `--workspace "${CLAUDE_PROJECT_DIR}"`. v0.6.0 was the first release to ship `cli/` while its skill still ran the workspace's copy, and going back to the user-settings hooks needs a release with no `cli/`, v0.5.0 or earlier.
+
 * **Update**: `wiki/issue-triage.md` (retro of the triage of #158). Required fields says that an issue that raises `GVT_DEV_MIN_VERSION` names every place that states the minimum or depends on it, found in both its written and its regex form, and that a body cites an issue of another repository as `owner/name#N` in prose too, because the reference grammar reports nothing for a bare `#N` in a sentence. Dependencies says that a wait for a release of another managed repository is a `Deferred until` line that names no issue, because gvt-fleet reads a `Blocked by` line on the closed issue as cleared. No `raw/` capture drove this run: the source is the triage of #158.
 
 ## 2026-11-23

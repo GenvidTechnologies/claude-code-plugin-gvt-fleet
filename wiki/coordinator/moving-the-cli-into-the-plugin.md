@@ -15,12 +15,9 @@ This page is part of the [gvt-fleet command reference](../coordinator.md).
 
 The CLI's source is in this repository, at `plugin/cli/`, and the plugin's session hooks are the committed `plugin/hooks/hooks.json` ([ADR 0023](../decisions/0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md)). A plugin release ships both as they are at its tag. There is no tag of another repository and no copy step. Releases up to v0.5.0 ship no `cli/`.
 
-The first release that ships `cli/` takes two steps (#58):
+v0.6.0 is the first release that ships `cli/` and `hooks/hooks.json`, but its coach skill still runs the workspace's own copy. The release after it points every command line of the coach skill at the plugin's copy: `node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json …` (#58).
 
-1. Point every command line of the coach skill at the plugin's copy: `node "${CLAUDE_PLUGIN_ROOT}/cli/bin/gvt-fleet.mjs" --workspace "${CLAUDE_PROJECT_DIR}" --json …`.
-2. Release the plugin with `gvt-dev:release-plugin`: one annotated tag `v<version>` of this repository. The plugin's leak guard checks `plugin/cli/` like every other file.
-
-A later release takes step 2 only. A change to the hook events, the matcher or the timeouts regenerates `plugin/hooks/hooks.json` in the same commit; the `R216` tests check that the file equals `pluginHooksJson` of `plugin/cli/lib/user-settings.mjs`.
+A release is one annotated tag `v<version>` of this repository, made with `gvt-dev:release-plugin`. The plugin's leak guard checks `plugin/cli/` like every other file. A change to the hook events, the matcher or the timeouts regenerates `plugin/hooks/hooks.json` in the same commit; the `R216` tests check that the file equals `pluginHooksJson` of `plugin/cli/lib/user-settings.mjs`.
 
 Before ADR 0023, the plan was to copy `bin/` and `lib/` from a tag of the workspace repository into `plugin/cli/` with a bundle script of that repository. The move dropped that step, with its script, its tag and `cli/SOURCE.json`.
 
@@ -39,9 +36,9 @@ Before ADR 0023, the plan was to copy `bin/` and `lib/` from a tag of the worksp
 
 ## Going back
 
-Install the previous plugin release with `/plugin`, then run `install-hooks` from the workspace checkout (`node bin/gvt-fleet.mjs install-hooks`). With no `cli/` in the installed plugin, it is not in plugin mode, so it writes the hook entries again and points `statusLine` at the checkout's `bin/`.
+Install a plugin release with no `cli/` (v0.5.0 or earlier) with `/plugin`, then run `install-hooks` from the workspace checkout (`node bin/gvt-fleet.mjs install-hooks`). With no `cli/` in the installed plugin, it is not in plugin mode, so it writes the hook entries again and points `statusLine` at the checkout's `bin/`.
 
-This needs the workspace's own copy of the CLI in its `bin/`, and the coach skill of the releases without `cli/` runs that copy too. Step 5 of ADR 0023 removes it from the workspace repository. After that step, these steps no longer work as written.
+This needs the workspace's own copy of the CLI in its `bin/`, and the coach skill of the releases up to v0.6.0 runs that copy too. Step 5 of ADR 0023 removes it from the workspace repository. After that step, these steps no longer work as written.
 
 ## Not known
 

@@ -153,6 +153,13 @@ composed prompt. Observed in the triage of #51 and #52: both asked to change
 "the dispatch prompt" for a side-branch step that only a hand-written prompt
 held, and both were folded into #37.
 
+An issue that changes the coordinator's default prompt (`defaultPrompt` in
+`plugin/cli/lib/dispatch.mjs`) says which workers receive it. The coach skill
+passes its composed prompt when the coach gives none, so a worker that the
+skill dispatches never receives the default prompt. Observed in the
+refactoring audit of 2026-11-25: #133 and #136 change the default prompt, and
+their triage did not say that the skill overrides it (#164).
+
 An issue that changes a path or a command form lists every file that names
 the old form or describes it, not only the lines it rewrites. Search the whole
 repository for the old path, and read the prose around each hit. Observed in

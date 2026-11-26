@@ -456,8 +456,9 @@ names no issue, for example "Deferred until gvt-dev tags the release that ships
 managed repository as cleared, whether or not the release exists. A trigger
 line that names no issue never fires, so gvt-fleet keeps the issue out of
 `ready` until the line is removed. Keep the `Blocked by` line for the issue
-too. Do not write "Not before": the gvt-dev grammar of v6.2.0 does not read it
-as a trigger. The line says when to remove it. No check removes it, so the
+too. Do not write "Not before": gvt-dev 6.3.0 reads it as a trigger, but the
+grammar of earlier releases does not, and the CLI accepts gvt-dev from 4.45.0.
+Keep "Deferred until" while an older gvt-dev can be installed. The line says when to remove it. No check removes it, so the
 issue stays out of `ready` until someone edits the body. Observed in triage on
 #158: GenvidTechnologies/claude-code-plugin-gvt-dev#895 had closed, and the
 newest gvt-dev tag was still v6.2.0, which does not ship the key the issue

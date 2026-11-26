@@ -4,6 +4,10 @@ Record of every change to the wiki's page set: what changed, why, and which sour
 
 Add newest first. Never edit or remove a prior entry. If a past entry needs a correction, add a new entry that says so. The maintenance rules are in [the schema](schema.md).
 
+## 2026-11-26
+
+* **Update**: `wiki/issue-triage.md`, Dependencies (retro of the v0.7.0 release). gvt-dev 6.3.0 reads "Not before" as a trigger, and earlier releases do not; the CLI accepts gvt-dev from 4.45.0, so the advice to write "Deferred until" stays. No `raw/` capture drove this run: the source is the grammar diff between gvt-dev v6.2.0 and v6.3.0.
+
 ## 2026-11-25
 
 * **Update**: `wiki/issue-triage.md`, Required fields (retro of #178). A live row that checks a change to the CLI or the coach skill in a coach session is graded after a release, also when the issue asks for none, because the session runs the installed plugin's copy of the CLI. No `raw/` capture drove this run: the source is the work on #178.

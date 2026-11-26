@@ -88,6 +88,8 @@ function buildRow({ id, key, repo, worktree, lease, matches, rec, base, agentsEr
   } else if (!live) {
     state = 'done';
     reason = `agents:${session.state}`;
+    // A background session can show `done` between its turns: keep the last message of the turn.
+    detail = hook?.detail ?? null;
     since = hook?.since ?? null;
     if (held) markers.push('session-done');
     if (midTurn(hook)) markers.push('hook-live-session-gone');

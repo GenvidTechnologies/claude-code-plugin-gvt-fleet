@@ -50,7 +50,7 @@ jobs:
       # gvt-dev version the coordinator is used with.
       - name: Fetch the gvt-dev plugin
         env:
-          GVT_DEV_REF: v6.2.0
+          GVT_DEV_REF: v6.3.0
         run: |
           git -c advice.detachedHead=false clone --quiet --depth 1 --branch "$GVT_DEV_REF" https://github.com/GenvidTechnologies/claude-code-plugin-gvt-dev.git "$RUNNER_TEMP/gvt-dev"
           test -f "$RUNNER_TEMP/gvt-dev/plugin/skills/triage-issues/scripts/lib/refs-grammar.mjs"

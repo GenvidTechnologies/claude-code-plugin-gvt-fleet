@@ -7,7 +7,12 @@ and follows [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-26
+
 ### Fixed
+
+- **The human output of `ready` uses the singular for one untriaged issue.** The untriaged line of a repository with one untriaged issue now reads `1 issue`, not `1 issues` (#111).
+  - **Consumers:** the contract number does not change. The JSON output does not change.
 
 - **The watch reports a worker whose session shows `done` after its turn.** The agents list can show a background session `done` between its turns, while the worker waits for the coach with a side pull request ready for review. `watch` skipped such a worker, and `status` dropped its last message. Now `status` keeps the `detail` and `since` of the last hook record for a session that is not live, and `watch` prints one `needs-you` line with the reason `agents:done` for a worker whose session shows `done` while its claim or task lease is held, with the last message as `detail`. The skill counts such a worker as running, so the watch keeps running until the worker is wrapped or released, and it shows the last message of each wrap-up candidate (#178).
   - **Consumers:** the contract number does not change. `reason` takes the new value `agents:done`, and no key changes type.

@@ -83,6 +83,8 @@ The reverse case: the skill stops reading a key. Then:
 - The skill's own contract table drops the key.
 - The same change drops the key from `wiki/coordinator/coach-skill-contract.md`. The CLI output does not change, so the skill's change does not raise the contract number.
 
+A new value of a key that the skill reads, such as a new `reason` on a `needs-you` line, does not raise the contract number when an older skill still shows the line correctly. The skill names the value, and the contract page says when it appears, in the same change. Observed on #178: `watch` added the reason `agents:done`, and the contract number did not change.
+
 An issue that makes a key meaningless says whether the skill keeps reading it. When an issue follows a decision record of the CLI, read that record before the change: it can say what happens to a key. Observed on #29: the skill stopped reading `now[].conflict`, which is always `false` since the class moved to the project Iteration field. The workspace decision record had already said that the key stays. It was read only after the merge, and the CLI's table still listed the key.
 
 A CLI change that the skill adopts can also make `wiki/issue-triage.md` stale, for example its Class section and its "Set coordinator class" recipe. An issue that adopts such a change names both files. No check compares the triage contract with the CLI. Observed in triage on #29: the body named only `SKILL.md`, and the triage contract still said that labels keep the class (fixed in #31).

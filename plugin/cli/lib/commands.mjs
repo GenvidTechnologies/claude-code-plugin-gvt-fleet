@@ -1263,7 +1263,7 @@ export async function watchCommand(ctx, args) {
         now: new Date(pollMs),
         issues: new Map(),
       });
-      const rows = [...joined.workers, ...joined.tasks].map((w) => ({ key: w.key ?? `${w.repo}:${w.worktree}`, state: w.state, reason: w.reason, detail: w.detail, questions: w.questions, since: w.since }));
+      const rows = [...joined.workers, ...joined.tasks].map((w) => ({ key: w.key ?? `${w.repo}:${w.worktree}`, state: w.state, reason: w.reason, detail: w.detail, questions: w.questions, since: w.since, lease: w.lease?.state ?? null }));
       const next = nextWaits(memo, rows, { cursorMs, agentsOk: !agentsError, nowMs: pollMs });
       memo = next.memo;
       for (const line of next.lines) {

@@ -1,6 +1,11 @@
 // Pure helpers for `gvt-fleet watch`: no I/O, no clock, no process.
 
 const BLOCKED = 'agents:blocked';
+const DONE = 'agents:done';
+
+// A background session can show `done` in the agents list between its turns, while it waits for the coach. A row in
+// that state whose lease is still held is a wait, identified like a hook wait.
+const doneWait = (row) => row.state === 'done' && row.reason === DONE && row.lease === 'held';
 
 /** Collapse whitespace to single spaces and trim. Over `max` characters, keep the last `max` behind a leading `...`. */
 export function oneLine(detail, max = 160) {
@@ -16,6 +21,8 @@ export function oneLine(detail, max = 160) {
  * wait is the same wait (the Stop with an empty last message gives the prompt its own `since`). `blocked` is the set of
  * keys that showed `needs-you` / `agents:blocked` in the last poll with a readable agents list, or null before the
  * first one. `nowMs` is the poll time; an emitted `agents:blocked` line carries it as `since`.
+ * A row is a wait when its `state` is `needs-you`, or when it is `done` with the reason `agents:done` and its `lease`
+ * (the lease state) is `held`. Such a done wait keeps the `turnEnded` entry of its key: it is the same turn.
  * Returns `{ lines, memo }` and never changes its input.
  */
 export function nextWaits(memo, rows, { cursorMs, agentsOk, nowMs }) {
@@ -34,7 +41,7 @@ export function nextWaits(memo, rows, { cursorMs, agentsOk, nowMs }) {
       }
       continue;
     }
-    if (row.state !== 'needs-you') {
+    if (row.state !== 'needs-you' && !doneWait(row)) {
       // The wait ended (working, rate-limited, no-session...): a later idle prompt belongs to another turn.
       delete turnEnded[row.key];
       continue;
@@ -49,7 +56,7 @@ export function nextWaits(memo, rows, { cursorMs, agentsOk, nowMs }) {
     if (!Number.isFinite(sinceMs) || sinceMs < cursorMs) continue;
     emitted[id] = true;
     if (row.reason === 'turn-ended') turnEnded[row.key] = true;
-    else delete turnEnded[row.key];
+    else if (row.reason !== DONE) delete turnEnded[row.key];
     lines.push(line(row));
   }
 

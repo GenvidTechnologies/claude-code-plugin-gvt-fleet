@@ -930,3 +930,35 @@ test('R200: the question of another session in the same worktree does not show o
   assert.deepEqual(other.workers[0].questions, ASKED);
   assert.equal(other.workers[0].detail, ASKED_DETAIL);
 });
+
+// A background session that ends its turn can show `done` in the agents list while it waits for the coach. Its row
+// stays `done` (R103) and keeps the last message of the turn in `detail`, so the pull request number that the message
+// ends with reaches the coach.
+const READY = 'Side pull request opened.\n\nReady for review: #12';
+
+test('R217: status gives a done worker the last message of its turn in detail', async (t) => {
+  const start = rec('SessionStart', 'S1', { recorded_at: '2026-11-04T08:30:00.000Z' });
+  const s = await sandbox(t, { leases: [lease()], agents: [bg({ state: 'done' })], files: { [FILE1]: [start, rec('Stop', 'S1', { last_message: READY })] } });
+  assert.equal(await statusCommand(s.ctx, []), 0, s.err.join('\n'));
+  const w = JSON.parse(s.out.join('\n')).workers[0];
+  assert.equal(w.detail, READY);
+  assert.match(w.detail, /#12$/);
+  assert.equal(w.state, 'done');
+  assert.equal(w.reason, 'agents:done');
+  assert.deepEqual(w.markers, ['session-done']);
+  assert.equal(w.since, '2026-11-04T09:00:00.000Z');
+});
+
+test('R217: status keeps the message of the turn Stop for a done worker whose last record is its idle prompt', () => {
+  const idle = rec('Notification', 'S1', { recorded_at: '2026-11-04T09:01:00.000Z', notification_type: 'idle_prompt', message: 'Claude is waiting for your input' });
+  const out = join({ leases: [lease()], agents: [bg({ state: 'done' })], records: records({ [FILE1]: [rec('Stop', 'S1', { last_message: READY }), idle] }) });
+  assert.equal(out.workers[0].detail, READY);
+  assert.equal(out.workers[0].state, 'done');
+  assert.equal(out.workers[0].since, '2026-11-04T09:00:00.000Z');
+});
+
+test('R217: a done worker whose last hook record has no message has detail null', () => {
+  assert.equal(gone([bg({ state: 'done' })], rec('SessionEnd', 'S1', { reason: 'logout' })).detail, null);
+  assert.equal(gone([bg({ state: 'done' })], rec('PreToolUse', 'S1', { tool_name: 'Bash' })).detail, null);
+  assert.equal(join({ leases: [lease()], agents: [bg({ state: 'done' })] }).workers[0].detail, null);
+});

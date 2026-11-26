@@ -117,7 +117,7 @@ State of a row:
 
 - A live session takes the state of the last hook record of that session. The state is `working`, `needs-you` or `rate-limited`.
 - If the session has no hook record, or the hook state is `done`, the state comes from `claude agents`. A session in the state `blocked` gives `needs-you` with the reason `agents:blocked`. Any other live state gives `working`.
-- A session that is not live gives `done`, with the reason `agents:<state>`.
+- A session that is not live gives `done`, with the reason `agents:<state>`. Its `detail` and `since` come from the last hook record of the session, as for a live session: after a Stop, or the idle prompt that follows it, `detail` is the last message of the turn. The agents list can show a background session `done` between its turns while the worker waits, so this message can end with the number of a pull request that waits for review (#178).
 - No matched session gives `no-session`.
 - When the agents list cannot be read, the state is the hook state, or `unknown` when there is none.
 - For a row whose session's last hook record is an `idle_prompt` notification, `detail` is the last message of the Stop that ended the turn, and `since` is the time of that Stop. That Stop is the first record found when the session's own records are read back from the notification, other `idle_prompt` records aside. When another record of the session comes first, the Stop is not in the last 64 KB of the file, or it has no last message, `detail` is the notification message and `since` the notification time. A Stop of another session is never used. Other notification types keep their own message. The row's session is the matched session, else the session named by the lease; a row with neither uses the last record of the file.
@@ -218,7 +218,7 @@ Prints one line each time a worker starts to need you. The coach runs it under M
 
 Each poll reads the same inputs as `status` (the leases, `claude agents --json --all` and the hook worker files) and joins them the same way, so `watch` and `status` agree on the state of a worker. The command makes one `claude agents` call per poll. Measured on this machine, `claude agents --json --all` took 972 ms, 981 ms and 1112 ms (3 samples, 2026-11-06). The command changes no lease, makes no GitHub call and never reads the issue cache. Like every command, it opens the state databases, and that can create them. It writes to the log.
 
-A wait is a worker row whose state is `needs-you`. A task worker that needs you is reported like an issue worker, with its task id as `key`. The identity of a wait is the worker key and the time the wait began (`since`). The command prints a line once for each identity.
+A wait is a worker row whose state is `needs-you`, or a row whose state is `done` with the reason `agents:done` while its lease is `held`. The agents list can show a background session `done` after its turn, while the worker waits for the coach, for example with a side pull request ready for review (#178). Such a line has the reason `agents:done`, and its `detail` and `since` are those of the `status` row: after a Stop or its idle prompt, the last message of the turn and the time of that Stop. A `failed` or `stopped` session, and a `done` session whose lease is not `held`, give no line. A task worker that needs you is reported like an issue worker, with its task id as `key`. The identity of a wait is the worker key and the time the wait began (`since`). The command prints a line once for each identity.
 
 | Sequence of events | Lines |
 |---|---|
@@ -229,6 +229,8 @@ A wait is a worker row whose state is `needs-you`. A task worker that needs you 
 | The session is resumed with a new session id, then a Stop. | 1 (the key is the worker, not the session) |
 | An `AskUserQuestion` call, its permission prompt, then an idle prompt before the answer. | 1 (the idle prompt keeps the `since` of the permission prompt, so the identity is the same; no such idle prompt has been seen during a question wait) |
 | An `AskUserQuestion` call, its permission prompt, you answer it, a Stop. | 2 (the Stop ends the question wait) |
+| The worker holds its lease and is working, then a Stop, and the agents list shows the session `done` from the next poll on. | 1 (the reason is `agents:done`) |
+| A Stop printed as `turn-ended`, then the agents list shows the session `done`. | 1 (the `done` row keeps the `since` of the Stop, so the identity is the same) |
 
 The join reports `agents:blocked` for a session that the agents list shows as blocked and that has no hook record, or only a done one. A session with a live hook record takes its state from the hook (for a permission prompt the hook already reports `needs-you`). An `agents:blocked` row has no begin time, so the command prints a line only when the session turns blocked during the watch. The first poll with a readable agents list sets the baseline. A session that is blocked at that poll gives no line. While the list is unreadable, the baseline is kept and no `agents:blocked` line is printed. The `since` of that line is the time of the poll that saw the session blocked, not the time the wait began.
 

@@ -145,6 +145,44 @@ test('R131: an agents-error poll is ignored for the agents:blocked rule', () => 
   assert.equal(JSON.stringify(a.memo), snapshot);
 });
 
+// A background session that ends its turn can show `done` in the agents list while it waits for the coach.
+const doneRow = (over = {}) => row({ state: 'done', reason: 'agents:done', detail: 'Ready for review: #12', lease: 'held', ...over });
+
+test('R217: a held worker that goes from working to done prints one line, and none at the next poll', () => {
+  const working = { key: KEY, state: 'working', reason: null, detail: null, since: null, lease: 'held' };
+  const a = nextWaits(null, [working], { cursorMs: cursor, agentsOk: true });
+  assert.equal(a.lines.length, 0);
+  const b = nextWaits(a.memo, [doneRow()], { cursorMs: cursor, agentsOk: true });
+  assert.deepEqual(b.lines, [{ event: 'needs-you', key: KEY, reason: 'agents:done', detail: 'Ready for review: #12', since: T0, questions: null }]);
+  const c = nextWaits(b.memo, [doneRow()], { cursorMs: cursor, agentsOk: true });
+  assert.equal(c.lines.length, 0);
+  // A new turn that ends with a new since is a new wait.
+  const d = nextWaits(c.memo, [working], { cursorMs: cursor, agentsOk: true });
+  const e = nextWaits(d.memo, [doneRow({ since: T1 })], { cursorMs: cursor, agentsOk: true });
+  assert.deepEqual(e.lines.map((l) => [l.reason, l.since]), [['agents:done', T1]]);
+});
+
+test('R217: a done row prints no line without a held lease, or for a failed or stopped session', () => {
+  for (const over of [{ lease: null }, { lease: undefined }, { lease: 'claiming' }, { lease: 'releasing' }, { reason: 'agents:failed' }, { reason: 'agents:stopped' }]) {
+    assert.equal(nextWaits(null, [doneRow(over)], { cursorMs: cursor, agentsOk: true }).lines.length, 0, JSON.stringify(over));
+  }
+});
+
+test('R217: a turn end already printed prints no second line when the session then shows done', () => {
+  const a = nextWaits(null, [row({ lease: 'held' })], { cursorMs: cursor, agentsOk: true });
+  assert.equal(a.lines.length, 1);
+  const b = nextWaits(a.memo, [doneRow()], { cursorMs: cursor, agentsOk: true });
+  assert.equal(b.lines.length, 0);
+  // Its idle prompt after the session is live again is still the same wait.
+  const c = nextWaits(b.memo, [row({ reason: 'notification:idle_prompt', since: T1, lease: 'held' })], { cursorMs: cursor, agentsOk: true });
+  assert.equal(c.lines.length, 0);
+});
+
+test('R217: a done wait with since before the cursor prints no line', () => {
+  assert.equal(nextWaits(null, [doneRow()], { cursorMs: Date.parse(T1), agentsOk: true }).lines.length, 0);
+  assert.equal(nextWaits(null, [doneRow({ since: T1 })], { cursorMs: Date.parse(T1), agentsOk: true }).lines.length, 1);
+});
+
 test('R132: oneLine collapses whitespace and trims', () => {
   assert.equal(oneLine('  a \n\n b\t\tc  '), 'a b c');
 });
@@ -484,4 +522,32 @@ test('R130: a worker with no issue number is keyed owner/name:<worktree>', async
   const { s, code, waits } = await runWatch(t, { agents: [scratch], steps: [(add) => add('acme/app/scratch.jsonl', stop('S9', 20, 'done?'))] });
   assert.equal(code, 0, s.err.join('\n'));
   assert.deepEqual(waits.map((w) => w.key), ['acme/app:scratch']);
+});
+
+test('R217: watch prints one line with the last message for a held worker or task whose session shows done after its turn', async (t) => {
+  const task = 'app.fix-x.20261106.1';
+  const held = (leaseId, key, sessionId) => ({ leaseId, key, state: 'held', claimedAt: at(-7200), heartbeatAt: at(-7200), expiresAt: at(3600), sessionId, shortId: null, worktreePath: null });
+  const taskAgent = (state) => ({ id: 'abc00008', sessionId: 'S8', name: task, cwd: wtPath(task), kind: 'background', state, startedAt: START - 3600000 });
+  // From the second poll on, the agents list shows each session done. Worker 2 has no lease.
+  const { s, code, waits } = await runWatch(t, {
+    leases: [held('L1', 'acme/app#1', 'S1'), held('L8', 'acme/app@fix-x.20261106.1', 'S8')],
+    agents: (n) => {
+      const state = n < 1 ? 'working' : 'done';
+      return [agent(1, { state }), agent(2, { state }), taskAgent(state)];
+    },
+    steps: [
+      (add) => {
+        add(FILE1, stop('S1', 20, 'Side pull request opened.\n\nReady for review: #12'));
+        add(FILE2, stop('S2', 20, 'Ready for review: #13'));
+        add(`acme/app/${task}.jsonl`, stop('S8', 20, 'Ready for review: #14'));
+      },
+    ],
+  });
+  assert.equal(code, 0, s.err.join('\n'));
+  assert.deepEqual(waits, [
+    { event: 'needs-you', key: 'acme/app#1', reason: 'agents:done', detail: 'Side pull request opened. Ready for review: #12', since: at(20), questions: null },
+    { event: 'needs-you', key: 'acme/app@fix-x.20261106.1', reason: 'agents:done', detail: 'Ready for review: #14', since: at(20), questions: null },
+  ]);
+  assert.ok(s.events.filter((e) => e.event === 'watch-start').length === 1);
+  assert.deepEqual(s.events.filter((e) => e.event === 'watch-wait').map((e) => e.reason), ['agents:done', 'agents:done']);
 });

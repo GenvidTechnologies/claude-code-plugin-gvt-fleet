@@ -355,6 +355,13 @@ says who runs the release. Observed on #58: of its nine rows, the rows on the
 released tag, the leak guard on the release, and the three interactive rows
 could not be checked in the worker's branch.
 
+A live row that checks a change to the CLI or the coach skill in a coach
+session needs a release too, because the session runs the installed plugin's
+copy of the CLI (#58). Triage marks such a row as graded after the release,
+also when the issue asks for no release. Observed on #178: its live row, a
+watch line for a worker's side pull request, could not be checked in the
+worker's branch, and the issue did not say so.
+
 ## Splitting
 
 Split when one issue bundles unrelated concerns, or when a single piece of work

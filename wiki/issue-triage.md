@@ -158,6 +158,14 @@ skill dispatches never receives the default prompt. Observed in the
 refactoring audit of 2026-11-25: #133 and #136 change the default prompt, and
 their triage did not say that the skill overrides it (#164).
 
+An issue that adds a coach mode or step that keeps a record between runs
+says where the record lives. Rule 7 of `plugin/skills/coach/SKILL.md` says
+"Keep no state of your own. Every run reads live state first, so a run after a
+crash is safe." So the record lives where a later run reads it live, for
+example on GitHub, and the issue names it. Observed in the triage of #190: the
+body asked each run to record its date and the release tags it analyzed, and
+named no place for the record.
+
 An issue that changes a path or a command form lists every file that names
 the old form or describes it, not only the lines it rewrites. Search the whole
 repository for the old path, and read the prose around each hit. Observed in
@@ -271,6 +279,15 @@ is checked at triage, because the step can run before the triage does.
 Observed in triage on #99: the body was filed at 21:40 to wait for the copies,
 and the copies were made at 22:04. Workspace #81 became #119, and workspace #82
 became #120.
+
+A workspace issue can have more than one copy here, when its parts were filed
+apart. Before a triage rewrites a prose blocker that names a workspace issue
+into a `Blocked by #N` line, it reads the `Blocked by` line of each issue that
+the prose names, and gives each part the copy that holds it. Observed in the
+triage of #34: its prose named the workspace issue that asked `wrap` to prove
+and delete every worker branch. Its copies are #128 (the proof and the
+deletion) and #129 (the report of other final pull requests). The analyst
+matched #128 only, and #36, which the prose also named, is blocked by #129.
 
 An issue that rewrites references to workspace issues lists the CLI code as
 well as the wiki. The `HELP` table in `plugin/cli/bin/gvt-fleet.mjs` prints such
@@ -463,6 +480,16 @@ issue stays out of `ready` until someone edits the body. Observed in triage on
 #158: GenvidTechnologies/claude-code-plugin-gvt-dev#895 had closed, and the
 newest gvt-dev tag was still v6.2.0, which does not ship the key the issue
 reads.
+
+The `Deferred until` line refers to the blocker as "the blocking issue above",
+not by its number. A line that holds `owner/name#N` gives a `deferral`
+reference to that issue, and a deferral reference is cleared when the issue
+closes, before the release exists. Check the draft with the reference
+grammar's `extract`: the line must be listed under `triggers`, and no `refs`
+entry may have the `source` `deferral`. Observed in the triage of #190: the
+first draft wrote "the refactoring audit skill of
+GenvidTechnologies/claude-code-plugin-gvt-dev#1142", and `extract` read a
+deferral reference to that issue.
 
 ## Mutation recipes
 

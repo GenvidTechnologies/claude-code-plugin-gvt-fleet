@@ -6,6 +6,7 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 
 ## 2026-11-26
 
+* **Update**: `wiki/issue-triage.md` (retro of the triage of #189 and #190). Required fields says that an issue that adds a coach mode or step that keeps a record between runs says where the record lives, because coach rule 7 says to keep no state, and that a workspace issue can have more than one copy here, so a triage that rewrites a prose blocker reads the `Blocked by` line of each issue the prose names. Dependencies says that a `Deferred until` line refers to the blocker as "the blocking issue above", because a number on the line gives a deferral reference that clears when the issue closes. No `raw/` capture drove this run: the source is the triage of #189, #190 and #34.
 * **Update**: `wiki/issue-triage.md`, Dependencies (retro of the v0.7.0 release). gvt-dev 6.3.0 reads "Not before" as a trigger, and earlier releases do not; the CLI accepts gvt-dev from 4.45.0, so the advice to write "Deferred until" stays. No `raw/` capture drove this run: the source is the grammar diff between gvt-dev v6.2.0 and v6.3.0.
 
 ## 2026-11-25

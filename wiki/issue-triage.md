@@ -43,37 +43,35 @@ priority labels, switch to the structured template.)
 
 ## Class
 
-Each open issue has a class: Now, Next or Later. Two places store it, and a
-triage pass sets both:
+Each open issue has a class: Now, Next or Later. The Iteration field of the
+`gvt-plugins` project (organization project 1) stores it. The gvt-fleet
+coordinator derives the class from that field, as "Commands: classes and
+iterations" (`wiki/coordinator/classes.md`) says: Now is the iteration that
+`iteration promote` recorded, Next is the first iteration that starts after
+Now, and every other iteration is Later. So is an item with no iteration, and
+an issue that is not in the project. The coach overview reads only this class.
+Only the coordinator's `class` command writes it. The coordinator no longer
+reads or writes the labels `class:now` and `class:next` (its ADR 0015).
 
-- **The Iteration field of the `gvt-plugins` project** (organization project 1).
-  The gvt-fleet coordinator derives the class from it: the current iteration is
-  Now, the first iteration that starts after today is Next, and every other
-  iteration is Later. So is an item with no iteration, and an issue that is not
-  in the project. The coach overview reads only this class. Only the
-  coordinator's `class` command writes it. The coordinator no longer reads or
-  writes the labels `class:now` and `class:next` (its ADR 0015).
-- **The Class field of the `gvt-plugins` project.** It is a single-select field
-  with the options Now, Next, Later and Done. The coach overview does not read
-  it, and the coordinator does not write it.
+The project has no other class store. Write no Class field. The project's
+single-select Class field, which this contract once also set, is gone: on
+2026-11-25, in the triage of #178, `field(name: "Class")` on project 1
+returned a `NOT_FOUND` error, and the project's fields were Status, Iteration,
+Road block and GitHub's built-in fields. The gvt-dev triage contract dropped
+its Class-field recipes in GenvidTechnologies/claude-code-plugin-gvt-dev#946,
+and #45 dropped them here.
 
-The two stores are not linked. When only one is set, they can disagree, and the
-coach overview shows the Iteration class. Observed in the triage of #25: the
-brief asked for "the project Class", and only the Class field was set. Both
-stores said Later, so nothing was lost. A Next class set that way would not
-have reached the overview.
-
-Next can be set only when the project has a next iteration. Without one,
-`class` refuses `next`. Observed in the triage of #29: project 1 had a current
-iteration and no next one.
+Before you propose Now or Next, read the project's iterations with the recipe
+"List iterations". Propose Next only when the project has a next iteration:
+without one, `class` refuses `next`. Observed in the triage of #29, and again
+in the triage of #178: project 1 had a Now and no Next.
 
 Propose a class for each triaged issue. The proposal defaults to Later. Set it
-only with the coach's approval, through the recipes "Set coordinator class" and
-"Set project Class".
+only with the coach's approval, through the recipe "Set coordinator class".
 
-For Later on an issue that is not in the project, run only "Set project Class".
-`class later` does not add the issue to the project, and an issue with no
-iteration is already Later. Done in the triage of #39 and #40.
+Later needs no write for an issue that is not in the project, or whose item
+has no iteration: it is already Later. `class later` does not add an issue to
+the project. Done in the triage of #39 and #40.
 
 ## Road block
 
@@ -95,8 +93,8 @@ when it is wrong. The `groom-road-blocks` skill of the workspace can set the
 road block before it starts a triage of the issue.
 
 "Set road block" adds the issue to the project when it is not in it. The new
-item has no iteration, so its class stays Later. Write no Class field for it:
-the item is already Later. Done in the triage of #56, #57, #58 and #75.
+item has no iteration, so its class stays Later, and it needs no class write.
+Done in the triage of #56, #57, #58 and #75.
 
 ## Labels
 
@@ -340,6 +338,14 @@ triage on #158: the analyst's draft wrote `#895` in a bullet for
 GenvidTechnologies/claude-code-plugin-gvt-dev#895. A probe of the grammar on
 that bullet returned no reference.
 
+The rule holds for a short name too, such as `gvt-dev#1007`: the short name
+holds no owner. An analyst report uses short names for brevity, so a draft
+built from it can carry one. Before the write, run
+`grep -n -E '(^|[^/A-Za-z0-9-])[A-Za-z0-9-]+#[0-9]+' {tmpfile}`. It prints each
+short-name reference, and skips a full `owner/name#N` and a bare `#N`.
+Observed in triage on #167: the draft's triage notes cited `gvt-dev#1007`, and
+this grep found it before the write.
+
 An issue whose acceptance rows include a release of this plugin says that the
 release runs on `main` after the final pull request merges. A release here is
 a commit and an annotated tag on `main` (for example `release: v0.6.0`), and a
@@ -473,12 +479,8 @@ When a recipe's set would be empty, omit its --remove-label flag.
 - Close as completed or not planned (only with approval): `gh issue close {id} --reason "{closeReason}"` — post the reason first through the Comment recipe; `{closeReason}` is `completed` or `not planned`
 - Create split issue: `gh issue create --title "{title}" --body-file {tmpfile} --label "{type}"` — the skill writes the drafted split body to `{tmpfile}` first
 - Link dependency: `gh issue comment {id} --body "Blocked by #{other}"`
-- Set coordinator class: `node bin/gvt-fleet.mjs --json class {ref} {class}`, run at the root of the gvt-fleet workspace. `{ref}` is the issue's `owner/name#{id}`, and `{class}` is `now`, `next` or `later` in lowercase. For `now` or `next` the command adds the issue to the project when it is not in it, and puts its item in the current or the next iteration. For `later` it clears a Now or Next value; it does not add an issue to the project. It reads the value back, and writes the coordinator's cache when the readback agrees and `sync` has read the project. A result with `status` `noop` means that the issue already had the class. A result with `status` `refused` and exit 1 is a closed issue, a project with no Iteration field, or `now` or `next` when the project has no current or no next iteration.
-- Set project Class, in three steps:
-  1. Add the issue to the project: `gh project item-add 1 --owner GenvidTechnologies --url {url} --format json --jq .id`. The output is `{itemId}`. For an issue that is already in the project, read `{itemId}` from the `projectItems` of the issue instead: `gh api graphql -f query='query{repository(owner:"GenvidTechnologies",name:"claude-code-plugin-gvt-fleet"){issue(number:{id}){projectItems(first:5){nodes{id project{number}}}}}}'`, and take the `id` of the node whose `project.number` is 1. Run "Set coordinator class" first: for `now` or `next` it adds the issue to the project. Checked in the triage of #29.
-  2. Look up the ids: `gh api graphql -f query='query{organization(login:"GenvidTechnologies"){projectV2(number:1){id field(name:"Class"){... on ProjectV2SingleSelectField{id options{id name}}}}}}'`. `{projectId}` is `projectV2.id`, `{fieldId}` is `field.id`, and `{optionId}` is the `id` of the option whose `name` is the class. Look the ids up on each run: rebuilding the options of the field gives new option ids.
-  3. Set the field: `gh project item-edit --project-id {projectId} --id {itemId} --field-id {fieldId} --single-select-option-id {optionId}`. The command prints nothing on success.
-- Read back the project Class: `gh api graphql -f query='query{repository(owner:"GenvidTechnologies",name:"claude-code-plugin-gvt-fleet"){issue(number:{id}){projectItems(first:5){nodes{project{title} fieldValueByName(name:"Class"){... on ProjectV2ItemFieldSingleSelectValue{name}}}}}}}'`
+- List iterations: `node plugin/cli/bin/gvt-fleet.mjs --workspace <workspace root> --json iteration list GenvidTechnologies/1`, run in a checkout of this repository that is up to date with `origin/main`. `<workspace root>` is the folder of the gvt-fleet workspace, which holds `config/`, `state/` and `repos/`. It writes nothing. Each entry of `iterations` has a `role`: `now`, `next`, `planned` or `completed`. A project with no entry whose `role` is `next` has no next iteration. Ran in the triage of #178.
+- Set coordinator class: `node plugin/cli/bin/gvt-fleet.mjs --workspace <workspace root> --json class {ref} {class}`, run in a checkout of this repository that is up to date with `origin/main`. With `--workspace`, the CLI reads that workspace's config and writes its state. Do not run the workspace's own `bin/gvt-fleet.mjs`: it is the copy of the CLI frozen at the tag `cli-source-moved` (decision record 0023), and the workspace removes it. On 2026-11-25, in the triage of #178, its `bin/gvt-fleet.mjs`, `lib/commands.mjs` and `lib/user-settings.mjs` already differed from this repository's copies. `{ref}` is the issue's `owner/name#{id}`, and `{class}` is `now`, `next` or `later` in lowercase. For `now` or `next` the command adds the issue to the project when it is not in it, and puts its item in the current or the next iteration. For `later` it clears a Now or Next value; it does not add an issue to the project. It reads the value back, and writes the coordinator's cache when the readback agrees and `sync` has read the project. A result with `status` `noop` means that the issue already had the class. A result with `status` `refused` and exit 1 is a closed issue, a project with no Iteration field, or `now` or `next` when the project has no current or no next iteration.
 - Set road block: `node .claude/skills/groom-road-blocks/scripts/set.mjs --dir <work dir> --project GenvidTechnologies/1 "GenvidTechnologies/claude-code-plugin-gvt-fleet#{id}={roadBlock}"`, run at the root of the gvt-fleet workspace. `<work dir>` is a scratch folder for the script's files. `{roadBlock}` is the full name of an option of the `Road block` field, for example `G11 gvt-fleet coach covers the coordinator`. The script adds the issue to the project when it is not in it, sets the value, and reads it back. It prints `OK <option>` per issue, and exits 1 on `MISMATCH` or on a name that is not an option. Used in the triage of #58. From a worktree-isolated session, run it in the PowerShell tool as `Set-Location <workspace root>; node .claude/skills/groom-road-blocks/scripts/set.mjs …`, and read `$LASTEXITCODE`. That form ran in the triage of #62. The Bash form `cd <workspace root> && node …` was not tried there.
 - Stamp triaged: `gh issue edit {id} --add-label {triagedLabel}`
 

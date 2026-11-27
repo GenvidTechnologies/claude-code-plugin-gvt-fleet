@@ -158,6 +158,27 @@ skill dispatches never receives the default prompt. Observed in the
 refactoring audit of 2026-11-25: #133 and #136 change the default prompt, and
 their triage did not say that the skill overrides it (#164).
 
+An issue that has the coach skill send a message to a worker, or a worker to
+another session, says how the message reaches the session. It quotes each
+sentence of `plugin/skills/coach/SKILL.md` that says who sends one today.
+Since #193, "The finish turn", "Later versions" and rule 19 say that the merge
+notice is the only message that the skill sends to a worker, and step 4 of the
+composed prompt says that a worker sends no message to another session.
+Observed in triage on #193: the body said that rule 14 changes, while rule 14
+forbids only an act on a watch line alone. The body named neither the two
+sentences that conflict nor a way to send. The triage left the choice between a
+message from the coach session and a poll by the worker to the plan.
+
+An issue that has the coach skill send a message to a worker session also
+names the key that the skill reads to find the session. The SendMessage and
+ListAgents tools name a background worker by its worktree name, which is the
+`worktree` key of its `status` row, not by `session.shortId` ("Live workers" in
+`wiki/coordinator/workers.md`: a worker's session is the one whose name equals
+the worktree name). When the skill did not read that key before, the issue
+says that the skill reads a new key, and whether the contract number changes.
+Observed on #193: the body said that the change reads no new key, and the
+merge notice had to read `worktree`.
+
 An issue that adds a coach mode or step that keeps a record between runs
 says where the record lives. Rule 7 of `plugin/skills/coach/SKILL.md` says
 "Keep no state of your own. Every run reads live state first, so a run after a
@@ -165,16 +186,6 @@ crash is safe." So the record lives where a later run reads it live, for
 example on GitHub, and the issue names it. Observed in the triage of #190: the
 body asked each run to record its date and the release tags it analyzed, and
 named no place for the record.
-
-An issue that has the coach skill send a message to a worker session names the
-key that the skill reads to find the session. The SendMessage and ListAgents
-tools name a background worker by its worktree name, which is the `worktree`
-key of its `status` row, not by `session.shortId` ("Live workers" in
-`wiki/coordinator/workers.md`: a worker's session is the one whose name equals
-the worktree name). When the skill did not read that key before, the issue
-says that the skill reads a new key, and whether the contract number changes.
-Observed on #193: the body said that the change reads no new key, and the
-merge notice had to read `worktree`.
 
 An issue that changes a path or a command form lists every file that names
 the old form or describes it, not only the lines it rewrites. Search the whole

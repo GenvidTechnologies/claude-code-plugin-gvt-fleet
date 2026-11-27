@@ -166,6 +166,16 @@ example on GitHub, and the issue names it. Observed in the triage of #190: the
 body asked each run to record its date and the release tags it analyzed, and
 named no place for the record.
 
+An issue that has the coach skill send a message to a worker session names the
+key that the skill reads to find the session. The SendMessage and ListAgents
+tools name a background worker by its worktree name, which is the `worktree`
+key of its `status` row, not by `session.shortId` ("Live workers" in
+`wiki/coordinator/workers.md`: a worker's session is the one whose name equals
+the worktree name). When the skill did not read that key before, the issue
+says that the skill reads a new key, and whether the contract number changes.
+Observed on #193: the body said that the change reads no new key, and the
+merge notice had to read `worktree`.
+
 An issue that changes a path or a command form lists every file that names
 the old form or describes it, not only the lines it rewrites. Search the whole
 repository for the old path, and read the prose around each hit. Observed in

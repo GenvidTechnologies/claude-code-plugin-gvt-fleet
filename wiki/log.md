@@ -6,6 +6,8 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 
 ## 2026-11-27
 
+* **Update**: `wiki/issue-triage.md`, Required fields (retro of #193). An issue that has the coach skill send a message to a worker session names the key that gives the session's name, `worktree` in `status`, and says whether the skill reads a new key. No `raw/` capture drove this run: the source is the work on #193.
+
 * **Update**: `wiki/coordinator/coach-skill-contract.md` (#193). The `status` row lists `worktree` and `tasks[].worktree`, which the coach skill now reads to send a worker its merge notice: the worktree name is the name of the worker's session. The key was already in the output, so the contract number does not change, and `test/coach-contract.test.mjs` pins it. No `raw/` capture drove this run: the source is the work on #193.
 
 ## 2026-11-26

@@ -4,6 +4,10 @@ Record of every change to the wiki's page set: what changed, why, and which sour
 
 Add newest first. Never edit or remove a prior entry. If a past entry needs a correction, add a new entry that says so. The maintenance rules are in [the schema](schema.md).
 
+## 2026-11-27
+
+* **Update**: `wiki/coordinator/coach-skill-contract.md` (#193). The `status` row lists `worktree` and `tasks[].worktree`, which the coach skill now reads to send a worker its merge notice: the worktree name is the name of the worker's session. The key was already in the output, so the contract number does not change, and `test/coach-contract.test.mjs` pins it. No `raw/` capture drove this run: the source is the work on #193.
+
 ## 2026-11-26
 
 * **Update**: `wiki/issue-triage.md` (retro of the triage of #189 and #190). Required fields says that an issue that adds a coach mode or step that keeps a record between runs says where the record lives, because coach rule 7 says to keep no state, and that a workspace issue can have more than one copy here, so a triage that rewrites a prose blocker reads the `Blocked by` line of each issue the prose names. Dependencies says that a `Deferred until` line refers to the blocker as "the blocking issue above", because a number on the line gives a deferral reference that clears when the issue closes. No `raw/` capture drove this run: the source is the triage of #189, #190 and #34.

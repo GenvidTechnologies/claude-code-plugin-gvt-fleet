@@ -238,8 +238,10 @@ test('R111: status --json carries agents.ok, agents.error and the keys of each w
   assert.equal(body.agents.ok, true);
   assert.equal(body.workers.length, 1);
   const w = body.workers[0];
-  assertKeys(w, { key: 'string', state: 'string', reason: 'string', detail: 'string', questions: 'null', lease: 'object', session: 'object', issue: 'object' }, 'status worker');
+  assertKeys(w, { key: 'string', state: 'string', reason: 'string', detail: 'string', questions: 'null', worktree: 'string', lease: 'object', session: 'object', issue: 'object' }, 'status worker');
   assert.equal(w.key, KEY);
+  // The skill sends its merge notice to the session named after the worktree (#193).
+  assert.equal(w.worktree, session.name);
   assert.equal(w.state, 'needs-you');
   assertKeys(w.lease, { state: 'string' }, 'status worker.lease');
   assertKeys(w.session, { agentsState: 'string', shortId: 'string' }, 'status worker.session');
@@ -269,8 +271,9 @@ test('R156: status --json carries tasks[] with key, state, reason, detail, lease
   assert.equal(body.workers.length, 1);
   assert.equal(body.tasks.length, 1);
   const w = body.tasks[0];
-  assertKeys(w, { key: 'string', state: 'string', reason: 'string', detail: 'string', questions: 'null', lease: 'object', session: 'object', issue: 'null' }, 'status task');
+  assertKeys(w, { key: 'string', state: 'string', reason: 'string', detail: 'string', questions: 'null', worktree: 'string', lease: 'object', session: 'object', issue: 'null' }, 'status task');
   assert.equal(w.key, TASK_KEY);
+  assert.equal(w.worktree, taskSession.name);
   assert.equal(w.state, 'needs-you');
   assertKeys(w.lease, { state: 'string' }, 'status task.lease');
   assertKeys(w.session, { agentsState: 'string', shortId: 'string' }, 'status task.session');

@@ -7,6 +7,11 @@ and follows [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`wrap` deletes the hook file of a worker with nothing left on disk.** When the worktree folder, its git entry, the session and the issue branch were already gone, `wrap` returned `wrapped` but kept `state/workers/<owner>/<name>/<worktree>.jsonl`, so `status` kept listing the worker as `no-session`. It now deletes the file on that path, once the proof passed, was `earlier` or was not required (a task), and keeps it when the proof is refused. A failed delete is reported in `notes` (#147).
+  - **Consumers:** the contract number does not change. No key changes.
+
 ## [0.8.0] - 2026-11-27
 
 ### Changed

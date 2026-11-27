@@ -7,6 +7,8 @@ and follows [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-27
+
 ### Changed
 
 - **The composed prompt runs the retro before the finish turn, and the worker learns when its side pull request merged.** When the issue is done, the worker now runs `gvt-dev:run-retro`, opens a retro side pull request with the proposals the user approves, and only then waits for the finish turn. The finish turn checks that the retro is done and reports whether its side pull request merged or the user approved no proposal. After it opens a side pull request, the worker polls `gh pr view <n> --json state` in a background command and goes on when it reads `MERGED`. When the user tells the coach that a side pull request merged, the skill also sends the worker one message, the merge notice: the only message that the skill sends to a worker. It sends the message to the session named by the `worktree` key of the worker's `status` row (#193).

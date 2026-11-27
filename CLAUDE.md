@@ -33,7 +33,7 @@ This repository also holds the source of the gvt-fleet CLI, its tests, its CI an
 
 ## Validate
 
-`commands.validate` in `.gvt-agent.json` is the validation command. It runs the leak guard, `claude plugin validate plugin`, the syntax check `node --check plugin/cli/bin/gvt-fleet.mjs`, and then the CLI test suite with `GVT_FLEET_FAKE_ONLY=1`. `commands.test` runs the suite alone. Run `commands.validate` before every commit. The suite reads the wiki, `README.md` and `CLAUDE.md` too (`test/wiki.test.mjs`), so a docs-only commit runs it as well.
+`commands.validate` in `.gvt-agent.json` is the validation command. It runs the leak guard, `claude plugin validate plugin`, the syntax check `node --check plugin/cli/bin/gvt-fleet.mjs`, and then the CLI test suite with `GVT_FLEET_FAKE_ONLY=1`. `commands.test` runs the suite alone. Run `commands.validate` before every commit, except the release commit (see "Releases", step 3). The suite reads the wiki, `README.md` and `CLAUDE.md` too (`test/wiki.test.mjs`), so a docs-only commit runs it as well.
 
 In a worktree-isolated session, run the four parts as four Bash calls: `bash .github/scripts/leak-guard.sh`, `claude plugin validate plugin`, `node --check plugin/cli/bin/gvt-fleet.mjs`, then the suite (`commands.test`). The worktree guard refuses the chained command when it also reads the exit code (`; echo rc=$?`). Observed on #38. `claude plugin validate plugin` prints an `ICON_MISSING` warning, because the plugin has no icon. The warning does not change the result: read the last line, `✔ Validation passed`.
 
@@ -70,9 +70,9 @@ The coach skill passes this process to the worker in its composed dispatch promp
 
 A release follows the skill `gvt-dev:release-plugin`, through the worker process above. The release commit does not go straight to `main`:
 
-1. When gvt-dev has shipped a release since the last bump, bump `GVT_DEV_REF` first, on its own side branch (see "Run tests and validate").
+1. Compare `GVT_DEV_REF` in `.github/workflows/ci.yml` with the newest gvt-dev tag: `git ls-remote --tags --refs --sort=-v:refname https://github.com/GenvidTechnologies/claude-code-plugin-gvt-dev.git "v*" | head -1`. The `--sort=-v:refname` puts `v4.49.0` before `v4.5.0`. The tag list of the GitHub API does not promise a version order. When the two differ, bump `GVT_DEV_REF` first, on its own side branch (see "Run tests and validate").
 2. List the shipped changes since the last tag: `git log --oneline <last tag>..origin/main -- plugin/cli plugin/hooks plugin/skills`. Compare the list with `[Unreleased]` in `plugin/CHANGELOG.md`, and add an entry for each change a consumer can see that has none.
-3. On a side branch, set `version` in `plugin/.claude-plugin/plugin.json` and move `[Unreleased]` to a dated section. The commit subject is `release: vX.Y.Z`.
+3. On a side branch, set `version` in `plugin/.claude-plugin/plugin.json` and move `[Unreleased]` to a dated section. The commit subject is `release: vX.Y.Z`. This commit changes only those two files, so it gates on the first three parts of `commands.validate` (the leak guard, `claude plugin validate plugin` and `node --check plugin/cli/bin/gvt-fleet.mjs`). The full suite runs in CI on the side pull request, and the coach reads those checks before the merge. Observed at the v0.8.0 release: the local suite took 342 s, and CI then ran the same suite on the side pull request.
 4. The final pull request merges the integration branch into `main`. Its squash commit on `main` is the commit to tag.
 5. When CI on `main` is green, push the annotated tag `vX.Y.Z` on that commit.
 6. Change only the `ref` of `gvt-fleet` in the marketplace catalog to `vX.Y.Z`.

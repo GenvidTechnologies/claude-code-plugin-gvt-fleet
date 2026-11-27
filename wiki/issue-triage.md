@@ -158,6 +158,17 @@ skill dispatches never receives the default prompt. Observed in the
 refactoring audit of 2026-11-25: #133 and #136 change the default prompt, and
 their triage did not say that the skill overrides it (#164).
 
+An issue that has the coach skill send a message to a worker, or a worker to
+another session, says how the message reaches the session. It quotes each
+sentence of `plugin/skills/coach/SKILL.md` that says who sends one today.
+"The finish turn" and "Later versions" say that the skill does not send a
+message to a worker, and step 4 of the composed prompt says that a worker sends
+no message to another session. Observed in triage on #193: the body said that
+rule 14 changes, while rule 14 forbids only an act on a watch line alone. The
+body named neither the two sentences that conflict nor a way to send. The
+triage left the choice between a message from the coach session and a poll by
+the worker to the plan.
+
 An issue that adds a coach mode or step that keeps a record between runs
 says where the record lives. Rule 7 of `plugin/skills/coach/SKILL.md` says
 "Keep no state of your own. Every run reads live state first, so a run after a

@@ -6,7 +6,10 @@ Add newest first. Never edit or remove a prior entry. If a past entry needs a co
 
 ## 2026-11-27
 
+* **Update**: `wiki/issue-triage.md`, Required fields (merge of `main` into the work on #193). The rule from the triage of #193 now says that "The finish turn", "Later versions" and rule 19 name the merge notice as the only message that the skill sends to a worker, and the rule on the session key follows it. No `raw/` capture drove this run: the source is the work on #193.
 * **Update**: `wiki/issue-triage.md`, Required fields (retro of the triage of #193). An issue that has the coach skill send a message to a worker, or a worker to another session, says how the message reaches the session, and quotes each sentence of `plugin/skills/coach/SKILL.md` that says who sends one today. No `raw/` capture drove this run: the source is the triage of #193.
+* **Update**: `wiki/issue-triage.md`, Required fields (retro of #193). An issue that has the coach skill send a message to a worker session names the key that gives the session's name, `worktree` in `status`, and says whether the skill reads a new key. No `raw/` capture drove this run: the source is the work on #193.
+* **Update**: `wiki/coordinator/coach-skill-contract.md` (#193). The `status` row lists `worktree` and `tasks[].worktree`, which the coach skill now reads to send a worker its merge notice: the worktree name is the name of the worker's session. The key was already in the output, so the contract number does not change, and `test/coach-contract.test.mjs` pins it. No `raw/` capture drove this run: the source is the work on #193.
 
 ## 2026-11-26
 

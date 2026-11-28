@@ -26,6 +26,7 @@ This wiki is the documentation of the `gvt-fleet` plugin and of the gvt-fleet CL
 * [Decision Records](decisions/index.md) - The decision records of this plugin and of the gvt-fleet CLI, in MADR-lite format.
 * [0024. Run the triage pass in the coach session](decisions/0024-run-the-triage-pass-in-the-coach-session.md) - The coach skill runs the triage pass in the coach session, one repository at a time from its base clone, with a wrong-repository guard, no file writes and the coach approving each change.
 * [0025. Remove a worktree whose session is gone with git, after the same checks](decisions/0025-remove-a-worktree-whose-session-is-gone-with-git-after-the-same-checks.md) - When no Claude session is listed for a registered worktree whose safety check passed, the coordinator unlocks and removes it with git itself, after checking its submodules and refusing any link inside it.
+* [0026. Pass the discard consent of claude rm for a proven tip](decisions/0026-pass-the-discard-consent-of-claude-rm-for-a-proven-tip.md) - wrap passes the --discard-unpushed value of a refused claude rm back to it once, only for the issue-branch tip that a merged pull request has as its head, and then deletes the branch with -D without a remote-tracking branch.
 
 ## Schema
 

@@ -123,7 +123,8 @@ test('R119: wrap refuses unpushed or unproven work with the problems remove --re
   assert.deepEqual(await snapshot(), before);
 });
 
-test('R119: wrap never passes discard to claude rm', async (t) => {
+test('R119: wrap passes no discard value to claude rm for a commit that the merge proof does not cover', async (t) => {
+  // The value names 1234abc, not the proven tip, so the proven-tip consent of decision record 0026 does not apply.
   const refusal = 'unpushed commits; run again with --discard-unpushed 1234abc@wt-9\n';
   const s = await wrapSetup(t, { makeScript: () => ({ rm: { code: 1, stdout: '', stderr: refusal } }) });
   closingAtTip(s);

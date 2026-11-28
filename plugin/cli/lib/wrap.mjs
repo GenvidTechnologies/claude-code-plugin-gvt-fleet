@@ -1,6 +1,8 @@
 // `wrap`: prove the issue's work is merged, remove its worktree and branch, then release the claim.
 // It is built from the primitives of worktrees.mjs and claims.mjs. The claim is released last, and only after the
 // proof passed and the branch is gone or deleted. It never passes `discard` to anything, and it tells `finishWorktree` to ignore a discard consent left on the claim (`noDiscard`).
+// The one consent it passes is `consentProvenTip` (#142): claude rm's --discard-unpushed value, back to claude rm, only for the
+// issue-branch tip that a merged pull request has as its head (see removeWorktree and decision record 0026).
 //
 // Every run observes the disk first and starts at the step that is still open, so a rerun after any stop is safe:
 //   A  live tree: a running session, a registered folder, or a folder with more than a lone .git file
@@ -213,7 +215,7 @@ export async function wrapWorker(deps, a, policy) {
 
   // Steps 3 and 4: the worktree and the branch, inside the primitive.
   if (cls === 'A') {
-    const r = await removeWorktree(deps, { claims, key, reposDir, requireMerged, requireClosing, closingPrs, readClosingPrs, readIssueRefs, defaultBranch, branchRecord, stateDir, deleteWithProof: true });
+    const r = await removeWorktree(deps, { claims, key, reposDir, requireMerged, requireClosing, closingPrs, readClosingPrs, readIssueRefs, defaultBranch, branchRecord, stateDir, deleteWithProof: true, consentProvenTip: requireMerged });
     info = {
       pushedBranch: r.pushedBranch ?? null, pr: r.pr ?? null, proofs: r.proofs?.length ? r.proofs : info.proofs, otherBranches: r.otherBranches ?? [],
       checkedOutBranch: r.checkedOutBranch ?? null,

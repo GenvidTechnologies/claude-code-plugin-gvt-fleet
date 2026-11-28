@@ -11,6 +11,7 @@ status: stable
 - **Date:** 2026-11-09
 - **Issue:** workspace #60
 - **Amends:** none
+- **Amended by:** [0025](0025-remove-a-worktree-whose-session-is-gone-with-git-after-the-same-checks.md)
 
 ## Context
 

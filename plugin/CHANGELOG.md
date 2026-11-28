@@ -12,6 +12,9 @@ and follows [semantic versioning](https://semver.org/).
 - **`wrap` deletes the hook file of a worker with nothing left on disk.** When the worktree folder, its git entry, the session and the issue branch were already gone, `wrap` returned `wrapped` but kept `state/workers/<owner>/<name>/<worktree>.jsonl`, so `status` kept listing the worker as `no-session`. It now deletes the file on that path, once the proof passed, was `earlier` or was not required (a task), and keeps it when the proof is refused. A failed delete is reported in `notes` (#147).
   - **Consumers:** the contract number does not change. No key changes.
 
+- **`wrap` and `worktree remove` finish a worktree whose session is gone.** When git lists the worktree and its folder exists but no session is listed, and the safety check passed, the worktree is now removed with git instead of refused with `no session is listed`: a locked git entry is unlocked as stale (a note names it), and `git worktree remove` runs, with `--force` when a submodule is checked out. A folder that holds a symbolic link or junction is refused, and nothing is deleted. The safety check now also refuses a checked-out submodule with uncommitted changes, a commit on no remote branch of the submodule, or a stash entry. `worktree finish` unlocks a listed, locked entry before `git worktree prune`, which skips a locked one (#143, #126; decision record 0025).
+  - **Consumers:** the contract number does not change. No key changes; `notes` can name a removed lock.
+
 ## [0.8.0] - 2026-11-27
 
 ### Changed

@@ -166,7 +166,7 @@ Completes a removal that stopped half-way. It takes a task id as well as a ref. 
 gvt-fleet wrap <ref | task id>
 ```
 
-Wraps up one finished worker in one command. It takes one ref or task id and no flags. For a task id, see **Task worker** below. It never discards work: a flag, or any other number of arguments, exits 64 before any git or GitHub call.
+Wraps up one finished worker in one command. It takes one ref or task id and no flags. For a task id, see **Task worker** below. It never discards work: a flag, or any other number of arguments, exits 64 before any git or GitHub call. The one consent it passes back to `claude rm` is for a tip that a merged pull request keeps on GitHub (see **Proven-tip consent** below).
 
 **Steps.** Each step starts only when the step before it has passed.
 
@@ -188,7 +188,15 @@ It reads the issue (`GET repos/{repo}/issues/{n}`) and, only when the issue is c
 
 - a merged pull request has the branch tip as its head, or the nothing-to-lose proof passed for the branch;
 - the tip did not move since the check;
-- a remote-tracking branch contains the tip. The refs are not fetched first, so the local copy of the remote-tracking refs decides.
+- a remote-tracking branch contains the tip. The refs are not fetched first, so the local copy of the remote-tracking refs decides. After the proven-tip consent below, this condition is waived: the merged pull request has the tip as its head, so GitHub keeps its commits under the pull request.
+
+**Proven-tip consent.** GitHub deletes the head branch of a pull request when it merges, so no remote-tracking branch may hold a merged tip. `claude rm` then reads the tip as unpushed and refuses with a `--discard-unpushed <commit>@<worktree-id>` value (#142). For an issue, `wrap` passes that value back to `claude rm` once, but only when all of these hold (decision record [0026](../decisions/0026-pass-the-discard-consent-of-claude-rm-for-a-proven-tip.md)):
+
+- the proof passed with a merged pull request whose head is the tip of the issue branch (`provenTip`);
+- the issue branch is checked out in the worktree, and the worktree HEAD is that tip;
+- the commit of the value is that tip (the value's commit is at least 7 characters and the tip starts with it).
+
+A note in `notes` names the commit, the pull request and the value. Any other refusal is `refused`, with the output of `claude rm` as the reason, and no second call. `worktree remove` never passes the value without `--discard`, and a task never gets this consent.
 
 Otherwise it uses `git branch -d`. When `git branch -d` refuses, the result is `branch-kept`: the worktree is gone, the claim is **not** released, and `hint` says to push or merge the branch (or delete it by hand) and run `wrap` again. When a merged pull request proved the tip but no remote-tracking branch contains it, `hint` names that pull request (`#<n>`), says its commits are merged, and says to delete the branch with `git branch -D <branch>` in the base clone and run `wrap` again (or `release` to keep the branch). The command claude rm deletes only the branch checked out in the worktree, so when a follow-up branch was checked out, `worktree-<name>` is left for this step. `branchFlag` (`-d` or `-D`) says which flag deleted the branch. It is absent when the branch was already gone.
 

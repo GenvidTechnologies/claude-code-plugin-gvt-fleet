@@ -18,6 +18,9 @@ and follows [semantic versioning](https://semver.org/).
 - **A stale lock with a reused pid no longer stops a removal, and the hints of `wrap` match the state.** When `claude rm` still reports a lock after its 5 lock retries, the session is not live and git lists the entry as `locked`, the lock is removed as stale and `claude rm` runs once more. A `claude rm` refusal that names unpushed commits (it starts with `kept <id>`) is now `refused`, not `half-removed`. After the proof and the safety check passed, a `wrap` hint no longer suggests merging, pushing or `--discard`; on `half-removed` and `held` it asks to close holders only when some were found; a folder that is a link or junction gets its own hint (#126, #142).
   - **Consumers:** the contract number does not change. `hint` texts change; no key changes.
 
+- **`wrap` finishes after GitHub deleted the merged head branch.** When `claude rm` refuses because it reads the tip as unpushed, and the value it offers for `--discard-unpushed` names the issue-branch tip that a merged pull request has as its head, checked out in the worktree, `wrap` passes that value back to `claude rm` once and adds a note. The branch step may then use `-D` with no remote-tracking branch that contains the tip. Any other refusal stays `refused` (#142; decision record 0026, which amends 0011).
+  - **Consumers:** the contract number does not change. No key changes.
+
 ## [0.8.0] - 2026-11-27
 
 ### Changed

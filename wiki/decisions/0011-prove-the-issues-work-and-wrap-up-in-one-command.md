@@ -11,7 +11,7 @@ status: stable
 - **Date:** 2026-11-06
 - **Issue:** workspace #38 (the merge gate) and workspace #40 (the `wrap` command); both are sub-issues of workspace #39
 - **Amends:** [0005](0005-prove-the-merge-at-wrap-up-and-record-the-pushed-branch.md)
-- **Amended by:** [0014](0014-judge-nothing-to-lose-by-any-remote-and-read-closing-prs-live.md)
+- **Amended by:** [0014](0014-judge-nothing-to-lose-by-any-remote-and-read-closing-prs-live.md), [0026](0026-pass-the-discard-consent-of-claude-rm-for-a-proven-tip.md)
 
 ## Context
 

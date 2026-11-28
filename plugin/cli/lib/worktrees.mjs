@@ -781,8 +781,11 @@ async function tipOf(deps, t) {
  * of a task). `tip` is the tip of the task branch that the last safety check judged, or null when the checked-out branch was not
  * the task branch (no remote consent then). The consent holds when the tip re-read now equals it and
  * `git branch -r --contains <tip>` prints something (a failure counts as empty). A refusal is named in the reason.
+ * `pullHeadKeeps` (default false) waives the remote-tracking condition of the proof consent: `removeWorktree` sets it after it
+ * passed the --discard-unpushed consent of `claude rm` for that proven tip, which a merged pull request has as its head, so
+ * GitHub keeps its commits under the pull request (#142).
  */
-async function deleteBranch(deps, t, { discardHead = null, provenTip = null, proofOnlyOther = false, remote = null } = {}) {
+async function deleteBranch(deps, t, { discardHead = null, provenTip = null, proofOnlyOther = false, remote = null, pullHeadKeeps = false } = {}) {
   const tip = await tipOf(deps, t);
   const discardConsent = Boolean(discardHead) && tip === discardHead;
   let proofConsent = false;
@@ -793,7 +796,7 @@ async function deleteBranch(deps, t, { discardHead = null, provenTip = null, pro
       proofWhy = `${t.branch} moved from ${short7(provenTip)} to ${short7(tip)} after the check`;
     } else {
       const r = await deps.git.run(['branch', '-r', '--contains', tip], { cwd: t.base });
-      if (r.code === 0 && r.stdout.trim() !== '') proofConsent = true;
+      if ((r.code === 0 && r.stdout.trim() !== '') || pullHeadKeeps) proofConsent = true;
       else {
         proofWhy = `no remote-tracking branch contains ${short7(tip)}`;
         noRemote = true;
@@ -878,6 +881,10 @@ export function deleteHookFile(stateDir, key, t) {
  * With `deleteWithProof` on a task key, a branch with commits of its own is also deleted with `-D` (remote consent) when its tip
  * is the one the last check judged on the checked-out task branch and `git branch -r --contains <tip>` prints something;
  * otherwise `-d` is used and the reason says why `-D` was not.
+ * `consentProvenTip` (default false; `wrap` sets it for an issue) passes the `--discard-unpushed` value that a refused
+ * `claude rm` reports back to it once, but only when the value's commit is the issue-branch tip that the merge proof covers
+ * (`provenTip`) and that tip is checked out in the worktree (#142). The branch step may then use `-D` without a remote-tracking
+ * branch that contains the tip, and a note says what was passed.
  * `--discard` applies to this run only. The commit it was given at is recorded on the claim (`discardHead`)
  * for `finish`; every run without `--discard`, and every refused run, clears it.
  * A removal that ends half-removed because `claude rm` output names EBUSY or EPERM is tried again when `findHolders` finds no
@@ -889,7 +896,7 @@ export function deleteHookFile(stateDir, key, t) {
  * `removalAttempts` (1 to BUSY_ATTEMPTS) is the number of removal attempts; it is on the 'removed', 'branch-kept' and
  * 'half-removed' results. `attempts` still counts the `claude rm` calls.
  */
-export async function removeWorktree(deps, { claims, key, reposDir, discard = false, requireMerged = false, requireClosing = false, closingPrs = [], readClosingPrs, readIssueRefs, defaultBranch, branchRecord: br, stateDir, deleteWithProof = false }) {
+export async function removeWorktree(deps, { claims, key, reposDir, discard = false, requireMerged = false, requireClosing = false, closingPrs = [], readClosingPrs, readIssueRefs, defaultBranch, branchRecord: br, stateDir, deleteWithProof = false, consentProvenTip = false }) {
   const t = { ...target(reposDir, key), key };
   // The second safety check (a running session) reuses the first live reads instead of asking GitHub again.
   let liveRead = null;
@@ -1009,6 +1016,26 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
     }
   }
 
+  // The proven-tip consent (#142, decision record 0026): GitHub deletes a pull request's head branch when it merges, so claude rm
+  // can read a merged tip as unpushed. When the value it reports names exactly the issue-branch tip that a merged pull request
+  // has as its head, checked out in the worktree, wrap passes that value back once. Any other commit gets no consent.
+  let provenDiscard = false;
+  if (consentProvenTip && !orphan && !discard && res.code !== 0 && latest.provenTip) {
+    const value = parseDiscardValue(output);
+    const sha = value?.split('@')[0] ?? '';
+    const tip = latest.provenTip;
+    if (sha.length >= 7 && tip.startsWith(sha) && latest.current === t.branch && latest.head === tip) {
+      const again = await rmWithRetry(deps, id, { discardUnpushed: value });
+      res = again.res;
+      attempts += again.attempts;
+      output = `${res.stdout ?? ''}${res.stderr ?? ''}`.trim();
+      usedDiscard = true;
+      provenDiscard = res.code === 0;
+      const number = (latest.proofs ?? []).find((p) => p.pr?.headSha === tip || p.pr?.head?.sha === tip)?.pr?.number ?? latest.pr?.number;
+      notes.push(`claude rm read ${short7(tip)} as unpushed; it is the head of merged pull request ${number !== undefined ? `#${number}` : 'that proved the work'}, so wrap passed --discard-unpushed ${value} for that commit only`);
+    }
+  }
+
   let after = await observe(deps, t);
   if (after.agentsError) notes.push(`cannot re-read claude agents: ${after.agentsError}`);
   const isHalf = () => (after.folder.exists && !after.listed ? true : res.code !== 0 && halfFailedText(output));
@@ -1076,7 +1103,7 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
       : {};
     // Remote consent: the wrap of a task (deleteWithProof and waiveEmpty) may delete a branch that a remote-tracking branch contains.
     const remoteOpts = deleteWithProof && waiveEmpty ? { remote: { tip: latest.current === t.branch ? latest.tip ?? null : null } } : {};
-    const del = await deleteBranch(deps, t, { discardHead, ...proofOpts, ...remoteOpts });
+    const del = await deleteBranch(deps, t, { discardHead, ...proofOpts, ...remoteOpts, pullHeadKeeps: provenDiscard });
     branchFlag = del.flag;
     branchStep = del.ok ? 'deleted' : 'kept';
     if (!del.ok) {

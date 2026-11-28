@@ -11,6 +11,7 @@
 import { releaseClaim } from './claims.mjs';
 import { decideProof } from './merge-proof.mjs';
 import {
+  deleteHookFile,
   finishWorktree,
   findPullRequest,
   nothingToLose,
@@ -256,6 +257,10 @@ export async function wrapWorker(deps, a, policy) {
   } else {
     steps.worktree = 'gone';
     steps.branch = 'gone';
+    // Nothing on disk and the proof passed (or was earlier, or not required): the worker's hook file goes too, as on the
+    // `nothing` path of removeWorktree, so `status` drops the row (#147). A failed delete is a note, not a failure.
+    const hookNote = deleteHookFile(stateDir, key, t);
+    if (hookNote) extras.notes = [...(extras.notes ?? []), hookNote];
   }
 
   // Step 5: the marker, so that a rerun after a failed release skips the proof.

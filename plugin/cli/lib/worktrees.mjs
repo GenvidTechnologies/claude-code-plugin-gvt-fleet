@@ -731,7 +731,7 @@ async function deleteBranch(deps, t, { discardHead = null, provenTip = null, pro
  * `workerFile` the hook script writes with. Does nothing without `stateDir`. A missing file is fine.
  * Returns null, or a note when the delete failed; a failed delete never changes the removal result.
  */
-function deleteHookFile(stateDir, key, t) {
+export function deleteHookFile(stateDir, key, t) {
   if (!stateDir) return null;
   const { owner, repoName } = readLeaseKey(key);
   const file = workerFile(stateDir, { owner, repoName, worktree: t.name });

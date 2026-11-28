@@ -186,7 +186,7 @@ An interrupted clone leaves `repos/<owner>/.<name>.tmp-<pid>`. The next `clone` 
 
 ### Remove: lock retries
 
-`claude rm` right after `claude stop` can fail with a lock error ("still running") while the stopped session exits. `worktree remove` retries up to 5 times, 2 seconds apart. If it still fails, run `worktree remove` again.
+`claude rm` right after `claude stop` can fail with a lock error ("still running") while the stopped session exits. `worktree remove` retries up to 5 times, 2 seconds apart. If it still fails while the session is not live, the git lock is stale and the command removes it and runs `claude rm` once more (see [`worktree remove`](coordinator/worktrees.md#gvt-fleet-worktree-remove) step 3). A lock that names a reused pid no longer needs `git worktree unlock` by hand. If it still fails, run `worktree remove` again.
 
 ### Expired leases
 
@@ -205,7 +205,7 @@ A lease that passed its expiry is not revived by `heartbeat`. Run `gvt-fleet exp
 
 `worktree remove` reports `half-removed` when `claude rm` could not delete the folder because another program holds it (`kept` or `EBUSY`), or when the folder is on disk and not registered. When the cause is `EBUSY` or `EPERM` and no likely holder is found, the command has already tried up to 3 times before it reports this (see [`worktree remove`](coordinator/worktrees.md#gvt-fleet-worktree-remove) step 4).
 
-1. Read the holders in the output. Close them. Typical holders are an editor or a Git GUI that has the folder open.
+1. Read the holders in the output. Close them. Typical holders are an editor or a Git GUI that has the folder open. When no holder was found, the hint says so; a plain rerun often clears the state.
 2. Run `gvt-fleet worktree finish <ref>`.
    `gvt-fleet wrap <ref>` does the same and then goes on: it resumes a half-removed or held worktree, deletes the branch and releases the claim.
 3. If it reports `held`, a program still has the folder. Close it and run `finish` (or `wrap`) again.

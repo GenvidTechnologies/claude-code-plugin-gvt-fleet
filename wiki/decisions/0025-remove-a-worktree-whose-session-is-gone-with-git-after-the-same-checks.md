@@ -32,6 +32,8 @@ When no session is listed for a worktree that git lists and whose folder exists,
 3. **The lock.** With no session listed, no Claude Code worker of this worktree holds a lock, so a `locked` entry is stale: it is unlocked (`git worktree unlock`), and a note names the lock reason. `worktree finish`, and the leftover step that `removeWorktree` and `wrap` share with it, unlock a listed entry of a missing folder before `git worktree prune` for the same reason.
 4. **The removal.** `git worktree remove <path>`, with `--force` only when a submodule is checked out. git refuses such a worktree without `--force`, and `--force` skips git's own check for local changes; the coordinator's check above takes its place. A removal that fails is `refused`, with git's message, and nothing more is deleted.
 
+The same rule holds when a session is listed but not live (outcome 1 of #126). When `claude rm` still reports `A Claude Code lock … names a process that is still running` after its 5 lock retries, the session is not live, and git lists the entry as `locked`, the lock is stale: it is unlocked, a note names it, and `claude rm` runs once more. A lock while the session is live is kept.
+
 A `--discard` run with no listed session still refuses when its check failed: a dirty tree is never removed without `claude rm`. When the check passed, `--discard` takes the same path.
 
 ## Compromise

@@ -24,6 +24,14 @@ const CONFIRM_ATTEMPTS = 5;
 const CONFIRM_WAIT_MS = 1000;
 const LOCK_ERROR = (text) => /lock/i.test(text) && /still running/i.test(text);
 const HALF_FAILED_TEXT = /\bkept\b|EBUSY/i;
+// The refusal of `claude rm` for unpushed work also starts with "kept <id>", but nothing holds the folder: it is a refusal (#142).
+const UNPUSHED_REFUSAL = /--discard-unpushed|\bunpushed commit/i;
+const halfFailedText = (text) => HALF_FAILED_TEXT.test(text) && !UNPUSHED_REFUSAL.test(text);
+
+/** The next step after a held folder: close the likely holders when some were found, else wait and run `next` again (#126). */
+export function holdersHint(holders, next) {
+  return holders?.length > 0 ? `close them, then ${next}` : `no program was found that holds the folder; wait a moment, then ${next}`;
+}
 // A removal that fails with EBUSY or EPERM and has no holder is tried again: BUSY_ATTEMPTS attempts in all,
 // with BUSY_WAITS_MS[i] ms of waiting after attempt i + 1.
 export const BUSY_ATTEMPTS = 3;
@@ -984,9 +992,26 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
   const rm = await removeStep();
   let { res, attempts, usedDiscard, output } = rm;
 
+  // A lock that outlived the lock retries, while the session is not live, names a process that is not this worker: its pid
+  // can have been reused by any program (#126). It is removed as stale, and `claude rm` runs once more.
+  if (!orphan && res.code !== 0 && LOCK_ERROR(output)) {
+    const o3 = await observe(deps, t);
+    if (!o3.agentsError && !o3.running && o3.listed && o3.locked !== null) {
+      const u = await unlockStale(deps, t, o3.locked);
+      if (u.error) {
+        notes.push(u.error);
+      } else {
+        notes.push(u.note);
+        const again = await removeStep();
+        ({ res, usedDiscard, output } = again);
+        attempts += again.attempts;
+      }
+    }
+  }
+
   let after = await observe(deps, t);
   if (after.agentsError) notes.push(`cannot re-read claude agents: ${after.agentsError}`);
-  const isHalf = () => (after.folder.exists && !after.listed ? true : res.code !== 0 && HALF_FAILED_TEXT.test(output));
+  const isHalf = () => (after.folder.exists && !after.listed ? true : res.code !== 0 && halfFailedText(output));
   let removalAttempts = 1;
   let transient = res.code !== 0 && BUSY_TEXT.test(output);
   let holders = null;
@@ -1033,7 +1058,7 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
     setWtState(claims, lease, 'half-removed');
     return {
       status: 'half-removed', key, path: t.path, folder: t.path, attempts, removalAttempts, output, holders: holders.holders, holderSource: holders.source,
-      hint: `close them, then gvt-fleet worktree finish ${key}`, notes, ...(await withKept()), ...rec(),
+      hint: holdersHint(holders.holders, `gvt-fleet worktree finish ${key}`), notes, ...(await withKept()), ...rec(),
     };
   }
   if (res.code !== 0) return refuse({ attempts, output, reason: `${label} refused: ${output}`, notes });
@@ -1189,7 +1214,7 @@ export async function finishWorktree(deps, { claims, key, reposDir, stateDir, pr
     }
     return {
       status: 'held', key, path: t.path, steps, removalAttempts, reason: `${t.path} is still held (${step.code})`,
-      holders: holders.holders, holderSource: holders.source, hint: `close them, then gvt-fleet worktree finish ${key}`,
+      holders: holders.holders, holderSource: holders.source, hint: holdersHint(holders.holders, `gvt-fleet worktree finish ${key}`),
     };
   }
 

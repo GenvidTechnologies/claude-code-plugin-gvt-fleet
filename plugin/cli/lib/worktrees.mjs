@@ -106,7 +106,7 @@ function folderState(dir) {
 }
 
 export async function observe(deps, t) {
-  const o = { agents: [], agentsError: null, listed: false, dropped: [], branchExists: false };
+  const o = { agents: [], agentsError: null, listed: false, locked: null, dropped: [], branchExists: false };
   try {
     o.agents = await deps.claude.agents({ all: true });
   } catch (e) {
@@ -121,6 +121,9 @@ export async function observe(deps, t) {
       ? list.stdout.split(/\r?\n\r?\n/).map((b) => b.split(/\r?\n/)).find((ls) => ls[0]?.startsWith('worktree ') && sameDir(ls[0].slice(9), t.path))
       : undefined;
     o.listed = Boolean(block);
+    // `locked` or `locked <reason>`: the reason, '' for none, null when the entry is not locked (or not listed).
+    const lockLine = block?.find((l) => l === 'locked' || l.startsWith('locked '));
+    o.locked = lockLine === undefined ? null : lockLine.slice('locked'.length).trim();
     // A delete that failed half-way can take the `.git` file and leave the folder. git then marks the entry
     // prunable (its gitdir points at the missing file). Such a folder is not a working worktree either.
     if (o.listed && o.folder.exists && !o.folder.entries.includes('.git') && block.some((l) => l.startsWith('prunable'))) o.listed = false;
@@ -360,6 +363,88 @@ async function unpushedOf(git, cwd, tip) {
 }
 
 /**
+ * The submodules checked out in the worktree `wt` (`git submodule status --recursive`, skipping the `-` lines of those
+ * not checked out): `{subs: [{path, dir}]}`, or `{error}`. A worktree with no `.gitmodules` file has none, and runs no git.
+ */
+async function checkedOutSubmodules(git, wt) {
+  if (!fs.existsSync(path.join(wt, '.gitmodules'))) return { subs: [] };
+  const r = await git(['submodule', 'status', '--recursive'], wt);
+  if (r.code !== 0) return { error: `git submodule status failed: ${r.stderr.trim()}` };
+  const subs = [];
+  for (const l of lines(r.stdout)) {
+    const m = /^([ +U-])[0-9a-f]+ (.+?)(?: \([^)]*\))?$/.exec(l);
+    if (!m || m[1] === '-') continue;
+    subs.push({ path: m[2], dir: path.join(wt, m[2]) });
+  }
+  return { subs };
+}
+
+/**
+ * The work left in the submodules checked out in `wt` (#143): uncommitted changes, commits of HEAD on no remote branch of the
+ * submodule, and stash entries (a submodule has its own stash list). Returns {problems, count}; `count` is the number of
+ * submodules checked out.
+ */
+async function submoduleProblems(git, wt) {
+  const found = await checkedOutSubmodules(git, wt);
+  if (found.error) return { problems: [found.error], count: 0 };
+  const problems = [];
+  for (const sm of found.subs) {
+    const st = await git(['status', '--porcelain'], sm.dir);
+    if (st.code !== 0) problems.push(`submodule ${sm.path}: git status failed: ${st.stderr.trim()}`);
+    else if (st.stdout.trim() !== '') problems.push(`submodule ${sm.path} has uncommitted changes`);
+    const u = await unpushedOf(git, sm.dir, 'HEAD');
+    if (u.error) problems.push(`submodule ${sm.path}: ${u.error}`);
+    else if (u.count > 0) problems.push(`submodule ${sm.path} has ${u.count} commit(s) on no remote branch of the submodule`);
+    const stash = await git(['stash', 'list', '--format=%gs'], sm.dir);
+    if (stash.code !== 0) {
+      problems.push(`submodule ${sm.path}: git stash list failed: ${stash.stderr.trim()}`);
+    } else {
+      const n = lines(stash.stdout).length;
+      if (n > 0) problems.push(`submodule ${sm.path} has ${n} stash entr${n === 1 ? 'y' : 'ies'}`);
+    }
+  }
+  return { problems, count: found.subs.length };
+}
+
+/**
+ * The first symbolic link or junction under `dir`, without following any: `{reason}`, or null when there is none.
+ * An entry that cannot be read also gives a reason. A junction can read as a folder in the listing, so folders are lstat'ed.
+ */
+export function firstLinkIn(dir) {
+  const stack = [dir];
+  while (stack.length > 0) {
+    const d = stack.pop();
+    let entries;
+    try {
+      entries = fs.readdirSync(d, { withFileTypes: true });
+    } catch (e) {
+      return { reason: `cannot read ${d}: ${e.code ?? e.message}` };
+    }
+    for (const e of entries) {
+      const p = path.join(d, e.name);
+      if (e.isSymbolicLink()) return { reason: `${p} is a link or junction` };
+      if (!e.isDirectory()) continue;
+      let st;
+      try {
+        st = fs.lstatSync(p);
+      } catch (err) {
+        return { reason: `cannot look at ${p}: ${err.code ?? err.message}` };
+      }
+      if (st.isSymbolicLink()) return { reason: `${p} is a link or junction` };
+      stack.push(p);
+    }
+  }
+  return null;
+}
+
+/** `git worktree unlock` of a listed, locked entry. Returns {note} or {error}. */
+async function unlockStale(deps, t, reason) {
+  const r = await deps.git.run(['worktree', 'unlock', t.path], { cwd: t.base });
+  if (r.code !== 0) return { error: `git worktree unlock failed: ${r.stderr.trim()}` };
+  return { note: `the git entry of ${t.name} was locked (${reason || 'no reason'}) with no live session of this worktree; the lock was removed as stale` };
+}
+
+/**
  * Read-only safety check. Returns {safe, problems[], via, head, tip, remoteBranch, pr, proofs, provenTip, otherBranches, current, cwd}.
  * `head` is the commit the worktree is at (its own HEAD when the folder is a registered worktree, else the branch tip), or null.
  * `tip` is the tip of the issue branch `worktree-<name>`, or null when it is absent.
@@ -407,6 +492,13 @@ export async function safetyCheck(deps, t, o, { requireMerged = false, requireCl
       const extra = o.folder.entries.filter((e) => !(e === '.git' && o.folder.gitIsFile));
       if (extra.length > 0) problems.push(`${t.path} is not a registered worktree and holds ${extra.join(', ')}`);
     }
+  }
+  // The submodules checked out in a registered worktree keep work of their own (#143). It counts as work in the folder.
+  let submodules = 0;
+  if (inFolder && o.listed) {
+    const sm = await submoduleProblems(git, t.path);
+    problems.push(...sm.problems);
+    submodules = sm.count;
   }
 
   let head = null;
@@ -572,7 +664,7 @@ export async function safetyCheck(deps, t, o, { requireMerged = false, requireCl
     }
   }
   return {
-    safe: problems.length === 0, problems, via, head, tip, remoteBranch: proof.pushedBranch, pr, proofs, provenTip: provenTip ?? (waiveEmpty && tip && !ownCommits ? tip : null), otherBranches, current, cwd,
+    safe: problems.length === 0, problems, via, head, tip, remoteBranch: proof.pushedBranch, pr, proofs, provenTip: provenTip ?? (waiveEmpty && tip && !ownCommits ? tip : null), otherBranches, current, cwd, submodules,
     // The branch the worktree has checked out when it is not the issue (or task) branch; null on the branch itself or a detached HEAD.
     checkedOutBranch: current && current !== t.branch ? { branch: current, tip: head } : null,
   };
@@ -839,14 +931,38 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
     const hint = requireMerged ? 'merge the pull request first' : 'push the branch, or pass --discard';
     return refuse({ problems: check.problems, reason: `${check.problems.join('; ')}; ${hint}` });
   }
-  if (!o.session) {
+  // A registered worktree whose session is gone is removed with git, after the same check (#143, #126; see the decision
+  // record "Remove a worktree whose session is gone with git, after the same checks").
+  const orphan = !o.session && o.listed && o.folder.exists;
+  if (!o.session && !orphan) {
     return refuse({ reason: `no session is listed for ${t.name}; if the folder is left over, run gvt-fleet worktree finish ${key}` });
   }
-  const id = sessionIdOf(o, lease);
+  if (orphan && !check.safe) {
+    return refuse({ problems: check.problems, reason: `${check.problems.join('; ')}; no session is listed for ${t.name}, and a worktree with no session is removed only when nothing would be lost, also with --discard` });
+  }
+  if (orphan) {
+    const link = firstLinkIn(t.path);
+    if (link) return refuse({ reason: `${link.reason}; a worktree with no session is removed only when it holds no link, so nothing was removed` });
+  }
+  const id = orphan ? null : sessionIdOf(o, lease);
   setWtState(claims, lease, 'removing', { discardHead: discard ? check.head : null });
 
   let latest = check;
   const notes = [];
+  // The removal step: `claude rm` of the session, or, with no session, `git worktree remove` of the unlocked entry.
+  // git refuses a worktree with a submodule checked out unless forced; the check above takes the place of its own.
+  const label = orphan ? 'git worktree remove' : 'claude rm';
+  const removeStep = orphan
+    ? async () => {
+        const r = await deps.git.run(['worktree', 'remove', ...(check.submodules > 0 ? ['--force'] : []), t.path], { cwd: t.base });
+        return { res: r, attempts: 0, usedDiscard: false, output: `${r.stdout ?? ''}${r.stderr ?? ''}`.trim() };
+      }
+    : () => rmSession(deps, id, discard);
+  if (orphan && o.locked !== null) {
+    const u = await unlockStale(deps, t, o.locked);
+    if (u.error) return refuse({ reason: `${u.error}; nothing was removed`, notes });
+    notes.push(u.note);
+  }
   if (o.running) {
     try {
       await deps.claude.stop(id);
@@ -865,7 +981,7 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
     }
   }
   if (br && latest.safe) recorded = await recordPushedBranch(deps, t, key, latest, br);
-  const rm = await rmSession(deps, id, discard);
+  const rm = await removeStep();
   let { res, attempts, usedDiscard, output } = rm;
 
   let after = await observe(deps, t);
@@ -892,7 +1008,7 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
     transient = false;
     if (o2.listed) {
       // git still lists the worktree: the same `claude rm` is still the open step.
-      const again = await rmSession(deps, id, discard);
+      const again = await removeStep();
       res = again.res;
       attempts += again.attempts;
       usedDiscard = usedDiscard || again.usedDiscard;
@@ -901,6 +1017,7 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
     } else if (isLeftoverFolder(o2.folder)) {
       // git no longer lists it: only the leftover folder (and perhaps the session) is open.
       const step = await clearLeftover(deps, t, o2, { lease, consent: discard, steps: {} });
+      notes.push(...(step.notes ?? []));
       if (step.kind === 'failed') return { status: 'failed', key, removalAttempts, reason: step.reason, notes, ...info, ...rec() };
       res = step.kind === 'ok' ? OK_RM : { code: 1, stdout: '', stderr: '' };
       output = step.kind === 'held' ? `${t.path} is still held (${step.code})` : step.kind === 'refused' ? step.output : '';
@@ -919,9 +1036,9 @@ export async function removeWorktree(deps, { claims, key, reposDir, discard = fa
       hint: `close them, then gvt-fleet worktree finish ${key}`, notes, ...(await withKept()), ...rec(),
     };
   }
-  if (res.code !== 0) return refuse({ attempts, output, reason: `claude rm refused: ${output}`, notes });
+  if (res.code !== 0) return refuse({ attempts, output, reason: `${label} refused: ${output}`, notes });
   if (after.folder.exists || after.listed) {
-    return refuse({ attempts, output, reason: 'claude rm reported success but the worktree is still there', notes });
+    return refuse({ attempts, output, reason: `${label} reported success but the worktree is still there`, notes });
   }
   let branchKept = null;
   let branchStep = 'gone';
@@ -971,8 +1088,11 @@ function isLeftoverFolder(folder) {
  * Records what it did in `steps`. Returns {kind: 'ok'} | {kind: 'held', code} (the folder delete failed with a hold code;
  * other codes throw) | {kind: 'refused', attempts, output} (`claude rm` failed) | {kind: 'failed', reason} (prune failed).
  * 'ok', 'refused' and 'failed' also carry `attempts`: the number of `claude rm` calls made (0 when the session was not listed).
+ * A listed entry that is locked is unlocked before the prune, which skips a locked entry; 'ok' and a failed prune then carry
+ * `notes` with the lock that was removed.
  */
 async function clearLeftover(deps, t, o, { lease, consent, steps }) {
+  const notes = [];
   if (o.folder.exists) {
     try {
       fs.rmSync(t.path, { recursive: true, force: true });
@@ -990,11 +1110,18 @@ async function clearLeftover(deps, t, o, { lease, consent, steps }) {
     steps.rm = 'done';
   }
   if (o.dropped.length > 0 || steps.folder === 'deleted' || (o.listed && !o.folder.exists)) {
+    // `git worktree prune` skips a locked entry. No session of this worktree runs on this path (finish refuses a running
+    // one), so the lock is stale (#143).
+    if (o.listed && o.locked !== null && !o.running) {
+      const u = await unlockStale(deps, t, o.locked);
+      if (u.error) return { kind: 'failed', attempts, reason: u.error };
+      notes.push(u.note);
+    }
     const prune = await deps.git.run(['worktree', 'prune'], { cwd: t.base });
-    if (prune.code !== 0) return { kind: 'failed', attempts, reason: `git worktree prune failed: ${prune.stderr.trim()}` };
+    if (prune.code !== 0) return { kind: 'failed', attempts, notes, reason: `git worktree prune failed: ${prune.stderr.trim()}` };
     steps.prune = 'done';
   }
-  return { kind: 'ok', attempts };
+  return { kind: 'ok', attempts, notes };
 }
 
 /**
@@ -1040,12 +1167,15 @@ export async function finishWorktree(deps, { claims, key, reposDir, stateDir, pr
   }
 
   let removalAttempts = 0;
+  const leftNotes = [];
+  const notesOf = (more = []) => (leftNotes.length + more.length > 0 ? { notes: [...leftNotes, ...more] } : {});
   for (;;) {
     removalAttempts += 1;
     const step = await clearLeftover(deps, t, o, { lease, consent: consentNow, steps });
+    leftNotes.push(...(step.notes ?? []));
     if (step.kind === 'ok') break;
     if (step.kind === 'refused') return { status: 'refused', key, path: t.path, steps, attempts: step.attempts, reason: `claude rm refused: ${step.output}` };
-    if (step.kind === 'failed') return { status: 'failed', key, steps, reason: step.reason };
+    if (step.kind === 'failed') return { status: 'failed', key, steps, reason: step.reason, ...notesOf() };
     const holders = await deps.findHolders(t.path);
     if (holders.holders.length === 0 && BUSY_CODES.has(step.code) && removalAttempts < BUSY_ATTEMPTS) {
       await deps.sleep(busyWait(removalAttempts));
@@ -1067,12 +1197,12 @@ export async function finishWorktree(deps, { claims, key, reposDir, stateDir, pr
   if ((await tipOf(deps, t)) !== null) {
     const del = await deleteBranch(deps, t, { discardHead, provenTip: provenTip ?? null });
     if (withProof) branchInfo = { branchStep: del.ok ? 'deleted' : 'kept', branchFlag: del.flag, ...(del.noRemote ? { noRemote: true } : {}) };
-    if (!del.ok) return { status: 'branch-kept', key, steps, removalAttempts, ...branchInfo, reason: del.reason };
+    if (!del.ok) return { status: 'branch-kept', key, steps, removalAttempts, ...branchInfo, ...notesOf(), reason: del.reason };
     steps.branch = 'deleted';
   }
   setWtState(claims, lease, 'removed', { discardHead: null });
   const hookNote = deleteHookFile(stateDir, key, t);
-  return { status: 'removed', key, steps, removalAttempts, ...branchInfo, ...(hookNote ? { notes: [hookNote] } : {}) };
+  return { status: 'removed', key, steps, removalAttempts, ...branchInfo, ...notesOf(hookNote ? [hookNote] : []) };
 }
 
 // ---- likely holders ----

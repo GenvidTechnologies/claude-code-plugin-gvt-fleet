@@ -36,3 +36,4 @@ The decision records of this plugin and of the gvt-fleet CLI that it ships, in M
 - [0022](0022-record-the-now-iteration-so-a-project-can-promote-more-than-once-a-day.md) - Record the Now iteration so a project can promote more than once a day
 - [0023](0023-move-the-gvt-fleet-cli-source-into-the-plugin-repository.md) - Move the gvt-fleet CLI source into the plugin repository
 - [0024](0024-run-the-triage-pass-in-the-coach-session.md) - Run the triage pass in the coach session (was 0001 of this plugin): the coach skill runs the triage pass in the coach session, one repository at a time from its base clone, with a wrong-repository guard, no file writes and the coach approving each change.
+- [0025](0025-remove-a-worktree-whose-session-is-gone-with-git-after-the-same-checks.md) - Remove a worktree whose session is gone with git, after the same checks

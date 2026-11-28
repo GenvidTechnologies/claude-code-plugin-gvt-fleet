@@ -4,6 +4,11 @@ Record of every change to the wiki's page set: what changed, why, and which sour
 
 Add newest first. Never edit or remove a prior entry. If a past entry needs a correction, add a new entry that says so. The maintenance rules are in [the schema](schema.md).
 
+## 2026-11-28
+
+* **Creation**: `wiki/decisions/0025-remove-a-worktree-whose-session-is-gone-with-git-after-the-same-checks.md` (#143, #126), listed in `wiki/decisions/index.md` and `wiki/index.md`; 0013 names it under Amended by. No `raw/` capture drove this run: the sources are issues #143 and #126.
+* **Update**: `wiki/coordinator/worktrees.md` (#143, #126). `worktree remove` gets a **No session listed** part (link walk, unlock, `git worktree remove`), the safety check names the submodule problems, `worktree finish` unlocks a listed, locked entry before the prune, and step 2 of `wrap` points to the new part. No `raw/` capture drove this run: the sources are issues #143 and #126.
+
 ## 2026-11-27
 
 * **Update**: `wiki/coordinator/worktrees.md`, `gvt-fleet wrap` (#147). Step 2 says that `wrap` deletes the worker hook file when nothing is left on disk, once the proof passed, was `earlier` or was not required, and keeps it when the proof is refused; the side-effects line says the same limit, and the result lists `notes`. No `raw/` capture drove this run: the source is issue #147.

@@ -15,6 +15,9 @@ and follows [semantic versioning](https://semver.org/).
 - **`wrap` and `worktree remove` finish a worktree whose session is gone.** When git lists the worktree and its folder exists but no session is listed, and the safety check passed, the worktree is now removed with git instead of refused with `no session is listed`: a locked git entry is unlocked as stale (a note names it), and `git worktree remove` runs, with `--force` when a submodule is checked out. A folder that holds a symbolic link or junction is refused, and nothing is deleted. The safety check now also refuses a checked-out submodule with uncommitted changes, a commit on no remote branch of the submodule, or a stash entry. `worktree finish` unlocks a listed, locked entry before `git worktree prune`, which skips a locked one (#143, #126; decision record 0025).
   - **Consumers:** the contract number does not change. No key changes; `notes` can name a removed lock.
 
+- **A stale lock with a reused pid no longer stops a removal, and the hints of `wrap` match the state.** When `claude rm` still reports a lock after its 5 lock retries, the session is not live and git lists the entry as `locked`, the lock is removed as stale and `claude rm` runs once more. A `claude rm` refusal that names unpushed commits (it starts with `kept <id>`) is now `refused`, not `half-removed`. After the proof and the safety check passed, a `wrap` hint no longer suggests merging, pushing or `--discard`; on `half-removed` and `held` it asks to close holders only when some were found; a folder that is a link or junction gets its own hint (#126, #142).
+  - **Consumers:** the contract number does not change. `hint` texts change; no key changes.
+
 ## [0.8.0] - 2026-11-27
 
 ### Changed

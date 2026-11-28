@@ -13,6 +13,7 @@ import { decideProof } from './merge-proof.mjs';
 import {
   deleteHookFile,
   finishWorktree,
+  holdersHint,
   findPullRequest,
   nothingToLose,
   observe,
@@ -28,7 +29,11 @@ const NOT_REQUIRED = 'not-required';
 
 const refusedHint = (key) =>
   `merge the pull request first, or push the work. To drop it, use gvt-fleet worktree remove ${key} --discard, then gvt-fleet release ${key}`;
-const againHint = (key) => `close them, then run gvt-fleet wrap ${key} again`;
+// The hints after the proof passed name no merge, push or --discard, and ask to close holders only when some were found (#126).
+const againHint = (key, holders) => holdersHint(holders, `run gvt-fleet wrap ${key} again`);
+const passedHint = (key) =>
+  `the safety check passed, so nothing needs merging, pushing or discarding. Fix what the reason names, then run gvt-fleet wrap ${key} again`;
+const unsafeHint = (key) => `the coordinator removes only a plain folder. Look at it, fix it, then run gvt-fleet wrap ${key} again`;
 
 /** A, B, C or D, from one observation. */
 function classify(o) {
@@ -168,7 +173,7 @@ export async function wrapWorker(deps, a, policy) {
   // Step 0: observe.
   const o = await observe(deps, t);
   if (o.agentsError) return out('failed', { reason: `cannot read claude agents: ${o.agentsError}`, hint: `run gvt-fleet wrap ${key} again` });
-  if (o.folder.unsafe) return out('refused', { reason: o.folder.unsafe, hint: refusedHint(key) });
+  if (o.folder.unsafe) return out('refused', { reason: o.folder.unsafe, hint: unsafeHint(key) });
 
   // Step 1: classify.
   const cls = classify(o);
@@ -219,7 +224,7 @@ export async function wrapWorker(deps, a, policy) {
       if (r.problems) return refuseProof(r.problems);
       markProven();
       steps.worktree = 'refused';
-      return out('refused', { reason: r.reason, hint: refusedHint(key) });
+      return out('refused', { reason: r.reason, hint: passedHint(key) });
     }
     if (r.status === 'failed') {
       steps.worktree = 'failed';
@@ -228,7 +233,7 @@ export async function wrapWorker(deps, a, policy) {
     markProven();
     if (r.status === 'half-removed') {
       steps.worktree = 'half-removed';
-      return out('half-removed', { holders: r.holders, holderSource: r.holderSource, removalAttempts: r.removalAttempts, reason: r.output, hint: againHint(key) });
+      return out('half-removed', { holders: r.holders, holderSource: r.holderSource, removalAttempts: r.removalAttempts, reason: r.output, hint: againHint(key, r.holders) });
     }
     steps.worktree = 'removed';
     steps.branch = r.branchStep;
@@ -242,11 +247,11 @@ export async function wrapWorker(deps, a, policy) {
     if (r.notes?.length) extras.notes = r.notes;
     if (r.status === 'refused' || r.status === 'failed') {
       steps.worktree = r.status;
-      return out(r.status, { reason: r.reason, hint: r.status === 'refused' ? refusedHint(key) : `run gvt-fleet wrap ${key} again` });
+      return out(r.status, { reason: r.reason, hint: r.status === 'refused' ? passedHint(key) : `run gvt-fleet wrap ${key} again` });
     }
     if (r.status === 'held') {
       steps.worktree = 'held';
-      return out('held', { reason: r.reason, holders: r.holders, holderSource: r.holderSource, removalAttempts: r.removalAttempts, hint: againHint(key) });
+      return out('held', { reason: r.reason, holders: r.holders, holderSource: r.holderSource, removalAttempts: r.removalAttempts, hint: againHint(key, r.holders) });
     }
     const touched = r.steps.folder === 'deleted' || r.steps.rm === 'done' || r.steps.prune === 'done';
     steps.worktree = touched ? 'removed' : 'gone';
